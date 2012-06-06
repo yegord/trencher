@@ -1,0 +1,7 @@
+*.make
+*.o
+*.swp
+/build
+core
+gmon.out
+/tags
