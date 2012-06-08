@@ -2,9 +2,15 @@
 
 #include "config.h"
 
+#include <map>
 #include <memory>
+#include <vector>
 
 namespace trench {
+
+class Instruction;
+class State;
+class Transition;
 
 class Thread {
 	const std::string &name_;
@@ -17,6 +23,7 @@ class Thread {
 	public:
 
 	Thread(const std::string &name);
+	~Thread();
 
 	const std::string &name() const { return name_; }
 

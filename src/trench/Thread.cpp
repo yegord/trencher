@@ -1,6 +1,11 @@
 #include "Thread.h"
 
+#include "State.h"
+#include "Transition.h"
+
 namespace trench {
+
+Thread::~Thread() {}
 
 State *Thread::makeState(const std::string &name) {
 	auto &result = name2state_[name];

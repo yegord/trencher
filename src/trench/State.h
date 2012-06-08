@@ -1,8 +1,12 @@
 #pragma once
 
-namespace trencher {
+#include <string>
+#include <vector>
+
+namespace trench {
 
 class Thread;
+class Transition;
 
 class State {
 	std::string name_;
@@ -15,8 +19,8 @@ class State {
 
 	const std::string &name() const { return name_; }
 
-	const std::vector<const Transition *> &in() const { return in_; }
-	const std::vector<const Transition *> &out() const { return out_; }
+	const std::vector<Transition *> &in() const { return in_; }
+	const std::vector<Transition *> &out() const { return out_; }
 
 	friend class Thread;
 };

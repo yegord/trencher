@@ -1,17 +1,21 @@
 #pragma once
 
+#include <memory>
+
 namespace trench {
 
+class State;
+class Instruction;
+
 class Transition {
-	State *from;
-	State *to;
+	State *from_;
+	State *to_;
 	std::unique_ptr<Instruction> instruction_;
 
 	public:
 
-	Transition(State *from, State *to, const Instruction *instruction):
-		from_(from), to_(to), instruction_(instruction)
-	{}
+	Transition(State *from, State *to, Instruction *instruction);
+	~Transition();
 
 	State *from() const { return from_; }
 	State *to() const { return to_; }

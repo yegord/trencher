@@ -16,6 +16,8 @@ class Local;
 class Condition;
 
 class Instruction {
+	TRENCH_CLASS_WITH_KINDS(Instruction, mnemonic)
+
 	public:
 
 	enum Mnemonic {
@@ -26,23 +28,13 @@ class Instruction {
 		CONDITION
 	};
 
-	private:
-
-	Mnemonic mnemonic_;
-
 	public:
 	
 	Instruction(Mnemonic mnemonic):
 		mnemonic_(mnemonic)
 	{}
 
-	virtual ~Instruction {}
-
-	KIND(Read,      READ)
-	KIND(Write,     WRITE)
-	KIND(Mfence,    MFENCE)
-	KIND(Local,     LOCAL)
-	KIND(Condition, CONDITION)
+	virtual ~Instruction() {}
 };
 
 class Read: public Instruction {
@@ -55,8 +47,8 @@ class Read: public Instruction {
 		Instruction(READ), reg_(reg), address_(address)
 	{}
 
-	const std::shared_ptr<Register> &reg() const { return reg_.get(); }
-	const std::shared_ptr<Expression> &address() const { return address_.get(); }
+	const std::shared_ptr<Register> &reg() const { return reg_; }
+	const std::shared_ptr<Expression> &address() const { return address_; }
 };
 
 class Write: public Instruction {
@@ -69,8 +61,8 @@ class Write: public Instruction {
 		Instruction(WRITE), value_(value), address_(address)
 	{}
 
-	const std::shared_ptr<Expression> &value() const { return value_.get(); }
-	const std::shared_ptr<Expression> &address() const { return address_.get(); }
+	const std::shared_ptr<Expression> &value() const { return value_; }
+	const std::shared_ptr<Expression> &address() const { return address_; }
 };
 
 class Mfence: public Instruction {
@@ -108,3 +100,9 @@ class Condition: public Instruction {
 };
 
 } // namespace trench
+
+TRENCH_REGISTER_CLASS_KIND(Instruction, Read, Instruction::READ)
+TRENCH_REGISTER_CLASS_KIND(Instruction, Write, Instruction::WRITE)
+TRENCH_REGISTER_CLASS_KIND(Instruction, Mfence, Instruction::MFENCE)
+TRENCH_REGISTER_CLASS_KIND(Instruction, Local, Instruction::LOCAL)
+TRENCH_REGISTER_CLASS_KIND(Instruction, Condition, Instruction::CONDITION)

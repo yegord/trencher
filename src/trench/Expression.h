@@ -2,15 +2,15 @@
 
 #include "config.h"
 
+#include <string>
+
 #include "Kinds.h"
 
 namespace trench {
 
-class Constant;
-class Register;
-class BinaryOperator;
-
 class Expression {
+	TRENCH_CLASS_WITH_KINDS(Expression, kind)
+
 	public:
 
 	enum Kind {
@@ -20,18 +20,9 @@ class Expression {
 		BINARY,
 	};
 
-	private:
-
-	Kind kind_;
+	public:
 
 	Expression(Kind kind): kind_(kind) {}
-
-	Kind kind() const { return kind_; }
-
-	KIND(Constant,       CONSTANT)
-	KIND(Register,       REGISTER)
-	KIND(UnaryOperator,  UNARY)
-	KIND(BinaryOperator, BINARY)
 };
 
 typedef int Domain;
@@ -63,7 +54,7 @@ class UnaryOperator: public Expression {
 
 	public:
 
-	BinaryOperator(const std::shared_ptr<Expression> &operand):
+	UnaryOperator(const std::shared_ptr<Expression> &operand):
 		Expression(UNARY), operand_(operand)
 	{}
 
@@ -85,3 +76,8 @@ class BinaryOperator: public Expression {
 };
 
 } // namespace trench
+
+TRENCH_REGISTER_CLASS_KIND(Expression, Constant, Expression::CONSTANT)
+TRENCH_REGISTER_CLASS_KIND(Expression, Register, Expression::REGISTER)
+TRENCH_REGISTER_CLASS_KIND(Expression, UnaryOperator, Expression::UNARY)
+TRENCH_REGISTER_CLASS_KIND(Expression, BinaryOperator, Expression::BINARY)
