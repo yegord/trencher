@@ -4,6 +4,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace trench {
@@ -13,14 +14,14 @@ class State;
 class Transition;
 
 class Thread {
-	const std::string &name_;
+	const std::string name_;
 
 	std::map<std::string, std::unique_ptr<State>> name2state_;
 	std::vector<State *> states_;
 
 	State *initialState_;
 
-	std::vector<std::unique_ptr<Transition>> transitions_;
+	std::vector<Transition *> transitions_;
 
 	public:
 
@@ -35,6 +36,7 @@ class Thread {
 	State *initialState() const { return initialState_; }
 	void setInitialState(State *state) { initialState_ = state; }
 
+	const std::vector<Transition *> &transitions() const { return transitions_; }
 	Transition *makeTransition(State *from, State *to, Instruction *instruction);
 };
 

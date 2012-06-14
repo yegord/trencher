@@ -3,5 +3,6 @@
 *.swp
 /build
 core
+vgcore.*
 gmon.out
 /tags

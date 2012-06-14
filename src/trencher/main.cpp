@@ -1,8 +1,11 @@
 #include <fstream>
 #include <iostream>
 
-#include <trench/Program.h>
 #include <trench/NaiveParser.h>
+#include <trench/NaivePrinter.h>
+#include <trench/Program.h>
+#include <trench/Thread.h>
+#include <trench/Foreach.h>
 
 void help() {
 	std::cout << "Usage: trencher file..." << std::endl;
@@ -22,8 +25,8 @@ int main(int argc, char **argv) {
 			std::ifstream in(argv[i]);
 			parser.parse(in, program);
 
-			std::cout << "Number of threads parsed: " << program.threads().size() << std::endl;
-			// Do something else.
+			trench::NaivePrinter printer;
+			printer.print(std::cout, program);
 		}
 	} catch (const std::exception &exception) {
 		std::cerr << "trencher: " << exception.what() << std::endl;

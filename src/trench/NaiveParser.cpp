@@ -1,6 +1,5 @@
 #include "NaiveParser.h"
 
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 

@@ -1,5 +1,6 @@
 #include "Thread.h"
 
+#include "Foreach.h"
 #include "State.h"
 #include "Transition.h"
 
@@ -7,7 +8,11 @@ namespace trench {
 
 Thread::Thread(const std::string &name): name_(name) {}
 
-Thread::~Thread() {}
+Thread::~Thread() {
+	foreach (Transition *transition, transitions_) {
+		delete transition;
+	}
+}
 
 State *Thread::makeState(const std::string &name) {
 	auto &result = name2state_[name];
@@ -19,13 +24,13 @@ State *Thread::makeState(const std::string &name) {
 }
 
 Transition *Thread::makeTransition(State *from, State *to, Instruction *instruction) {
-	Transition *result = new Transition(from, to, instruction);
-	transitions_.push_back(std::unique_ptr<Transition>(result));
+	std::unique_ptr<Transition> result(new Transition(from, to, instruction));
+	transitions_.push_back(result.get());
 
-	from->out_.push_back(result);
-	to->in_.push_back(result);
+	from->out_.push_back(result.get());
+	to->in_.push_back(result.get());
 
-	return result;
+	return result.release();
 }
 
 } // namespace trench

@@ -5,11 +5,12 @@ set(TRENCH_SOURCES
 	Kinds.h
 	NaiveParser.cpp
 	NaiveParser.h
+	NaivePrinter.cpp
+	NaivePrinter.h
+	Printer.h
 	Program.cpp
 	Program.h
 	State.h
-	SpiritParser.cpp
-	SpiritParser.h
 	Thread.cpp
 	Thread.h
 	Transition.cpp
