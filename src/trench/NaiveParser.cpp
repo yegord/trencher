@@ -1,6 +1,7 @@
 #include "NaiveParser.h"
 
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 #include "Instruction.h"
@@ -11,7 +12,20 @@ namespace trench {
 namespace {
 
 std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) {
-	// TODO
+	std::string token;
+
+	if (!(in >> token)) {
+		throw std::runtime_error("expected an expression term, got EOF");
+	}
+
+	std::istringstream ss(token);
+	int value;
+	if (ss >> value) {
+		return program.makeConstant(value);
+	} else {
+		return program.makeRegister(token);
+	}
+
 	return std::shared_ptr<Expression>();
 }
 
