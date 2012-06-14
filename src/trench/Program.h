@@ -5,12 +5,9 @@
 #include <vector>
 
 #include "Expression.h"
+#include "Thread.h"
 
 namespace trench {
-
-class Thread;
-class Register;
-class Constant;
 
 class Program {
 	std::map<std::string, std::unique_ptr<Thread>> name2thread_;
@@ -23,9 +20,8 @@ class Program {
 
 	public:
 
-	~Program();
-
 	const std::vector<Thread *> &threads() const { return threads_; }
+	Thread *getThread(const std::string &name);
 	Thread *makeThread(const std::string &name);
 
 	const std::shared_ptr<Register> &makeRegister(const std::string &name);

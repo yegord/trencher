@@ -5,6 +5,8 @@
 
 namespace trench {
 
+Thread::Thread(const std::string &name): name_(name) {}
+
 Thread::~Thread() {}
 
 State *Thread::makeState(const std::string &name) {

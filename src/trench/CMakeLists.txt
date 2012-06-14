@@ -3,13 +3,17 @@ set(TRENCH_SOURCES
 	Foreach.h
 	Instruction.h
 	Kinds.h
+	NaiveParser.cpp
+	NaiveParser.h
+	Program.cpp
 	Program.h
 	State.h
-	Thread.h
-	Transition.h
-	Transition.cpp
-	Program.cpp
+	SpiritParser.cpp
+	SpiritParser.h
 	Thread.cpp
+	Thread.h
+	Transition.cpp
+	Transition.h
 	config.h
 )
 

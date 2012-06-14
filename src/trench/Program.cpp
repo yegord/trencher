@@ -5,6 +5,15 @@
 
 namespace trench {
 
+Thread *Program::getThread(const std::string &name) {
+	auto i = name2thread_.find(name);
+	if (i == name2thread_.end()) {
+		return NULL;
+	} else {
+		return i->second.get();
+	}
+}
+
 Thread *Program::makeThread(const std::string &name) {
 	auto &result = name2thread_[name];
 	if (!result) {

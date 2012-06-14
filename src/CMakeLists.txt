@@ -13,6 +13,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions(-fshow-column)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    add_definitions(-std=c++11)
+endif()
+
 find_package(Boost 1.46.0 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 

@@ -3,3 +3,4 @@ set(TRENCHER_SOURCES
 )
 
 add_executable(trencher ${TRENCHER_SOURCES})
+target_link_libraries(trencher trench)
