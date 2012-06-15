@@ -40,29 +40,33 @@ class Instruction {
 class Read: public Instruction {
 	std::shared_ptr<Register> reg_;
 	std::shared_ptr<Expression> address_;
+	int region_;
 
 	public:
 
-	Read(const std::shared_ptr<Register> &reg, const std::shared_ptr<Expression> &address):
-		Instruction(READ), reg_(reg), address_(address)
+	Read(const std::shared_ptr<Register> &reg, const std::shared_ptr<Expression> &address, int region = 0):
+		Instruction(READ), reg_(reg), address_(address), region_(region)
 	{}
 
 	const std::shared_ptr<Register> &reg() const { return reg_; }
 	const std::shared_ptr<Expression> &address() const { return address_; }
+	int region() const { return region_; }
 };
 
 class Write: public Instruction {
 	std::shared_ptr<Expression> value_;
 	std::shared_ptr<Expression> address_;
+	int region_;
 
 	public:
 
-	Write(const std::shared_ptr<Expression> &value, const std::shared_ptr<Expression> &address):
-		Instruction(WRITE), value_(value), address_(address)
+	Write(const std::shared_ptr<Expression> &value, const std::shared_ptr<Expression> &address, int region = 0):
+		Instruction(WRITE), value_(value), address_(address), region_(region)
 	{}
 
 	const std::shared_ptr<Expression> &value() const { return value_; }
 	const std::shared_ptr<Expression> &address() const { return address_; }
+	int region() const { return region_; }
 };
 
 class Mfence: public Instruction {

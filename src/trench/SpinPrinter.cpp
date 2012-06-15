@@ -1,5 +1,6 @@
 #include "SpinPrinter.h"
 
+#include <algorithm> /* std::find */
 #include <cassert>
 
 #include "Foreach.h"
@@ -49,8 +50,27 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 } // anonymous namespace
 
 void SpinPrinter::print(std::ostream &out, const Program &program) const {
-	/* Approximate memory size. */
-	out << "int mem[10];" << std::endl;
+	std::vector<int> regions;
+	foreach (Thread *thread, program.threads()) {
+		foreach (Transition *transition, thread->transitions()) {
+			int region = 0;
+			if (Read *read = transition->instruction()->as<Read>()) {
+				region = read->region();
+			} else if (Write *write = transition->instruction()->as<Write>()) {
+				region = write->region();
+			} else {
+				continue;
+			}
+			if (std::find(regions.begin(), regions.end(), region) == regions.end()) {
+				regions.push_back(region);
+			}
+		}
+	}
+
+	/* Shared memory size. */
+	foreach (int region, regions) {
+		out << "int mem" << region << "[10];" << std::endl;
+	}
 
 	/* Threads. */
 	foreach (Thread *thread, program.threads()) {
@@ -87,14 +107,14 @@ void SpinPrinter::print(std::ostream &out, const Program &program) const {
 					switch (transition->instruction()->mnemonic()) {
 						case Instruction::READ: {
 							Read *read = transition->instruction()->as<Read>();
-							out << ident(read->reg()) << " = mem[";
+							out << ident(read->reg()) << " = mem" << read->region() << "[";
 							printExpression(out, read->address());
 							out << "];";
 							break;
 						}
 						case Instruction::WRITE: {
 							Write *write = transition->instruction()->as<Write>();
-							out << "mem[";
+							out << "mem" << write->region() << "[";
 							printExpression(out, write->address());
 							out << "] = ";
 							printExpression(out, write->value());
