@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <trench/NaiveParser.h>
+#include <trench/NaivePrinter.h>
 #include <trench/SpinPrinter.h>
 #include <trench/Program.h>
 
@@ -23,8 +24,11 @@ int main(int argc, char **argv) {
 			std::ifstream in(argv[i]);
 			parser.parse(in, program);
 
-			trench::SpinPrinter printer;
-			printer.print(std::cout, program);
+			trench::NaivePrinter naivePrinter;
+			naivePrinter.print(std::cout, program);
+
+			trench::SpinPrinter spinPrinter;
+			spinPrinter.print(std::cout, program);
 		}
 	} catch (const std::exception &exception) {
 		std::cerr << "trencher: " << exception.what() << std::endl;

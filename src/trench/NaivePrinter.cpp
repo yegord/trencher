@@ -34,6 +34,8 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 } // anonymous namespace
 
 void NaivePrinter::print(std::ostream &out, const Program &program) const {
+	out << "memory_size " << program.memorySize() << std::endl;
+
 	foreach (const Thread *thread, program.threads()) {
 		out << "thread " << thread->name() << std::endl;
 		if (thread->initialState()) {
