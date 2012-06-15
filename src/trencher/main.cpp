@@ -2,10 +2,8 @@
 #include <iostream>
 
 #include <trench/NaiveParser.h>
-#include <trench/NaivePrinter.h>
+#include <trench/SpinPrinter.h>
 #include <trench/Program.h>
-#include <trench/Thread.h>
-#include <trench/Foreach.h>
 
 void help() {
 	std::cout << "Usage: trencher file..." << std::endl;
@@ -25,7 +23,7 @@ int main(int argc, char **argv) {
 			std::ifstream in(argv[i]);
 			parser.parse(in, program);
 
-			trench::NaivePrinter printer;
+			trench::SpinPrinter printer;
 			printer.print(std::cout, program);
 		}
 	} catch (const std::exception &exception) {

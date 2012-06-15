@@ -10,6 +10,8 @@ set(TRENCH_SOURCES
 	Printer.h
 	Program.cpp
 	Program.h
+	SpinPrinter.h
+	SpinPrinter.cpp
 	State.h
 	Thread.cpp
 	Thread.h
