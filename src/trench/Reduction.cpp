@@ -83,6 +83,8 @@ void reduce(const Program &program, Thread *attacker, Program &resultProgram) {
 							// TODO: update HB variable
 						)
 					);
+				} else if (transition->instruction()->as<Mfence>()) {
+					/* No transition: attacker can't execute fences. */
 				} else {
 					resultThread->makeTransition(
 						attackerFrom,
