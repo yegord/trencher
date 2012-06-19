@@ -6,7 +6,7 @@
 
 namespace trench {
 
-Thread::Thread(const std::string &name): name_(name) {}
+Thread::Thread(const std::string &name): name_(name), initialState_(NULL) {}
 
 Thread::~Thread() {
 	foreach (Transition *transition, transitions_) {
