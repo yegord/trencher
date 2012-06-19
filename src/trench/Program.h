@@ -16,7 +16,6 @@ class Program {
 	std::vector<Thread *> threads_;
 
 	std::map<std::string, std::shared_ptr<Register>> name2register_;
-	std::vector<Register *> registers_;
 
 	std::map<Domain, std::shared_ptr<Constant>> value2constant_;
 
@@ -32,7 +31,6 @@ class Program {
 	Thread *makeThread(const std::string &name);
 
 	const std::shared_ptr<Register> &makeRegister(const std::string &name);
-	const std::vector<Register *> &registers() const { return registers_; }
 
 	const std::shared_ptr<Constant> &makeConstant(Domain value);
 };

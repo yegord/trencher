@@ -73,7 +73,7 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 					}
 					State *to = thread->makeState(token);
 
-					std::unique_ptr<Instruction> instruction = NULL;
+					std::shared_ptr<Instruction> instruction;
 					if (!(in >> token)) {
 						throw std::runtime_error("expected an instruction name, got EOF");
 					} else if (token == "read") {
@@ -105,7 +105,7 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 						throw std::runtime_error("unknown instruction `" + token + "'");
 					}
 
-					thread->makeTransition(from, to, instruction.release());
+					thread->makeTransition(from, to, instruction);
 				} else {
 					throw std::runtime_error("expected `initial', `transition' or `end', got `" + token +"'");
 				}

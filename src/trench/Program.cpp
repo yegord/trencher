@@ -27,7 +27,6 @@ const std::shared_ptr<Register> &Program::makeRegister(const std::string &name) 
 	auto &result = name2register_[name];
 	if (!result) {
 		result.reset(new Register(name));
-		registers_.push_back(result.get());
 	}
 	return result;
 }

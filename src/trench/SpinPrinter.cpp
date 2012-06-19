@@ -2,7 +2,9 @@
 
 #include <algorithm> /* std::find */
 #include <cassert>
+#include <iostream>
 
+#include "Census.h"
 #include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
@@ -41,6 +43,89 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 			out << ident(reg);
 			break;
 		}
+		case Expression::BINARY: {
+			BinaryOperator *binary = expression->as<BinaryOperator>();
+
+			out << '(';
+			printExpression(out, binary->left());
+
+			out << ' ';
+			switch (binary->kind()) {
+				case BinaryOperator::EQ:
+					out << "==";
+					break;
+				case BinaryOperator::NEQ:
+					out << "!=";
+					break;
+				default: {
+					 assert(!"NEVER REACHED");
+				}
+			}
+			out << ' ';
+
+			printExpression(out, binary->right());
+			out << ')';
+			break;
+		}
+		default: {
+			assert(!"NEVER REACHED");
+		}
+	}
+}
+
+void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &instruction) {
+	/* Guard. */
+	if (Condition *condition = instruction->as<Condition>()) {
+		out << ' ';
+		printExpression(out, condition->expression());
+		out << " ->";
+	}
+
+	out << ' ';
+
+	/* Instruction itself. */
+	switch (instruction->mnemonic()) {
+		case Instruction::READ: {
+			Read *read = instruction->as<Read>();
+			out << ident(read->reg()) << " = mem" << read->space() << "[";
+			printExpression(out, read->address());
+			out << "];";
+			break;
+		}
+		case Instruction::WRITE: {
+			Write *write = instruction->as<Write>();
+			out << "mem" << write->space() << "[";
+			printExpression(out, write->address());
+			out << "] = ";
+			printExpression(out, write->value());
+			out << ";";
+			break;
+		}
+		case Instruction::MFENCE: {
+			out << "skip /*mfence*/;" << std::endl;
+			break;
+		}
+		case Instruction::LOCAL: {
+			Local *local = instruction->as<Local>();
+			out << ident(local->reg()) << " = ";
+			printExpression(out, local->value());
+			out << ";";
+			break;
+		}
+		case Instruction::CONDITION: {
+			out << "skip /*condition*/;";
+			break;
+		}
+		case Instruction::ATOMIC: {
+			Atomic *atomic = instruction->as<Atomic>();
+
+			out << "atomic {";
+			foreach (const auto &instr, atomic->instructions()) {
+				printInstruction(out, instr);
+			}
+			out << " }";
+			break;
+		}
 		default: {
 			assert(!"NEVER REACHED");
 		}
@@ -50,35 +135,29 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 } // anonymous namespace
 
 void SpinPrinter::print(std::ostream &out, const Program &program) const {
-	std::vector<int> regions;
-	foreach (Thread *thread, program.threads()) {
-		foreach (Transition *transition, thread->transitions()) {
-			int region = 0;
-			if (Read *read = transition->instruction()->as<Read>()) {
-				region = read->region();
-			} else if (Write *write = transition->instruction()->as<Write>()) {
-				region = write->region();
-			} else {
-				continue;
-			}
-			if (std::find(regions.begin(), regions.end(), region) == regions.end()) {
-				regions.push_back(region);
-			}
-		}
-	}
+	/* Set of used spaces. */
+	std::vector<Space> spaces;
 
-	/* Shared memory size. */
-	foreach (int region, regions) {
-		out << "int mem" << region << "[10];" << std::endl;
+	Census programCensus;
+	programCensus.visit(program);
+
+	/* Shared memory. */
+	foreach (Space space, programCensus.spaces()) {
+		out << "int mem" << space << "[" << program.memorySize() << "] = " << Domain() << ';' << std::endl;
 	}
 
 	/* Threads. */
 	foreach (Thread *thread, program.threads()) {
 		out << "active proctype " << ident(thread) << "() {" << std::endl;
 
+		Census threadCensus;
+		threadCensus.visit(thread);
+
 		/* Register declarations. */
-		foreach (const auto &reg, program.registers()) {
-			out << "int " << ident(reg) << ';' << std::endl;
+		foreach (Expression *expression, threadCensus.expressions()) {
+			if (Register *reg = expression->as<Register>()) {
+				out << "int " << ident(reg) << ';' << std::endl;
+			}
 		}
 
 		/* Goto initial state. */
@@ -90,61 +169,18 @@ void SpinPrinter::print(std::ostream &out, const Program &program) const {
 		foreach (State *state, thread->states()) {
 			out << ident(state) << ": ";
 			if (state->out().empty()) {
-				out << "skip;" << std::endl;
+				out << "goto _done;" << std::endl;
 			} else {
 				out << "if" << std::endl;
 				foreach (Transition *transition, state->out()) {
-					out << ":: ";
-
-					/* Guard. */
-					if (Condition *condition = transition->instruction()->as<Condition>()) {
-						out << "(";
-						printExpression(out, condition->expression());
-						out << " == 0) ->";
-					}
-
-					/* Instruction itself. */
-					switch (transition->instruction()->mnemonic()) {
-						case Instruction::READ: {
-							Read *read = transition->instruction()->as<Read>();
-							out << ident(read->reg()) << " = mem" << read->region() << "[";
-							printExpression(out, read->address());
-							out << "];";
-							break;
-						}
-						case Instruction::WRITE: {
-							Write *write = transition->instruction()->as<Write>();
-							out << "mem" << write->region() << "[";
-							printExpression(out, write->address());
-							out << "] = ";
-							printExpression(out, write->value());
-							out << ";";
-							break;
-						}
-						case Instruction::MFENCE: {
-							out << "/* mfence */";
-							break;
-						}
-						case Instruction::LOCAL: {
-							Local *local = transition->instruction()->as<Local>();
-							out << ident(local->reg()) << " = ";
-							printExpression(out, local->value());
-							out << ";";
-							break;
-						}
-						case Instruction::CONDITION: {
-							/* Nothing. */
-							break;
-						}
-						default: {
-							assert(!"NEVER REACHED");
-						}
-					}
+					out << "::";
+					printInstruction(out, transition->instruction());
 					out << " goto " << ident(transition->to()) << ';' << std::endl;
 				}
 				out << "fi;" << std::endl;
 			}
 		}
+		out << "_done: skip;" << std::endl;
 		out << "}" << std::endl;
 	}
 }

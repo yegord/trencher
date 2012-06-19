@@ -23,7 +23,7 @@ State *Thread::makeState(const std::string &name) {
 	return result.get();
 }
 
-Transition *Thread::makeTransition(State *from, State *to, Instruction *instruction) {
+Transition *Thread::makeTransition(State *from, State *to, const std::shared_ptr<Instruction> &instruction) {
 	std::unique_ptr<Transition> result(new Transition(from, to, instruction));
 	transitions_.push_back(result.get());
 

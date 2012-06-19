@@ -1,4 +1,6 @@
 set(TRENCH_SOURCES
+	Census.cpp
+	Census.h
 	Expression.h
 	Foreach.h
 	Instruction.h
@@ -10,6 +12,8 @@ set(TRENCH_SOURCES
 	Printer.h
 	Program.cpp
 	Program.h
+	Reduction.cpp
+	Reduction.h
 	SpinPrinter.h
 	SpinPrinter.cpp
 	State.h

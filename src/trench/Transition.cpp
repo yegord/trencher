@@ -6,7 +6,7 @@
 
 namespace trench {
 
-Transition::Transition(State *from, State *to, Instruction *instruction):
+Transition::Transition(State *from, State *to, const std::shared_ptr<Instruction> &instruction):
 	from_(from), to_(to), instruction_(instruction)
 {
 	assert(from);

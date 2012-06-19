@@ -37,7 +37,7 @@ class Thread {
 	void setInitialState(State *state) { initialState_ = state; }
 
 	const std::vector<Transition *> &transitions() const { return transitions_; }
-	Transition *makeTransition(State *from, State *to, Instruction *instruction);
+	Transition *makeTransition(State *from, State *to, const std::shared_ptr<Instruction> &instruction);
 };
 
 } // namespace trench

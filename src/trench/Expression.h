@@ -63,15 +63,26 @@ class UnaryOperator: public Expression {
 };
 
 class BinaryOperator: public Expression {
+	public:
+
+	enum Kind {
+		EQ,
+		NEQ,
+	};
+
+	private:
+
+	Kind kind_;
 	std::shared_ptr<Expression> left_;
 	std::shared_ptr<Expression> right_;
 
 	public:
 
-	BinaryOperator(const std::shared_ptr<Expression> &left, const std::shared_ptr<Expression> &right):
-		Expression(BINARY), left_(left), right_(right)
+	BinaryOperator(Kind kind, const std::shared_ptr<Expression> &left, const std::shared_ptr<Expression> &right):
+		Expression(BINARY), kind_(kind), left_(left), right_(right)
 	{}
 
+	Kind kind() const { return kind_; }
 	const std::shared_ptr<Expression> &left() const { return left_; }
 	const std::shared_ptr<Expression> &right() const { return right_; }
 };
