@@ -21,6 +21,14 @@ std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) 
 	int value;
 	if (ss >> value) {
 		return program.makeConstant(value);
+	} else if (token == "==") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::EQ, left, right);
+	} else if (token == "!=") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::NEQ, left, right);
 	} else {
 		return program.makeRegister(token);
 	}
@@ -101,6 +109,8 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 					} else if (token == "check") {
 						auto expression = parseExpression(in, program);
 						instruction.reset(new Condition(expression));
+					} else if (token == "noop") {
+						instruction.reset(new Noop());
 					} else {
 						throw std::runtime_error("unknown instruction `" + token + "'");
 					}

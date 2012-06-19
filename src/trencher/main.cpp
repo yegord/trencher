@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 #endif
 
 			trench::Program augmentedProgram;
-			trench::reduce(program, program.threads().front(), augmentedProgram);
+			trench::reduce(program, augmentedProgram, program.threads().front());
 
 			trench::SpinPrinter spinPrinter;
 			spinPrinter.print(std::cout, augmentedProgram);

@@ -25,6 +25,27 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 			out << reg->name();
 			break;
 		}
+		case Expression::BINARY: {
+			BinaryOperator *binary = expression->as<BinaryOperator>();
+			switch (binary->kind()) {
+				case BinaryOperator::EQ: {
+					out << "==";
+					break;
+				}
+				case BinaryOperator::NEQ: {
+					out << "!=";
+					break;
+				}
+				default: {
+					 assert(!"NEVER REACHED");
+				}
+			}
+
+			out << ' ';
+			printExpression(out, binary->left());
+			out << ' ';
+			printExpression(out, binary->right());
+		}
 		default: {
 			assert(!"NEVER REACHED");
 		}

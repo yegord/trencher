@@ -30,7 +30,8 @@ class Instruction {
 		MFENCE,
 		LOCAL,
 		CONDITION,
-		ATOMIC
+		ATOMIC,
+		NOOP
 	};
 
 	public:
@@ -140,6 +141,12 @@ class Atomic: public Instruction {
 	const std::vector<std::shared_ptr<Instruction>> instructions() const { return instructions_; }
 };
 
+class Noop: public Instruction {
+	public:
+
+	Noop(): Instruction(NOOP) {}
+};
+
 } // namespace trench
 
 TRENCH_REGISTER_CLASS_KIND(Instruction, Read, Instruction::READ)
@@ -148,3 +155,4 @@ TRENCH_REGISTER_CLASS_KIND(Instruction, Mfence, Instruction::MFENCE)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Local, Instruction::LOCAL)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Condition, Instruction::CONDITION)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Atomic, Instruction::ATOMIC)
+TRENCH_REGISTER_CLASS_KIND(Instruction, Noop, Instruction::NOOP)

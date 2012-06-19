@@ -126,6 +126,10 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			out << " }";
 			break;
 		}
+		case Instruction::NOOP: {
+			out << "skip /*no-op*/;";
+			break;
+		}
 		default: {
 			assert(!"NEVER REACHED");
 		}
