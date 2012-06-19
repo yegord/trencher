@@ -23,10 +23,6 @@ void reduce(const Program &program, Thread *attacker, Program &resultProgram) {
 	std::shared_ptr<Condition> check_is_buffered(new Condition(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, one)));
 	std::shared_ptr<Condition> check_is_not_buffered(new Condition(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, zero)));
 
-	std::shared_ptr<Register>  attacking = resultProgram.makeRegister("_attacking");
-	std::shared_ptr<Condition> check_not_attacking(new Condition(std::make_shared<BinaryOperator>(BinaryOperator::EQ, attacking, zero)));
-	std::shared_ptr<Local>     make_attacking(new Local(attacking, one));
-
 //	std::shared_ptr<Constant>  writeVar(new std::shared_ptr<Constant>(0));
 
 	resultProgram.setMemorySize(program.memorySize());
@@ -102,14 +98,22 @@ void reduce(const Program &program, Thread *attacker, Program &resultProgram) {
 						originalFrom,
 						attackerTo,
 						std::make_shared<Atomic>(
-							check_not_attacking,
-							make_attacking,
 							// TODO: remember writeVar
 							std::make_shared<Write>(write->value(), write->address(), BUFFER_SPACE),
 							std::make_shared<Write>(one,            write->address(), IS_BUFFERED_SPACE)
 						)
 					);
 				}
+			} else {
+				/*
+				 * Helper's execution.
+				 */
+
+
+				/*
+				 * Becoming a helper.
+				 */
+
 			}
 		}
 	}
