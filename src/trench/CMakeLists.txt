@@ -16,6 +16,8 @@ set(TRENCH_SOURCES
 	Program.h
 	Reduction.cpp
 	Reduction.h
+	RobustnessChecking.cpp
+	RobustnessChecking.h
 	SpinPrinter.h
 	SpinPrinter.cpp
 	State.h

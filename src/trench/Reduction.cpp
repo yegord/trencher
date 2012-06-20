@@ -33,12 +33,14 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 	const std::shared_ptr<Condition> check_is_not_buffered(
 		new Condition(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, zero)));
 
-	const std::shared_ptr<Constant>  attackAddr(new Constant(0));
-	const std::shared_ptr<Constant>  successAddr(new Constant(1));
+	const std::shared_ptr<Constant>  attackAddrVar(new Constant(0));
+	const std::shared_ptr<Constant>  nattackersVar(new Constant(1));
+	const std::shared_ptr<Constant>  successVar(new Constant(2));
 
-	resultProgram.setInterestingAddress(successAddr->value(), SERVICE_SPACE);
+	resultProgram.setInterestingAddress(successVar->value(), SERVICE_SPACE);
 
 	const std::shared_ptr<Register>  addr(resultProgram.makeRegister("_addr"));
+	const std::shared_ptr<Register>  nattackers(resultProgram.makeRegister("_attacking"));
 
 	const std::shared_ptr<Constant>  hb_nothing(new Constant(0));
 	const std::shared_ptr<Constant>  hb_read(new Constant(1));
@@ -79,9 +81,12 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 							originalFrom,
 							attackerTo,
 							std::make_shared<Atomic>(
+								std::make_shared<Read> (nattackers,       nattackersVar,    SERVICE_SPACE),
+								std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, nattackers, zero)),
 								std::make_shared<Write>(write->value(),   write->address(), BUFFER_SPACE),
 								std::make_shared<Write>(one,              write->address(), IS_BUFFERED_SPACE),
-								std::make_shared<Write>(write->address(), attackAddr,  SERVICE_SPACE)
+								std::make_shared<Write>(write->address(), attackAddrVar,    SERVICE_SPACE),
+								std::make_shared<Write>(one,              nattackersVar,    SERVICE_SPACE)
 							)
 						);
 					}
@@ -119,7 +124,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 						std::make_shared<Atomic>(
 							std::make_shared<Read>(is_buffered, read->address(), IS_BUFFERED_SPACE),
 							check_is_not_buffered,
-							std::make_shared<Read>(read->reg(), read->address())
+							transition->instruction()
 						)
 					);
 
@@ -131,7 +136,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 							std::make_shared<Atomic>(
 								std::make_shared<Read> (is_buffered, read->address(), IS_BUFFERED_SPACE),
 								check_is_not_buffered,
-								std::make_shared<Read> (read->reg(), read->address()),
+								transition->instruction(),
 								std::make_shared<Write>(hb_read,     read->address(), HB_SPACE)
 							)
 						);
@@ -210,9 +215,9 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
-							std::make_shared<Read>(addr, attackAddr, SERVICE_SPACE),
+							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, read->address())),
-							std::make_shared<Write>(one, successAddr, SERVICE_SPACE)
+							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
 						)
 					);
 				} else if (Write *write = transition->instruction()->as<Write>()) {
@@ -228,9 +233,9 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
-							std::make_shared<Read>(addr, attackAddr, SERVICE_SPACE),
+							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, write->address())),
-							std::make_shared<Write>(one, successAddr, SERVICE_SPACE)
+							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
 						)
 					);
 				} else if (transition->instruction()->as<Atomic>()) {

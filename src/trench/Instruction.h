@@ -120,12 +120,14 @@ class Atomic: public Instruction {
 	}
 
 	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b): Instruction(ATOMIC) {
+		instructions_.reserve(2);
 		instructions_.push_back(a);
 		instructions_.push_back(b);
 	}
 
 	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b,
 	       const std::shared_ptr<Instruction> &c): Instruction(ATOMIC) {
+		instructions_.reserve(3);
 		instructions_.push_back(a);
 		instructions_.push_back(b);
 		instructions_.push_back(c);
@@ -133,10 +135,34 @@ class Atomic: public Instruction {
 
 	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b,
 	       const std::shared_ptr<Instruction> &c, const std::shared_ptr<Instruction> &d): Instruction(ATOMIC) {
+		instructions_.reserve(4);
 		instructions_.push_back(a);
 		instructions_.push_back(b);
 		instructions_.push_back(c);
 		instructions_.push_back(d);
+	}
+
+	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b,
+	       const std::shared_ptr<Instruction> &c, const std::shared_ptr<Instruction> &d,
+	       const std::shared_ptr<Instruction> &e): Instruction(ATOMIC) {
+		instructions_.reserve(5);
+		instructions_.push_back(a);
+		instructions_.push_back(b);
+		instructions_.push_back(c);
+		instructions_.push_back(d);
+		instructions_.push_back(e);
+	}
+
+	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b,
+	       const std::shared_ptr<Instruction> &c, const std::shared_ptr<Instruction> &d,
+	       const std::shared_ptr<Instruction> &e, const std::shared_ptr<Instruction> &f): Instruction(ATOMIC) {
+		instructions_.reserve(6);
+		instructions_.push_back(a);
+		instructions_.push_back(b);
+		instructions_.push_back(c);
+		instructions_.push_back(d);
+		instructions_.push_back(e);
+		instructions_.push_back(f);
 	}
 
 	const std::vector<std::shared_ptr<Instruction>> instructions() const { return instructions_; }
