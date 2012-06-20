@@ -14,13 +14,16 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    add_definitions(-std=c++11)
+	add_definitions(-std=c++11)
 endif()
 
-find_package(Boost 1.46.0 REQUIRED filesystem system)
+find_package(Threads)
+
+find_package(Boost 1.46.0 REQUIRED filesystem system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories(${TRENCHER_SOURCE_DIR})
+include_directories(${TRENCHER_SOURCE_DIR}/3rdparty)
 
 add_subdirectory(trench)
 add_subdirectory(trencher)
