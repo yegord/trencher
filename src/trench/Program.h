@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "Instruction.h"
 #include "Expression.h"
 #include "Thread.h"
 
@@ -15,13 +16,20 @@ class Program {
 	std::map<std::string, std::unique_ptr<Thread>> name2thread_;
 	std::vector<Thread *> threads_;
 
+	Domain interestingAddress_;
+	Space interestingSpace_;
+
 	std::map<std::string, std::shared_ptr<Register>> name2register_;
 
 	std::map<Domain, std::shared_ptr<Constant>> value2constant_;
 
 	public:
 
-	Program(int memorySize = 10): memorySize_(memorySize) {}
+	Program(int memorySize = 10):
+		memorySize_(memorySize),
+		interestingAddress_(0),
+		interestingSpace_(INVALID_SPACE)
+	{}
 
 	int memorySize() const { return memorySize_; }
 	void setMemorySize(int size) { memorySize_ = size; }
@@ -29,6 +37,14 @@ class Program {
 	const std::vector<Thread *> &threads() const { return threads_; }
 	Thread *getThread(const std::string &name);
 	Thread *makeThread(const std::string &name);
+
+	void setInterestingAddress(Domain address, Space space = Space()) {
+		interestingAddress_ = address;
+		interestingSpace_ = space;
+	}
+
+	Domain interestingAddress() const { return interestingAddress_;}
+	Space interestingSpace() const { return interestingSpace_;}
 
 	const std::shared_ptr<Register> &makeRegister(const std::string &name);
 

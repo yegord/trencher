@@ -2,7 +2,6 @@
 
 #include <algorithm> /* std::find */
 #include <cassert>
-#include <iostream>
 
 #include "Census.h"
 #include "Foreach.h"
@@ -173,7 +172,7 @@ void SpinPrinter::print(std::ostream &out, const Program &program) const {
 		foreach (State *state, thread->states()) {
 			out << ident(state) << ": ";
 			if (state->out().empty()) {
-				out << "goto _done;" << std::endl;
+				out << "goto __done;" << std::endl;
 			} else {
 				out << "if" << std::endl;
 				foreach (Transition *transition, state->out()) {
@@ -184,7 +183,19 @@ void SpinPrinter::print(std::ostream &out, const Program &program) const {
 				out << "fi;" << std::endl;
 			}
 		}
-		out << "_done: skip;" << std::endl;
+		out << "__done: skip;" << std::endl;
+		out << "}" << std::endl;
+	}
+
+	/* Never claim. */
+	if (program.interestingSpace() != INVALID_SPACE) {
+		out << "never {" << std::endl;
+		out << "T0_init:" << std::endl;
+		out << "if" << std::endl;
+		out << ":: (mem" << program.interestingSpace() << '[' << program.interestingAddress() << "]) -> goto accept_all" << std::endl;
+		out << ":: (1) -> goto T0_init" << std::endl;
+		out << "fi;" << std::endl;
+		out << "accept_all: skip;" << std::endl;
 		out << "}" << std::endl;
 	}
 }

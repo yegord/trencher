@@ -36,6 +36,8 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 	const std::shared_ptr<Constant>  attackAddr(new Constant(0));
 	const std::shared_ptr<Constant>  successAddr(new Constant(1));
 
+	resultProgram.setInterestingAddress(successAddr->value(), SERVICE_SPACE);
+
 	const std::shared_ptr<Register>  addr(resultProgram.makeRegister("_addr"));
 
 	const std::shared_ptr<Constant>  hb_nothing(new Constant(0));
@@ -121,11 +123,11 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 						)
 					);
 
-					/* ...or from memory and update HB. */
+					/* ...or from memory and update HB. This is the final aim of attacker's existence. */
 					if (read == attackRead || attackRead == NULL) {
 						resultThread->makeTransition(
 							attackerFrom,
-							attackerTo,
+							resultThread->makeState("final"),
 							std::make_shared<Atomic>(
 								std::make_shared<Read> (is_buffered, read->address(), IS_BUFFERED_SPACE),
 								check_is_not_buffered,
@@ -145,7 +147,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 						transition->instruction()
 					);
 				} else if (transition->instruction()->as<Atomic>()) {
-					assert(!"Sorry, atomics are not supported in input programs.");
+					assert(!"Sorry, atomics in input programs are not supported.");
 				} else {
 					assert(!"NEVER REACHED");
 				}
@@ -232,13 +234,12 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 						)
 					);
 				} else if (transition->instruction()->as<Atomic>()) {
-					assert(!"Sorry, atomics are not supported in input programs.");
+					assert(!"Sorry, atomics in input programs are not supported.");
 				} else {
 					resultThread->makeTransition(helperFrom, helperTo, transition->instruction());
 				}
 			}
 		}
-
 	}
 }
 

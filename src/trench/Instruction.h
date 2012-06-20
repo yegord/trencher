@@ -18,6 +18,7 @@ class Local;
 class Condition;
 
 typedef int Space;
+const Space INVALID_SPACE = -1;
 
 class Instruction {
 	TRENCH_CLASS_WITH_KINDS(Instruction, mnemonic)

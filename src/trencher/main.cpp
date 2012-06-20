@@ -6,6 +6,7 @@
 #include <trench/SpinPrinter.h>
 #include <trench/Program.h>
 #include <trench/Reduction.h>
+#include <trench/SpinModelChecker.h>
 
 void help() {
 	std::cout << "Usage: trencher file..." << std::endl;
@@ -25,16 +26,18 @@ int main(int argc, char **argv) {
 			std::ifstream in(argv[i]);
 			parser.parse(in, program);
 
-#if 0
-			trench::NaivePrinter naivePrinter;
-			naivePrinter.print(std::cout, program);
-#endif
-
 			trench::Program augmentedProgram;
 			trench::reduce(program, augmentedProgram, program.threads().front());
 
+#if 0
+			trench::NaivePrinter naivePrinter;
+			naivePrinter.print(std::cout, program);
+
 			trench::SpinPrinter spinPrinter;
 			spinPrinter.print(std::cout, augmentedProgram);
+#endif
+			trench::SpinModelChecker checker;
+			std::cerr << "Has violations: " << checker.check(augmentedProgram) << std::endl;
 		}
 	} catch (const std::exception &exception) {
 		std::cerr << "trencher: " << exception.what() << std::endl;
