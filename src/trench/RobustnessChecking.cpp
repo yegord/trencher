@@ -1,5 +1,7 @@
 #include "RobustnessChecking.h"
 
+#include <atomic>
+
 #include <boost/threadpool.hpp>
 
 #include "Foreach.h"
@@ -22,11 +24,11 @@ namespace {
 class AttackChecker {
 	Program &program_;
 	Thread *attacker_;
-	bool &attackFound_;
+	std::atomic<bool> &attackFound_;
 
 	public:
 
-	AttackChecker(Program &program, Thread *attacker, bool &attackFound):
+	AttackChecker(Program &program, Thread *attacker, std::atomic<bool> &attackFound):
 		program_(program), attacker_(attacker), attackFound_(attackFound)
 	{}
 
@@ -46,7 +48,7 @@ class AttackChecker {
 bool checkIsRobustParallel(Program &program) {
 	boost::threadpool::pool pool(boost::thread::hardware_concurrency());
 
-	bool attackFound = false;
+	std::atomic<bool> attackFound(false);
 	foreach (Thread *attacker, program.threads()) {
 		pool.schedule(AttackChecker(program, attacker, attackFound));
 	}
