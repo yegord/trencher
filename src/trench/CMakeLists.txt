@@ -5,6 +5,8 @@ set(TRENCH_SOURCES
 	Foreach.h
 	Instruction.h
 	Kinds.h
+	ModelChecking.cpp
+	ModelChecking.h
 	NaiveParser.cpp
 	NaiveParser.h
 	NaivePrinter.cpp
