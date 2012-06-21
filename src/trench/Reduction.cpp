@@ -58,6 +58,10 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 	foreach (Thread *thread, program.threads()) {
 		Thread *resultThread = resultProgram.makeThread(thread->name());
 
+		if (thread->initialState()) {
+			resultThread->setInitialState(resultThread->makeState("orig_" + thread->initialState()->name()));
+		}
+
 		foreach (Transition *transition, thread->transitions()) {
 			/*
 			 * Original code.

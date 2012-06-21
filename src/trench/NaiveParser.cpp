@@ -63,6 +63,9 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 				if (!(in >> token)) {
 					std::runtime_error("expected `initial', `transition', or `end', got EOF");
 				} else if (token == "end") {
+					if (!thread->initialState()) {
+						throw std::runtime_error("No initial state specified for thread " + thread->name());
+					}
 					break;
 				} else if (token == "initial") {
 					if (!(in >> token)) {
