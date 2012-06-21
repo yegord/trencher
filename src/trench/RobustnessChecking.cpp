@@ -53,8 +53,9 @@ bool checkIsRobustParallel(Program &program) {
 		pool.schedule(AttackChecker(program, attacker, attackFound));
 	}
 
-	while ((pool.active() + pool.pending() > 0) && !attackFound) {
-		pool.wait(pool.active() + pool.pending() - 1);
+	std::size_t tasksLeft;
+	while (((tasksLeft = pool.active() + pool.pending()) > 0) && !attackFound) {
+		pool.wait(tasksLeft - 1);
 	}
 	if (attackFound) {
 		pool.clear();
