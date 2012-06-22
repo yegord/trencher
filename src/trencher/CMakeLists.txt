@@ -1,5 +1,7 @@
 set(TRENCHER_SOURCES
 	main.cpp
+	Examples.cpp
+	Examples.h
 )
 
 add_executable(trencher ${TRENCHER_SOURCES})

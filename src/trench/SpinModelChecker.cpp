@@ -34,7 +34,7 @@ void run(const std::string &commandLine) {
 
 SpinModelChecker::SpinModelChecker() {
 	setSpinCommandLine("cd \"%1%\" && spin -a \"%2%\"");
-	setCompilerCommandLine("clang -DSAFETY -o \"%2%\" \"%3%\"");
+	setCompilerCommandLine("clang -DSAFETY -DVECTORSZ=4444 -O2 -o \"%2%\" \"%3%\"");
 	setVerifierCommandLine("cd \"%1%\" && \"%2%\" > \"%2%.stdout\" 2> \"%2%.stderr\"");
 }
 

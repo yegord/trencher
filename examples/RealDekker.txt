@@ -1,0 +1,69 @@
+# Non-robust Dekker mutex algorithm.
+#
+# q0:   flag[0] = true;
+# q1:   while (flag[1] == true) {
+# q2:      if (turn ≠ 0) {
+# q3:         flag[0] = false;
+# q4:         while (turn ≠ 0) {
+# q5:         }
+# q6:         flag[0] = true;
+# q7:      }
+# q8:   }
+#  
+#    // critical section
+#    ...
+# q9:   turn    = 1;
+# q10:   flag[0] = false;
+#    // remainder section
+
+thread t1
+initial q0
+transition q0	q1	write	1	0
+transition q1	q1_1	read	flag	1
+transition q1_1	q2	check	== flag 0
+transition q1_1	q9	check	== flag 1
+
+transition q2	q2_1	read	turn	2
+transition q2_1	q3	check	!= turn 0
+transition q2_1	q1	check	== turn 0
+
+transition q3	q4	write	0	0
+
+transition q4	q4_1	read	turn	2
+transition q4_1	q4	check	!= turn 0
+transition q4_1	q6	check	== turn 0
+
+transition q6	q1	write	1	0
+
+transition q9	q10	write	1	2
+transition q10	q11	write	0	0
+
+transition q11	q0	noop
+end
+
+# Thread t2 is symmetric.
+
+thread t2
+initial q0
+transition q0	q1	write	1	1
+transition q1	q1_1	read	flag	1
+transition q1_1	q2	check	== flag 1
+transition q1_1	q9	check	== flag 0
+
+transition q2	q2_1	read	turn	2
+transition q2_1	q3	check	!= turn 1
+transition q2_1	q1	check	== turn 1
+
+transition q3	q4	write	0	0
+
+transition q4	q4_1	read	turn	2
+transition q4_1	q4	check	!= turn 1
+transition q4_1	q6	check	== turn 1
+
+transition q6	q1	write	1	1
+
+transition q9	q10	write	0	2
+transition q10	q11	write	0	1
+
+transition q11	q0	noop
+end

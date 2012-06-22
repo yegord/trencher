@@ -23,8 +23,8 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 		SERVICE_SPACE
 	};
 
-	const std::shared_ptr<Constant>  zero(new Constant(0));
-	const std::shared_ptr<Constant>  one(new Constant(1));
+	const std::shared_ptr<Constant>  zero = resultProgram.makeConstant(0);
+	const std::shared_ptr<Constant>  one  = resultProgram.makeConstant(1);
 
 	const std::shared_ptr<Register>  is_buffered(resultProgram.makeRegister("_is_buffered"));
 
@@ -33,18 +33,18 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 	const std::shared_ptr<Condition> check_is_not_buffered(
 		new Condition(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, zero)));
 
-	const std::shared_ptr<Constant>  attackAddrVar(new Constant(0));
-	const std::shared_ptr<Constant>  nattackersVar(new Constant(1));
-	const std::shared_ptr<Constant>  successVar(new Constant(2));
+	const std::shared_ptr<Constant>  attackAddrVar = resultProgram.makeConstant(0);
+	const std::shared_ptr<Constant>  nattackersVar = resultProgram.makeConstant(1);
+	const std::shared_ptr<Constant>  successVar    = resultProgram.makeConstant(2);
 
 	resultProgram.setInterestingAddress(successVar->value(), SERVICE_SPACE);
 
 	const std::shared_ptr<Register>  addr(resultProgram.makeRegister("_addr"));
 	const std::shared_ptr<Register>  nattackers(resultProgram.makeRegister("_attacking"));
 
-	const std::shared_ptr<Constant>  hb_nothing(new Constant(0));
-	const std::shared_ptr<Constant>  hb_read(new Constant(1));
-	const std::shared_ptr<Constant>  hb_write(new Constant(2));
+	const std::shared_ptr<Constant>  hb_nothing = resultProgram.makeConstant(0);
+	const std::shared_ptr<Constant>  hb_read    = resultProgram.makeConstant(1);
+	const std::shared_ptr<Constant>  hb_write   = resultProgram.makeConstant(2);
 
 	const std::shared_ptr<Register>  access_type(resultProgram.makeRegister("_access_type"));
 
