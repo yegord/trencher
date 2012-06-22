@@ -44,7 +44,16 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 	std::string token;
 
 	while (in >> token) {
-		if (token == "memory_size") {
+		if (token == "#") {
+			in >> std::noskipws;
+			char c;
+			while (in >> c) {
+				if (c == '\n' || c == '\r') {
+					break;
+				}
+			}
+			in >> std::skipws;
+		} else if (token == "memory_size") {
 			int value;
 			if (!(in >> value)) {
 				throw std::runtime_error("expected a memory size value (integer), got EOF");
