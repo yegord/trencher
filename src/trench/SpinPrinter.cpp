@@ -56,6 +56,12 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 				case BinaryOperator::NEQ:
 					out << "!=";
 					break;
+				case BinaryOperator::AND:
+					out << "&&";
+					break;
+				case BinaryOperator::OR:
+					out << "||";
+					break;
 				default: {
 					 assert(!"NEVER REACHED");
 				}
@@ -97,7 +103,26 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			printExpression(out, write->address());
 			out << "] = ";
 			printExpression(out, write->value());
-			out << ";";
+			out << ';';
+			break;
+		}
+		case Instruction::CAS: {
+			CompareAndSwap *cas = instruction->as<CompareAndSwap>();
+			out << "atomic { ";
+			printExpression(out, cas->success());
+			out << " = (mem" << cas->space() << "[";
+			printExpression(out, cas->address());
+			out << "] == ";
+			printExpression(out, cas->oldValue());
+			out << "); ";
+
+			out << "if :: ";
+			printExpression(out, cas->success());
+			out << " -> mem" << cas->space() << "[";
+			printExpression(out, cas->address());
+			out << "] = ";
+			printExpression(out, cas->newValue());
+			out << "; :: else -> skip; fi }" << std::endl;
 			break;
 		}
 		case Instruction::MFENCE: {

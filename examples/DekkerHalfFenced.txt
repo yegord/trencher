@@ -1,3 +1,5 @@
+# Simplified Dekker. Should be non-robust.
+
 thread t1
 initial q0
 transition q0 q1	write	1	0

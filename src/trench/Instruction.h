@@ -28,6 +28,7 @@ class Instruction {
 	enum Mnemonic {
 		READ,
 		WRITE,
+		CAS,
 		MFENCE,
 		LOCAL,
 		CONDITION,
@@ -57,7 +58,7 @@ class Read: public Instruction {
 
 	const std::shared_ptr<Register> &reg() const { return reg_; }
 	const std::shared_ptr<Expression> &address() const { return address_; }
-	int space() const { return space_; }
+	Space space() const { return space_; }
 };
 
 class Write: public Instruction {
@@ -73,7 +74,29 @@ class Write: public Instruction {
 
 	const std::shared_ptr<Expression> &value() const { return value_; }
 	const std::shared_ptr<Expression> &address() const { return address_; }
-	int space() const { return space_; }
+	Space space() const { return space_; }
+};
+
+class CompareAndSwap: public Instruction {
+	std::shared_ptr<Expression> address_;
+	std::shared_ptr<Expression> oldValue_;
+	std::shared_ptr<Expression> newValue_;
+	std::shared_ptr<Register> success_;
+	Space space_;
+
+	public:
+
+	CompareAndSwap(const std::shared_ptr<Expression> &address, const std::shared_ptr<Expression> &oldValue,
+	               const std::shared_ptr<Expression> &newValue, const std::shared_ptr<Register> &success,
+		       Space space = Space()):
+		Instruction(CAS), address_(address), oldValue_(oldValue), newValue_(newValue), success_(success), space_(space)
+	{}
+
+	const std::shared_ptr<Expression> &address() const { return address_; }
+	const std::shared_ptr<Expression> &oldValue() const { return oldValue_; }
+	const std::shared_ptr<Expression> &newValue() const { return newValue_; }
+	const std::shared_ptr<Register> &success() const { return success_; }
+	Space space() const { return space_; }
 };
 
 class Mfence: public Instruction {
@@ -178,6 +201,7 @@ class Noop: public Instruction {
 
 TRENCH_REGISTER_CLASS_KIND(Instruction, Read, Instruction::READ)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Write, Instruction::WRITE)
+TRENCH_REGISTER_CLASS_KIND(Instruction, CompareAndSwap, Instruction::CAS)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Mfence, Instruction::MFENCE)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Local, Instruction::LOCAL)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Condition, Instruction::CONDITION)

@@ -41,6 +41,14 @@ void Census::visit(const std::shared_ptr<Instruction> &instruction) {
 			spaces_.push_back(write->space());
 			break;
 		}
+		case Instruction::CAS: {
+			CompareAndSwap *cas = instruction->as<CompareAndSwap>();
+			visit(cas->address());
+			visit(cas->oldValue());
+			visit(cas->newValue());
+			visit(cas->success());
+			break;
+		}
 		case Instruction::MFENCE: {
 			break;
 		}

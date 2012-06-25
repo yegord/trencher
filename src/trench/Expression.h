@@ -68,6 +68,8 @@ class BinaryOperator: public Expression {
 	enum Kind {
 		EQ,
 		NEQ,
+		AND,
+		OR
 	};
 
 	private:

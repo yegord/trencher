@@ -10,6 +10,14 @@ namespace trench {
 
 namespace {
 
+std::shared_ptr<Register> parseRegister(std::istream &in, Program &program) {
+	std::string token;
+	if (!(in >> token)) {
+		throw std::runtime_error("expected a register name, got EOF");
+	}
+	return program.makeRegister(token);
+}
+
 std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) {
 	std::string token;
 
@@ -70,7 +78,7 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 
 			while (true) {
 				if (!(in >> token)) {
-					std::runtime_error("expected `initial', `transition', or `end', got EOF");
+					throw std::runtime_error("expected `initial', `transition', or `end', got EOF");
 				} else if (token == "end") {
 					if (!thread->initialState()) {
 						throw std::runtime_error("No initial state specified for thread " + thread->name());
@@ -97,25 +105,19 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 					if (!(in >> token)) {
 						throw std::runtime_error("expected an instruction name, got EOF");
 					} else if (token == "read") {
-						if (!(in >> token)) {
-							throw std::runtime_error("expected a register name, got EOF");
-						}
-						auto reg = program.makeRegister(token);
+						auto reg = parseRegister(in, program);
 						auto expression = parseExpression(in, program);
 						
 						instruction.reset(new Read(reg, expression));
 					} else if (token == "write") {
-						auto value = parseExpression(in, program);
 						auto address = parseExpression(in, program);
+						auto value = parseExpression(in, program);
 
-						instruction.reset(new Write(value, address));
+						instruction.reset(new Write(address, value));
 					} else if (token == "mfence") {
 						instruction.reset(new Mfence());
 					} else if (token == "local") {
-						if (!(in >> token)) {
-							throw std::runtime_error("expected a register name, got EOF");
-						}
-						auto reg = program.makeRegister(token);
+						auto reg = parseRegister(in, program);
 						auto value = parseExpression(in, program);
 						instruction.reset(new Local(reg, value));
 					} else if (token == "check") {
@@ -123,6 +125,13 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 						instruction.reset(new Condition(expression));
 					} else if (token == "noop") {
 						instruction.reset(new Noop());
+					} else if (token == "cas") {
+						auto address = parseExpression(in, program);
+						auto oldValue = parseExpression(in, program);
+						auto newValue = parseExpression(in, program);
+						auto reg = parseRegister(in, program);
+
+						instruction.reset(new CompareAndSwap(address, oldValue, newValue, reg));
 					} else {
 						throw std::runtime_error("unknown instruction `" + token + "'");
 					}
