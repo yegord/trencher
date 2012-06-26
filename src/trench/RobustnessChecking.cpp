@@ -11,7 +11,7 @@
 
 namespace trench {
 
-bool checkIsRobust(Program &program) {
+bool checkIsRobust(const Program &program) {
 	trench::Program augmentedProgram;
 	trench::reduce(program, augmentedProgram);
 
@@ -21,14 +21,14 @@ bool checkIsRobust(Program &program) {
 
 namespace {
 
-class AttackChecker {
-	Program &program_;
+class AttackerChecker {
+	const Program &program_;
 	Thread *attacker_;
 	std::atomic<bool> &attackFound_;
 
 	public:
 
-	AttackChecker(Program &program, Thread *attacker, std::atomic<bool> &attackFound):
+	AttackerChecker(const Program &program, Thread *attacker, std::atomic<bool> &attackFound):
 		program_(program), attacker_(attacker), attackFound_(attackFound)
 	{}
 
@@ -45,12 +45,12 @@ class AttackChecker {
 
 } // anonymous namespace
 
-bool checkIsRobustParallel(Program &program) {
+bool checkIsRobustParallel(const Program &program) {
 	boost::threadpool::pool pool(boost::thread::hardware_concurrency());
 
 	std::atomic<bool> attackFound(false);
 	foreach (Thread *attacker, program.threads()) {
-		pool.schedule(AttackChecker(program, attacker, attackFound));
+		pool.schedule(AttackerChecker(program, attacker, attackFound));
 	}
 
 	std::size_t tasksLeft;

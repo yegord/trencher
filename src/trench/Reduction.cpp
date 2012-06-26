@@ -12,7 +12,10 @@
 
 namespace trench {
 
-void reduce(const Program &program, Program &resultProgram, Thread *attacker, Read *attackRead, Write *attackWrite) {
+void reduce(const Program &program, Program &resultProgram, Thread *attacker, Transition *attackWrite, Transition *attackRead) {
+	assert(attackWrite == NULL || attackWrite->instruction()->is<Write>());
+	assert(attackRead == NULL || attackRead->instruction()->is<Read>());
+
 	resultProgram.setMemorySize(std::max(program.memorySize(), 2));
 
 	enum {
@@ -81,7 +84,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 				 * Becoming an attacker.
 				 */
 				if (Write *write = transition->instruction()->as<Write>()) {
-					if (write == attackWrite || attackWrite == NULL) {
+					if (transition == attackWrite || attackWrite == NULL) {
 						/* First write going into the buffer. */
 						resultThread->makeTransition(
 							originalFrom,
@@ -135,7 +138,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Re
 					);
 
 					/* ...or from memory and update HB. This is the final aim of attacker's existence. */
-					if (read == attackRead || attackRead == NULL) {
+					if (transition == attackRead || attackRead == NULL) {
 						resultThread->makeTransition(
 							attackerFrom,
 							resultThread->makeState("final"),

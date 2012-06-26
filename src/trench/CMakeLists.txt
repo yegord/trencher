@@ -2,11 +2,11 @@ set(TRENCH_SOURCES
 	Census.cpp
 	Census.h
 	Expression.h
+	FenceInsertion.cpp
+	FenceInsertion.h
 	Foreach.h
 	Instruction.h
 	Kinds.h
-	SpinModelChecker.cpp
-	SpinModelChecker.h
 	NaiveParser.cpp
 	NaiveParser.h
 	NaivePrinter.cpp
@@ -18,8 +18,10 @@ set(TRENCH_SOURCES
 	Reduction.h
 	RobustnessChecking.cpp
 	RobustnessChecking.h
-	SpinPrinter.h
+	SpinModelChecker.cpp
+	SpinModelChecker.h
 	SpinPrinter.cpp
+	SpinPrinter.h
 	State.h
 	Thread.cpp
 	Thread.h

@@ -1,14 +1,15 @@
+#include <cassert>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
+#include <trench/FenceInsertion.h>
 #include <trench/NaiveParser.h>
 #include <trench/Program.h>
 #include <trench/RobustnessChecking.h>
 
-#include "Examples.h"
-
 void help() {
-	std::cout << "Usage: trencher file..." << std::endl;
+	std::cout << "Usage: trencher [-f] [-r] [-rp] file..." << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -18,30 +19,56 @@ int main(int argc, char **argv) {
 	}
 
 	try {
-		bool parallel = false;
+		enum {
+			ROBUSTNESS,
+			ROBUSTNESS_PARALLEL,
+			FENCES
+		} action = FENCES;
 
 		for (int i = 1; i < argc; ++i) {
 			std::string arg = argv[i];
 
-			if (arg == "-p") {
-				parallel = true;
+			if (arg == "-f") {
+				action = FENCES;
+			} else if (arg == "-r") {
+				action = ROBUSTNESS;
+			} else if (arg == "-rp") {
+				action = ROBUSTNESS_PARALLEL;
+			} else if (arg.size() >= 1 && arg[1] == '-') {
+				throw std::runtime_error("unknown option: " + arg);
 			} else {
 				trench::Program program;
 
-				if (arg == "dekker") {
-					dekker(program, 7, false);
-				} else if (arg == "dekker_fenced") {
-					dekker(program, 7, true);
-				} else {
+				{
 					trench::NaiveParser parser;
 					std::ifstream in(argv[i]);
 					parser.parse(in, program);
 				}
 
-				if (parallel) {
-					std::cout << "checkIsRobustParallel: " << trench::checkIsRobustParallel(program) << std::endl;
-				} else {
-					std::cout << "checkIsRobust: "         << trench::checkIsRobust(program) << std::endl;
+				switch (action) {
+					case ROBUSTNESS: {
+						if (trench::checkIsRobust(program)) {
+							std::cout << "Program IS robust.";
+						} else {
+							std::cout << "Program NOT robust.";
+						}
+						break;
+					}
+					case ROBUSTNESS_PARALLEL: {
+						if (trench::checkIsRobustParallel(program)) {
+							std::cout << "Program IS robust.";
+						} else {
+							std::cout << "Program NOT robust.";
+						}
+						break;
+					}
+					case FENCES: {
+						std::cout << "Number of computed fences: " << trench::computeFences(program).size() << std::endl;
+						break;
+					}
+					default: {
+						assert(!"NEVER REACHED");
+					}
 				}
 			}
 		}
