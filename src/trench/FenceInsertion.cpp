@@ -1,7 +1,5 @@
 #include "FenceInsertion.h"
 
-#include <atomic>
-
 #include <boost/range/adaptor/map.hpp>
 #include <boost/threadpool.hpp>
 #include <boost/unordered_map.hpp>
@@ -125,7 +123,7 @@ class Attacker {
 	public:
 
 	const std::vector<const Attack *> &attacks() const { return attacks_; }
-	void addAttack(const Attack *attack) { attacks_.push_back(attack); }
+	void addAttack(const Attack *attack) { assert(attack->feasible()); attacks_.push_back(attack); }
 
 	const std::vector<State *> &fences() { return fences_; }
 };
@@ -138,8 +136,26 @@ class AttackerNeutralizer {
 	AttackerNeutralizer(Attacker &attacker): attacker_(attacker) {}
 
 	void operator()() {
-		// TODO
-		std::cerr << "Neutralizing the attacker..." << std::endl;
+		boost::unordered_map<State *, std::size_t> occurrence;
+
+		foreach (const Attack *attack, attacker_.attacks()) {
+			/* State immediately after write is preferred. */
+			++occurrence[attack->write()->to()];
+
+			foreach (State *state, attack->intermediary()) {
+				++occurrence[state];
+			}
+		}
+
+		std::vector<State *> potentialFences;
+		foreach (const auto &pair, occurrence) {
+			if (pair.second >= 2) {
+				potentialFences.push_back(pair.first);
+			}
+		}
+
+		// TODO: For each subset of potentialFences, check whether it restores robustness.
+		// WTF???
 	}
 };
 

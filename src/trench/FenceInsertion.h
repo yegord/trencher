@@ -8,7 +8,8 @@ class Program;
 class Thread;
 class State;
 
-typedef std::vector<std::pair<Thread *, State *>> FenceSet;
+typedef std::pair<Thread *, State *> Fence;
+typedef std::vector<Fence> FenceSet;
 
 FenceSet computeFences(const Program &program);
 

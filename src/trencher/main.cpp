@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 						if (trench::checkIsRobust(program)) {
 							std::cout << "Program IS robust.";
 						} else {
-							std::cout << "Program NOT robust.";
+							std::cout << "Program IS NOT robust.";
 						}
 						break;
 					}
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 						if (trench::checkIsRobustParallel(program)) {
 							std::cout << "Program IS robust.";
 						} else {
-							std::cout << "Program NOT robust.";
+							std::cout << "Program IS NOT robust.";
 						}
 						break;
 					}
