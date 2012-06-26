@@ -2,7 +2,9 @@
 
 #include <atomic>
 
+#include <boost/range/adaptor/map.hpp>
 #include <boost/threadpool.hpp>
+#include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
 #include "Foreach.h"
@@ -116,6 +118,31 @@ class AttackChecker {
 	}
 };
 
+class Attacker {
+	std::vector<const Attack *> attacks_;
+	std::vector<State *> fences_;
+
+	public:
+
+	const std::vector<const Attack *> &attacks() const { return attacks_; }
+	void addAttack(const Attack *attack) { attacks_.push_back(attack); }
+
+	const std::vector<State *> &fences() { return fences_; }
+};
+
+class AttackerNeutralizer {
+	Attacker &attacker_;
+
+	public:
+
+	AttackerNeutralizer(Attacker &attacker): attacker_(attacker) {}
+
+	void operator()() {
+		// TODO
+		std::cerr << "Neutralizing the attacker..." << std::endl;
+	}
+};
+
 } // anonymous namespace
 
 FenceSet computeFences(const Program &program) {
@@ -144,6 +171,20 @@ FenceSet computeFences(const Program &program) {
 
 	foreach (Attack &attack, attacks) {
 		pool.schedule(AttackChecker(attack));
+	}
+
+	pool.wait();
+
+	boost::unordered_map<Thread *, Attacker> thread2attacker;
+
+	foreach (Attack &attack, attacks) {
+		if (attack.feasible()) {
+			thread2attacker[attack.attacker()].addAttack(&attack);
+		}
+	}
+
+	foreach (Attacker &attacker, thread2attacker | boost::adaptors::map_values) {
+		pool.schedule(AttackerNeutralizer(attacker));
 	}
 
 	pool.wait();
