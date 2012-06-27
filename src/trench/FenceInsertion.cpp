@@ -11,6 +11,7 @@
 #include "Reduction.h"
 #include "RobustnessChecking.h"
 #include "SpinModelChecker.h"
+#include "SortAndUnique.h"
 #include "State.h"
 #include "Thread.h"
 #include "Transition.h"
@@ -125,7 +126,8 @@ class Attacker {
 	const std::vector<const Attack *> &attacks() const { return attacks_; }
 	void addAttack(const Attack *attack) { assert(attack->feasible()); attacks_.push_back(attack); }
 
-	const std::vector<State *> &fences() { return fences_; }
+	const std::vector<State *> &fences() const { return fences_; }
+	void setFences(const std::vector<State *> &fences) { fences_ = fences; }
 };
 
 class AttackerNeutralizer {
@@ -136,6 +138,18 @@ class AttackerNeutralizer {
 	AttackerNeutralizer(Attacker &attacker): attacker_(attacker) {}
 
 	void operator()() {
+#if 0
+		// The task is, given certain attacks, find the minimal
+		// number of fences killing these attacks.
+		//
+		// Is it possible that after killing all these attacks
+		// there will be more? IMHO, no, because we've checked
+		// (and killed) all attacks with a single attacker.
+		//
+		// If there would be more attacks, there would be more
+		// attacks with a single attacked, but we've killed them
+		// all.
+		// 
 		boost::unordered_map<State *, std::size_t> occurrence;
 
 		foreach (const Attack *attack, attacker_.attacks()) {
@@ -156,6 +170,13 @@ class AttackerNeutralizer {
 
 		// TODO: For each subset of potentialFences, check whether it restores robustness.
 		// WTF???
+#endif
+		std::vector<State *> fences;
+		foreach (const Attack *attack, attacker_.attacks()) {
+			fences.push_back(attack->write()->to());
+		}
+		sort_and_unique(fences);
+		attacker_.setFences(fences);
 	}
 };
 
@@ -205,7 +226,13 @@ FenceSet computeFences(const Program &program) {
 
 	pool.wait();
 
-	return FenceSet();
+	FenceSet result;
+	foreach (const auto &item, thread2attacker) {
+		foreach (State *state, item.second.fences()) {
+			result.push_back(Fence(item.first, state));
+		}
+	}
+	return result;
 }
 
 } // namespace trench

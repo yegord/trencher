@@ -5,6 +5,7 @@
 
 #include "Foreach.h"
 #include "Program.h"
+#include "SortAndUnique.h"
 #include "Thread.h"
 #include "Transition.h"
 
@@ -90,16 +91,6 @@ void Census::visit(const std::shared_ptr<Expression> &expression) {
 		visit(binary->right());
 	}
 }
-
-namespace {
-
-template<class T>
-void sort_and_unique(T &container) {
-	std::sort(container.begin(), container.end());
-	container.erase(std::unique(container.begin(), container.end()), container.end());
-}
-
-} // anonymous namespace
 
 void Census::unique() const {
 	if (unique_) {

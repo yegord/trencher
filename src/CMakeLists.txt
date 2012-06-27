@@ -8,13 +8,13 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-	add_definitions(-std=c++0x)
 	add_definitions(-Wall -Wextra)
 	add_definitions(-fshow-column)
+        set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++11)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-	add_definitions(-std=c++11)
+	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++11)
 endif()
 
 find_package(Threads)
