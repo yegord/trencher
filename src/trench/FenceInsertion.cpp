@@ -8,9 +8,7 @@
 #include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
-#include "Reduction.h"
 #include "RobustnessChecking.h"
-#include "SpinModelChecker.h"
 #include "SortAndUnique.h"
 #include "State.h"
 #include "Thread.h"
@@ -25,8 +23,9 @@ class Attack {
 	Thread *attacker_;
 	Transition *write_;
 	Transition *read_;
-	std::vector<State *> intermediary_;
+
 	bool feasible_;
+	std::vector<State *> intermediary_;
 
 	public:
 
@@ -40,6 +39,9 @@ class Attack {
 	Transition *write() const { return write_; }
 	Transition *read() const { return read_; }
 
+	bool feasible() const { return feasible_; }
+	void setFeasible(bool value) { feasible_ = value; }
+
 	const std::vector<State *> &intermediary() const { return intermediary_; }
 
 	template<class T>
@@ -47,9 +49,6 @@ class Attack {
 		intermediary_.clear();
 		intermediary_.insert(intermediary_.end(), container.begin(), container.end());
 	}
-
-	bool feasible() const { return feasible_; }
-	void setFeasible(bool value) { feasible_ = value; }
 };
 
 class AttackChecker {
@@ -60,21 +59,15 @@ class AttackChecker {
 	AttackChecker(Attack &attack): attack_(attack) {}
 
 	void operator()() {
-		{
+		if (isAttackFeasible(attack_.program(), attack_.attacker(), attack_.write(), attack_.read())) {
+			attack_.setFeasible(true);
+
 			boost::unordered_set<State *> visited;
 			boost::unordered_set<State *> intermediary;
 
 			dfs(attack_.write()->to(), attack_.read()->from(), visited, intermediary);
 
 			attack_.setIntermediary(intermediary);
-		}
-
-		if (!attack_.intermediary().empty()) {
-			trench::Program augmentedProgram;
-			trench::reduce(attack_.program(), augmentedProgram, attack_.attacker(), attack_.write(), attack_.read());
-
-			trench::SpinModelChecker checker;
-			attack_.setFeasible(checker.check(augmentedProgram));
 		}
 	}
 
@@ -107,7 +100,6 @@ class AttackChecker {
 					break;
 				case Instruction::CAS:
 				case Instruction::MFENCE:
-					/* No fences or compare-and-swap on the way. */
 					break;
 				default: {
 					assert(!"NEVER REACHED");
@@ -127,7 +119,12 @@ class Attacker {
 	void addAttack(const Attack *attack) { assert(attack->feasible()); attacks_.push_back(attack); }
 
 	const std::vector<State *> &fences() const { return fences_; }
-	void setFences(const std::vector<State *> &fences) { fences_ = fences; }
+
+	template<class T>
+	void setFences(const T &container) {
+		fences_.clear();
+		fences_.insert(fences_.end(), container.begin(), container.end());
+	}
 };
 
 class AttackerNeutralizer {
@@ -138,45 +135,83 @@ class AttackerNeutralizer {
 	AttackerNeutralizer(Attacker &attacker): attacker_(attacker) {}
 
 	void operator()() {
-#if 0
-		// The task is, given certain attacks, find the minimal
-		// number of fences killing these attacks.
-		//
-		// Is it possible that after killing all these attacks
-		// there will be more? IMHO, no, because we've checked
-		// (and killed) all attacks with a single attacker.
-		//
-		// If there would be more attacks, there would be more
-		// attacks with a single attacked, but we've killed them
-		// all.
-		// 
-		boost::unordered_map<State *, std::size_t> occurrence;
-
-		foreach (const Attack *attack, attacker_.attacks()) {
-			/* State immediately after write is preferred. */
-			++occurrence[attack->write()->to()];
-
-			foreach (State *state, attack->intermediary()) {
-				++occurrence[state];
-			}
-		}
-
-		std::vector<State *> potentialFences;
-		foreach (const auto &pair, occurrence) {
-			if (pair.second >= 2) {
-				potentialFences.push_back(pair.first);
-			}
-		}
-
-		// TODO: For each subset of potentialFences, check whether it restores robustness.
-		// WTF???
-#endif
+		/*
+		 * It is always safe to insert fences after each attacker's write.
+		 */
 		std::vector<State *> fences;
 		foreach (const Attack *attack, attacker_.attacks()) {
 			fences.push_back(attack->write()->to());
 		}
 		sort_and_unique(fences);
 		attacker_.setFences(fences);
+
+		/*
+		 * Can we improve the result?
+		 */
+
+		boost::unordered_map<State *, std::size_t> occurrences;
+
+		/* For each state, compute the number of attacks it belongs to. */
+		foreach (const Attack *attack, attacker_.attacks()) {
+			foreach (State *state, attack->intermediary()) {
+				++occurrences[state];
+			}
+		}
+
+		/* Compute the set of potential fences. */
+		std::vector<State *> potentialFences(fences);
+		foreach (const auto &item, occurrences) {
+			if (item.second >= 2) {
+				potentialFences.push_back(item.first);
+			}
+		}
+		sort_and_unique(potentialFences);
+
+		/*
+		 * Iterate all the subsets of potential fences of size up to fences.size() - 1.
+		 *
+		 * This can be optimized by considering independent attacks independently and
+		 * even concurrently.
+		 */
+
+		boost::unordered_set<State *> usedFences;
+		for (std::size_t nfences = 1; nfences < fences.size(); ++nfences) {
+			if (tryFence(potentialFences, usedFences, nfences, 0)) {
+				break;
+			}
+		}
+	}
+
+	private:
+
+	bool tryFence(const std::vector<State *> &potentialFences, boost::unordered_set<State *> &usedFences, std::size_t nfences, std::size_t i) {
+		usedFences.insert(potentialFences[i]);
+		if (usedFences.size() == nfences) {
+			bool success = true;
+			foreach (const Attack *attack, attacker_.attacks()) {
+				if (isAttackFeasible(attack->program(), attack->attacker(), attack->write(), attack->read(), usedFences)) {
+					success = false;
+					break;
+				}
+			}
+			if (success) {
+				attacker_.setFences(usedFences);
+				return true;
+			}
+		} else {
+			if (tryFence(potentialFences, usedFences, nfences, i + 1)) {
+				return true;
+			}
+		}
+		usedFences.erase(potentialFences[i]);
+
+		if (nfences - usedFences.size() < potentialFences.size() - i) {
+			if (tryFence(potentialFences, usedFences, nfences, i + 1)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 };
 

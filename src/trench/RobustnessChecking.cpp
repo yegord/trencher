@@ -1,68 +1,65 @@
 #include "RobustnessChecking.h"
 
-#include <atomic>
-
-#include <boost/threadpool.hpp>
-
 #include "Foreach.h"
 #include "Program.h"
 #include "Reduction.h"
 #include "SpinModelChecker.h"
+#include "State.h"
+#include "Transition.h"
 
 namespace trench {
 
-bool checkIsRobust(const Program &program) {
-	trench::Program augmentedProgram;
-	trench::reduce(program, augmentedProgram);
-
-	trench::SpinModelChecker checker;
-	return !checker.check(augmentedProgram);
-}
-
 namespace {
 
-class AttackerChecker {
-	const Program &program_;
-	Thread *attacker_;
-	std::atomic<bool> &attackFound_;
+bool isReachable(State *state, State *target, boost::unordered_set<State *> &visited) {
+	if (state == target) {
+		return true;
+	}
 
-	public:
+	if (visited.find(state) != visited.end()) {
+		return false;
+	}
 
-	AttackerChecker(const Program &program, Thread *attacker, std::atomic<bool> &attackFound):
-		program_(program), attacker_(attacker), attackFound_(attackFound)
-	{}
+	visited.insert(state);
 
-	void operator()() {
-		trench::Program augmentedProgram;
-		trench::reduce(program_, augmentedProgram, attacker_);
-
-		trench::SpinModelChecker checker;
-		if (checker.check(augmentedProgram)) {
-			attackFound_ = true;
+	foreach (Transition *transition, state->out()) {
+		switch (transition->instruction()->mnemonic()) {
+			case Instruction::READ:
+			case Instruction::WRITE:
+			case Instruction::LOCAL:
+			case Instruction::CONDITION:
+			case Instruction::NOOP:
+				if (isReachable(transition->to(), target, visited)) {
+					return true;
+				}
+				break;
+			case Instruction::CAS:
+			case Instruction::MFENCE:
+				break;
+			default: {
+				assert(!"NEVER REACHED");
+			}
 		}
 	}
-};
+
+	return false;
+}
 
 } // anonymous namespace
 
-bool checkIsRobustParallel(const Program &program) {
-	boost::threadpool::pool pool(boost::thread::hardware_concurrency());
-
-	std::atomic<bool> attackFound(false);
-	foreach (Thread *attacker, program.threads()) {
-		pool.schedule(AttackerChecker(program, attacker, attackFound));
+bool isAttackFeasible(const Program &program, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
+	if (attackWrite && attackRead) {
+		boost::unordered_set<State *> visited(fenced);
+		if (!isReachable(attackWrite->to(), attackRead->from(), visited)) {
+			return false;
+		}
 	}
 
-	std::size_t tasksLeft;
-	while (((tasksLeft = pool.active() + pool.pending()) > 0) && !attackFound) {
-		pool.wait(tasksLeft - 1);
-	}
-	if (attackFound) {
-		pool.clear();
-	}
-	pool.wait();
+	trench::Program augmentedProgram;
+	trench::reduce(program, augmentedProgram, attacker, attackWrite, attackRead, fenced);
 
-	return !attackFound;
+	trench::SpinModelChecker checker;
+	return checker.check(augmentedProgram);
 }
 
 } // namespace trench

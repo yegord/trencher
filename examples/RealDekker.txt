@@ -50,9 +50,9 @@ thread t2
 initial q0
 transition q0	q1	write	1	1
 
-transition q1	q1_1	read	flag	1
-transition q1_1	q2	check	== flag 1
-transition q1_1	q9	check	== flag 0
+transition q1	q1_1	read	flag	0
+transition q1_1	q2	check	== flag 0
+transition q1_1	q9	check	== flag 1
 
 transition q2	q2_1	read	turn	2
 transition q2_1	q3	check	!= turn 1

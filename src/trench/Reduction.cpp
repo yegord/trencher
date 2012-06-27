@@ -12,7 +12,7 @@
 
 namespace trench {
 
-void reduce(const Program &program, Program &resultProgram, Thread *attacker, Transition *attackWrite, Transition *attackRead) {
+void reduce(const Program &program, Program &resultProgram, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
 	assert(attackWrite == NULL || attackWrite->instruction()->is<Write>());
 	assert(attackRead == NULL || attackRead->instruction()->is<Read>());
 
@@ -104,7 +104,11 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 				/*
 				 * Attacker's execution.
 				 */
-				if (Write *write = transition->instruction()->as<Write>()) {
+
+				/* Skip transitions from fenced states. */
+				if (fenced.find(transition->from()) != fenced.end()) {
+					/* No transition from an extra fenced state. */
+				} else if (Write *write = transition->instruction()->as<Write>()) {
 					/* Writes write to the buffer. */
 					resultThread->makeTransition(
 						attackerFrom,

@@ -9,7 +9,7 @@
 #include <trench/RobustnessChecking.h>
 
 void help() {
-	std::cout << "Usage: trencher [-f] [-r] [-rp] file..." << std::endl;
+	std::cout << "Usage: trencher [-r] [-f] file..." << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -21,19 +21,16 @@ int main(int argc, char **argv) {
 	try {
 		enum {
 			ROBUSTNESS,
-			ROBUSTNESS_PARALLEL,
 			FENCES
 		} action = FENCES;
 
 		for (int i = 1; i < argc; ++i) {
 			std::string arg = argv[i];
 
-			if (arg == "-f") {
-				action = FENCES;
-			} else if (arg == "-r") {
+			if (arg == "-r") {
 				action = ROBUSTNESS;
-			} else if (arg == "-rp") {
-				action = ROBUSTNESS_PARALLEL;
+			} else if (arg == "-f") {
+				action = FENCES;
 			} else if (arg.size() >= 1 && arg[1] == '-') {
 				throw std::runtime_error("unknown option: " + arg);
 			} else {
@@ -47,18 +44,10 @@ int main(int argc, char **argv) {
 
 				switch (action) {
 					case ROBUSTNESS: {
-						if (trench::checkIsRobust(program)) {
-							std::cout << "Program IS robust.";
+						if (trench::isAttackFeasible(program)) {
+							std::cout << "Program IS NOT robust." << std::endl;
 						} else {
-							std::cout << "Program IS NOT robust.";
-						}
-						break;
-					}
-					case ROBUSTNESS_PARALLEL: {
-						if (trench::checkIsRobustParallel(program)) {
-							std::cout << "Program IS robust.";
-						} else {
-							std::cout << "Program IS NOT robust.";
+							std::cout << "Program IS robust." << std::endl;
 						}
 						break;
 					}
