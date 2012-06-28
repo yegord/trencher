@@ -71,9 +71,10 @@ void Census::visit(const std::shared_ptr<Instruction> &instruction) {
 			}
 			break;
 		}
-		case Instruction::NOOP: {
+		case Instruction::NOOP: /* FALLTHROUGH */
+		case Instruction::LOCK: /* FALLTHROUGH */
+		case Instruction::UNLOCK:
 			break;
-		}
 		default: {
 			assert(!"NEVER REACHED");
 		}

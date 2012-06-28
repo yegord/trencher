@@ -35,6 +35,8 @@ bool isReachable(State *state, State *target, boost::unordered_set<State *> &vis
 				break;
 			case Instruction::CAS:
 			case Instruction::MFENCE:
+			case Instruction::LOCK:
+			case Instruction::UNLOCK:
 				break;
 			default: {
 				assert(!"NEVER REACHED");

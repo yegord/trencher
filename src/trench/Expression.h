@@ -19,6 +19,7 @@ class Expression {
 		REGISTER,
 		UNARY,
 		BINARY,
+		NOT_BLOCKED,
 	};
 
 	public:
@@ -68,8 +69,14 @@ class BinaryOperator: public Expression {
 	enum Kind {
 		EQ,
 		NEQ,
+		LT,
+		LEQ,
+		GT,
+		GEQ,
 		AND,
-		OR
+		OR,
+		ADD,
+		SUB
 	};
 
 	private:
@@ -89,9 +96,18 @@ class BinaryOperator: public Expression {
 	const std::shared_ptr<Expression> &right() const { return right_; }
 };
 
+class NotBlocked: public Expression {
+	public:
+
+	NotBlocked():
+		Expression(NOT_BLOCKED)
+	{}
+};
+
 } // namespace trench
 
 TRENCH_REGISTER_CLASS_KIND(Expression, Constant, Expression::CONSTANT)
 TRENCH_REGISTER_CLASS_KIND(Expression, Register, Expression::REGISTER)
 TRENCH_REGISTER_CLASS_KIND(Expression, UnaryOperator, Expression::UNARY)
 TRENCH_REGISTER_CLASS_KIND(Expression, BinaryOperator, Expression::BINARY)
+TRENCH_REGISTER_CLASS_KIND(Expression, NotBlocked, Expression::NOT_BLOCKED)

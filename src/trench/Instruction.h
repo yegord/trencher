@@ -33,7 +33,9 @@ class Instruction {
 		LOCAL,
 		CONDITION,
 		ATOMIC,
-		NOOP
+		NOOP,
+		LOCK,
+		UNLOCK
 	};
 
 	public:
@@ -197,6 +199,18 @@ class Noop: public Instruction {
 	Noop(): Instruction(NOOP) {}
 };
 
+class Lock: public Instruction {
+	public:
+
+	Lock(): Instruction(LOCK) {}
+};
+
+class Unlock: public Instruction {
+	public:
+
+	Unlock(): Instruction(UNLOCK) {}
+};
+
 } // namespace trench
 
 TRENCH_REGISTER_CLASS_KIND(Instruction, Read, Instruction::READ)
@@ -207,3 +221,5 @@ TRENCH_REGISTER_CLASS_KIND(Instruction, Local, Instruction::LOCAL)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Condition, Instruction::CONDITION)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Atomic, Instruction::ATOMIC)
 TRENCH_REGISTER_CLASS_KIND(Instruction, Noop, Instruction::NOOP)
+TRENCH_REGISTER_CLASS_KIND(Instruction, Lock, Instruction::LOCK)
+TRENCH_REGISTER_CLASS_KIND(Instruction, Unlock, Instruction::UNLOCK)

@@ -60,6 +60,9 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 
 	const std::shared_ptr<Register>  tmp(resultProgram.makeRegister("_tmp"));
 
+	const std::shared_ptr<Condition> check_not_blocked(
+		new Condition(std::make_shared<NotBlocked>()));
+
 	foreach (Thread *thread, program.threads()) {
 		Thread *resultThread = resultProgram.makeThread(thread->name());
 
@@ -74,7 +77,19 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 			State *originalFrom = resultThread->makeState("orig_" + transition->from()->name());
 			State *originalTo = resultThread->makeState("orig_" + transition->to()->name());
 
-			resultThread->makeTransition(originalFrom, originalTo, transition->instruction());
+			if (transition->instruction()->is<Read>() || transition->instruction()->is<Write>() ||
+			    transition->instruction()->is<CompareAndSwap>()) {
+				resultThread->makeTransition(
+					originalFrom,
+					originalTo,
+					std::make_shared<Atomic>(
+						check_not_blocked,
+						transition->instruction()
+					)
+				);
+			} else {
+				resultThread->makeTransition(originalFrom, originalTo, transition->instruction());
+			}
 
 			if (thread == attacker || attacker == NULL) {
 				State *attackerFrom = resultThread->makeState("att_" + transition->from()->name());
@@ -105,7 +120,6 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 				 * Attacker's execution.
 				 */
 
-				/* Skip transitions from fenced states. */
 				if (fenced.find(transition->from()) != fenced.end()) {
 					/* No transition from an extra fenced state. */
 				} else if (Write *write = transition->instruction()->as<Write>()) {
@@ -124,6 +138,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						attackerFrom,
 						attackerTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(is_buffered, read->address(), IS_BUFFERED_SPACE),
 							check_is_buffered,
 							std::make_shared<Read>(read->reg(), read->address(), BUFFER_SPACE)
@@ -135,6 +150,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						attackerFrom,
 						attackerTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(is_buffered, read->address(), IS_BUFFERED_SPACE),
 							check_is_not_buffered,
 							transition->instruction()
@@ -147,6 +163,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 							attackerFrom,
 							resultThread->makeState("final"),
 							std::make_shared<Atomic>(
+								check_not_blocked,
 								std::make_shared<Read> (is_buffered, read->address(), IS_BUFFERED_SPACE),
 								check_is_not_buffered,
 								transition->instruction(),
@@ -158,6 +175,9 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 					/* No transition: attacker can't execute compare-and-swap. */
 				} else if (transition->instruction()->as<Mfence>()) {
 					/* No transition: attacker can't execute fences. */
+				} else if (transition->instruction()->as<Lock>() ||
+				           transition->instruction()->as<Unlock>()) {
+					/* No transition: attacker can't execute locked instructions. */
 				} else if (transition->instruction()->as<Local>() ||
 				           transition->instruction()->as<Condition>() ||
 					   transition->instruction()->as<Noop>()) {
@@ -186,6 +206,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						originalFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(access_type, read->address(), HB_SPACE),
 							check_access_type_is_write,
 							transition->instruction()
@@ -196,6 +217,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						originalFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(access_type, write->address(), HB_SPACE),
 							check_access_type_is_read_or_write,
 							transition->instruction()
@@ -206,6 +228,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						originalFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(access_type, cas->address(), HB_SPACE),
 							std::make_shared<Read>(tmp, cas->address()),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::OR,
@@ -229,6 +252,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(access_type, read->address(), HB_SPACE),
 							check_access_type_is_write,
 							transition->instruction()
@@ -238,6 +262,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(access_type, read->address(), HB_SPACE),
 							check_access_type_is_not_write,
 							transition->instruction(),
@@ -248,6 +273,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, read->address())),
 							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
@@ -258,6 +284,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							transition->instruction(),
 							std::make_shared<Write>(hb_read, write->address(), HB_SPACE)
 						)
@@ -266,6 +293,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, write->address())),
 							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
@@ -277,6 +305,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(access_type, cas->address(), HB_SPACE),
 							std::make_shared<Read>(tmp, cas->address()),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::AND,
@@ -289,6 +318,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(access_type, cas->address(), HB_SPACE),
 							std::make_shared<Read>(tmp, cas->address()),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::AND,
@@ -302,6 +332,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, cas->address())),
 							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
@@ -313,6 +344,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(tmp, cas->address()),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, tmp, cas->oldValue())),
 							std::make_shared<Write>(cas->newValue(), cas->address()),
@@ -324,6 +356,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 						helperFrom,
 						helperTo,
 						std::make_shared<Atomic>(
+							check_not_blocked,
 							std::make_shared<Read>(tmp, cas->address()),
 							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::AND,

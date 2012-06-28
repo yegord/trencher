@@ -37,6 +37,38 @@ std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) 
 		std::shared_ptr<Expression> left = parseExpression(in, program);
 		std::shared_ptr<Expression> right = parseExpression(in, program);
 		return std::make_shared<BinaryOperator>(BinaryOperator::NEQ, left, right);
+	} else if (token == "<") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::LT, left, right);
+	} else if (token == "<=") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::LEQ, left, right);
+	} else if (token == ">") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::GT, left, right);
+	} else if (token == ">=") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::GEQ, left, right);
+	} else if (token == "&&") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::AND, left, right);
+	} else if (token == "||") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::OR, left, right);
+	} else if (token == "+") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::ADD, left, right);
+	} else if (token == "-") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::SUB, left, right);
 	} else {
 		return program.makeRegister(token);
 	}
@@ -132,6 +164,10 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 						auto reg = parseRegister(in, program);
 
 						instruction.reset(new CompareAndSwap(address, oldValue, newValue, reg));
+					} else if (token == "lock") {
+						instruction.reset(new Lock());
+					} else if (token == "unlock") {
+						instruction.reset(new Unlock());
 					} else {
 						throw std::runtime_error("unknown instruction `" + token + "'");
 					}

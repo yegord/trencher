@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 				action = ROBUSTNESS;
 			} else if (arg == "-f") {
 				action = FENCES;
-			} else if (arg.size() >= 1 && arg[1] == '-') {
+			} else if (arg.size() >= 1 && arg[0] == '-') {
 				throw std::runtime_error("unknown option: " + arg);
 			} else {
 				trench::Program program;
@@ -39,6 +39,9 @@ int main(int argc, char **argv) {
 				{
 					trench::NaiveParser parser;
 					std::ifstream in(argv[i]);
+					if (!in) {
+						throw std::runtime_error("can't open file: " + arg);
+					}
 					parser.parse(in, program);
 				}
 

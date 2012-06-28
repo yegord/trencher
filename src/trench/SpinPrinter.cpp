@@ -56,11 +56,26 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 				case BinaryOperator::NEQ:
 					out << "!=";
 					break;
-				case BinaryOperator::AND:
-					out << "&&";
+				case BinaryOperator::LT:
+					out << '<';
+					break;
+				case BinaryOperator::LEQ:
+					out << "<=";
+					break;
+				case BinaryOperator::GT:
+					out << '>';
+					break;
+				case BinaryOperator::GEQ:
+					out << ">=";
 					break;
 				case BinaryOperator::OR:
 					out << "||";
+					break;
+				case BinaryOperator::ADD:
+					out << '+';
+					break;
+				case BinaryOperator::SUB:
+					out << '-';
 					break;
 				default: {
 					 assert(!"NEVER REACHED");
@@ -70,6 +85,10 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 
 			printExpression(out, binary->right());
 			out << ')';
+			break;
+		}
+		case Expression::NOT_BLOCKED: {
+			out << "(giant_lock == 0 || giant_lock == THREAD_ID)";
 			break;
 		}
 		default: {
@@ -154,6 +173,14 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			out << "skip /*no-op*/;";
 			break;
 		}
+		case Instruction::LOCK: {
+			out << "atomic { giant_lock == 0 -> giant_lock = THREAD_ID; }";
+			break;
+		}
+		case Instruction::UNLOCK: {
+			out << "atomic { giant_lock == THREAD_ID -> giant_lock = 0; }";
+			break;
+		}
 		default: {
 			assert(!"NEVER REACHED");
 		}
@@ -173,10 +200,14 @@ void SpinPrinter::print(std::ostream &out, const Program &program) const {
 	foreach (Space space, programCensus.spaces()) {
 		out << "int mem" << space << "[" << program.memorySize() << "] = " << Domain() << ';' << std::endl;
 	}
+	out << "int giant_lock = 0;" << std::endl;
 
 	/* Threads. */
+	int thread_id = 0;
 	foreach (Thread *thread, program.threads()) {
 		out << "active proctype " << ident(thread) << "() {" << std::endl;
+
+		out << "int THREAD_ID = " << ++thread_id << ';' << std::endl;
 
 		Census threadCensus;
 		threadCensus.visit(thread);

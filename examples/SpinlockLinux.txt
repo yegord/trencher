@@ -1,0 +1,47 @@
+# counter := 1
+thread		initialize_counter
+initial		q0
+transition	q0	q1	write	1	1
+end
+
+# acquire1
+thread		acquire1
+initial 	acquire
+transition	acquire q1	lock
+transition	q1	q2	read	counter	1
+transition	q2	q3	local	counter	- counter 1
+transition	q3	q4	write	counter	1
+transition	q4	q5	unlock
+
+transition	q5	enter	check	>= counter 0
+transition	q5	spin	check	< counter 0
+
+transition	spin	q6	read	counter	1
+transition	q6	spin	check 	<= counter 0
+transition	q6	acquire	check	> counter 0
+
+transition 	enter	release	noop
+
+transition	release	end	write	1	1
+end
+
+# acquire2
+thread		acquire2
+initial 	acquire
+transition	acquire q1	lock
+transition	q1	q2	read	counter	1
+transition	q2	q3	local	counter	- counter 1
+transition	q3	q4	write	counter	1
+transition	q4	q5	unlock
+
+transition	q5	enter	check	>= counter 0
+transition	q5	spin	check	< counter 0
+
+transition	spin	q6	read	counter	1
+transition	q6	spin	check 	<= counter 0
+transition	q6	acquire	check	> counter 0
+
+transition 	enter	release	noop
+
+transition	release	end	write	1	1
+end
