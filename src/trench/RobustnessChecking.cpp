@@ -33,7 +33,6 @@ bool isReachable(State *state, State *target, boost::unordered_set<State *> &vis
 					return true;
 				}
 				break;
-			case Instruction::CAS:
 			case Instruction::MFENCE:
 			case Instruction::LOCK:
 			case Instruction::UNLOCK:

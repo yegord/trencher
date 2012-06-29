@@ -157,13 +157,6 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 						instruction.reset(new Condition(expression));
 					} else if (token == "noop") {
 						instruction.reset(new Noop());
-					} else if (token == "cas") {
-						auto address = parseExpression(in, program);
-						auto oldValue = parseExpression(in, program);
-						auto newValue = parseExpression(in, program);
-						auto reg = parseRegister(in, program);
-
-						instruction.reset(new CompareAndSwap(address, oldValue, newValue, reg));
 					} else if (token == "lock") {
 						instruction.reset(new Lock());
 					} else if (token == "unlock") {

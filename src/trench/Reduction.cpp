@@ -77,8 +77,7 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 			State *originalFrom = resultThread->makeState("orig_" + transition->from()->name());
 			State *originalTo = resultThread->makeState("orig_" + transition->to()->name());
 
-			if (transition->instruction()->is<Read>() || transition->instruction()->is<Write>() ||
-			    transition->instruction()->is<CompareAndSwap>()) {
+			if (transition->instruction()->is<Read>() || transition->instruction()->is<Write>()) {
 				resultThread->makeTransition(
 					originalFrom,
 					originalTo,
@@ -171,8 +170,6 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 							)
 						);
 					}
-				} else if (transition->instruction()->as<CompareAndSwap>()) {
-					/* No transition: attacker can't execute compare-and-swap. */
 				} else if (transition->instruction()->as<Mfence>()) {
 					/* No transition: attacker can't execute fences. */
 				} else if (transition->instruction()->as<Lock>() ||
@@ -220,25 +217,6 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 							check_not_blocked,
 							std::make_shared<Read>(access_type, write->address(), HB_SPACE),
 							check_access_type_is_read_or_write,
-							transition->instruction()
-						)
-					);
-				} else if (CompareAndSwap *cas = transition->instruction()->as<CompareAndSwap>()) {
-					resultThread->makeTransition(
-						originalFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(access_type, cas->address(), HB_SPACE),
-							std::make_shared<Read>(tmp, cas->address()),
-							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::OR,
-								std::make_shared<BinaryOperator>(BinaryOperator::AND,
-									std::make_shared<BinaryOperator>(BinaryOperator::EQ, tmp, cas->oldValue()),
-									check_access_type_is_read_or_write->expression()),
-								std::make_shared<BinaryOperator>(BinaryOperator::AND,
-									std::make_shared<BinaryOperator>(BinaryOperator::NEQ, tmp, cas->oldValue()),
-									check_access_type_is_write->expression())
-							)),
 							transition->instruction()
 						)
 					);
@@ -296,72 +274,6 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 							check_not_blocked,
 							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, write->address())),
-							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
-						)
-					);
-				} else if (CompareAndSwap *cas = transition->instruction()->as<CompareAndSwap>()) {
-					/* Read behaviours. */
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(access_type, cas->address(), HB_SPACE),
-							std::make_shared<Read>(tmp, cas->address()),
-							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::AND,
-								std::make_shared<BinaryOperator>(BinaryOperator::NEQ, tmp, cas->oldValue()),
-								check_access_type_is_write->expression())),
-							std::make_shared<Write>(zero, cas->success())
-						)
-					);
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(access_type, cas->address(), HB_SPACE),
-							std::make_shared<Read>(tmp, cas->address()),
-							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::AND,
-								std::make_shared<BinaryOperator>(BinaryOperator::NEQ, tmp, cas->oldValue()),
-								check_access_type_is_not_write->expression())),
-							std::make_shared<Write>(zero, cas->success()),
-							std::make_shared<Write>(hb_read, cas->address(), HB_SPACE)
-						)
-					);
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
-							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, cas->address())),
-							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
-						)
-					);
-
-					/* Write behaviours. */
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(tmp, cas->address()),
-							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, tmp, cas->oldValue())),
-							std::make_shared<Write>(cas->newValue(), cas->address()),
-							std::make_shared<Write>(one, cas->success()),
-							std::make_shared<Write>(hb_read, cas->address(), HB_SPACE)
-						)
-					);
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(tmp, cas->address()),
-							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
-							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::AND,
-								std::make_shared<BinaryOperator>(BinaryOperator::EQ, tmp, cas->oldValue()),
-								std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, cas->address()))),
 							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
 						)
 					);

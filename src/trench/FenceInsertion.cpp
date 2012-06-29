@@ -98,7 +98,6 @@ class AttackChecker {
 						intermediary.insert(state);
 					}
 					break;
-				case Instruction::CAS:
 				case Instruction::MFENCE:
 					break;
 				default: {
