@@ -12,7 +12,7 @@
 
 namespace trench {
 
-void reduce(const Program &program, Program &resultProgram, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
+void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnly, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
 	assert(attackWrite == NULL || attackWrite->instruction()->is<Write>());
 	assert(attackRead == NULL || attackRead->instruction()->is<Read>());
 
@@ -194,93 +194,106 @@ void reduce(const Program &program, Program &resultProgram, Thread *attacker, Tr
 				State *helperFrom = resultThread->makeState("hlp_" + transition->from()->name());
 				State *helperTo   = resultThread->makeState("hlp_" + transition->to()->name());
 
-				/*
-				 * Becoming a helper.
-				 */
-				/* One can become a helper only on a read or a write. */
-				if (Read *read = transition->instruction()->as<Read>()) {
-					resultThread->makeTransition(
-						originalFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(access_type, read->address(), HB_SPACE),
-							check_access_type_is_write,
-							transition->instruction()
-						)
-					);
-				} else if (Write *write = transition->instruction()->as<Write>()) {
-					resultThread->makeTransition(
-						originalFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(access_type, write->address(), HB_SPACE),
-							check_access_type_is_read_or_write,
-							transition->instruction()
-						)
-					);
-				}
-
-				/*
-				 * Helper's execution.
-				 */
-				if (Read *read = transition->instruction()->as<Read>()) {
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(access_type, read->address(), HB_SPACE),
-							check_access_type_is_write,
-							transition->instruction()
-						)
-					);
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(access_type, read->address(), HB_SPACE),
-							check_access_type_is_not_write,
-							transition->instruction(),
-							std::make_shared<Write>(hb_read, read->address(), HB_SPACE)
-						)
-					);
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
-							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, read->address())),
-							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
-						)
-					);
-				} else if (Write *write = transition->instruction()->as<Write>()) {
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							transition->instruction(),
-							std::make_shared<Write>(hb_read, write->address(), HB_SPACE)
-						)
-					);
-					resultThread->makeTransition(
-						helperFrom,
-						helperTo,
-						std::make_shared<Atomic>(
-							check_not_blocked,
-							std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
-							std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, write->address())),
-							std::make_shared<Write>(one, successVar, SERVICE_SPACE)
-						)
-					);
-				} else if (transition->instruction()->as<Atomic>()) {
-					assert(!"Sorry, atomics in input programs are not supported.");
+				if (searchForTdrOnly) {
+					if (Write *write = transition->instruction()->as<Write>()) {
+						resultThread->makeTransition(
+							originalFrom,
+							helperTo,
+							std::make_shared<Atomic>(
+								check_not_blocked,
+								std::make_shared<Write>(one, successVar, SERVICE_SPACE)
+							)
+						);
+					}
 				} else {
-					resultThread->makeTransition(helperFrom, helperTo, transition->instruction());
+					/*
+					 * Becoming a helper.
+					 */
+					/* One can become a helper only on a read or a write. */
+					if (Read *read = transition->instruction()->as<Read>()) {
+						resultThread->makeTransition(
+							originalFrom,
+							helperTo,
+							std::make_shared<Atomic>(
+								check_not_blocked,
+								std::make_shared<Read>(access_type, read->address(), HB_SPACE),
+								check_access_type_is_write,
+								transition->instruction()
+							)
+						);
+					} else if (Write *write = transition->instruction()->as<Write>()) {
+						resultThread->makeTransition(
+							originalFrom,
+							helperTo,
+							std::make_shared<Atomic>(
+								check_not_blocked,
+								std::make_shared<Read>(access_type, write->address(), HB_SPACE),
+								check_access_type_is_read_or_write,
+								transition->instruction()
+							)
+						);
+					}
+
+					/*
+					 * Helper's execution.
+					 */
+					if (Read *read = transition->instruction()->as<Read>()) {
+						resultThread->makeTransition(
+							helperFrom,
+							helperTo,
+							std::make_shared<Atomic>(
+								check_not_blocked,
+								std::make_shared<Read>(access_type, read->address(), HB_SPACE),
+								check_access_type_is_write,
+								transition->instruction()
+							)
+						);
+						resultThread->makeTransition(
+							helperFrom,
+							helperTo,
+							std::make_shared<Atomic>(
+								check_not_blocked,
+								std::make_shared<Read>(access_type, read->address(), HB_SPACE),
+								check_access_type_is_not_write,
+								transition->instruction(),
+								std::make_shared<Write>(hb_read, read->address(), HB_SPACE)
+							)
+						);
+						resultThread->makeTransition(
+							helperFrom,
+							helperTo,
+							std::make_shared<Atomic>(
+								check_not_blocked,
+								std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
+								std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, read->address())),
+								std::make_shared<Write>(one, successVar, SERVICE_SPACE)
+							)
+						);
+					} else if (Write *write = transition->instruction()->as<Write>()) {
+						resultThread->makeTransition(
+							helperFrom,
+							helperTo,
+							std::make_shared<Atomic>(
+								check_not_blocked,
+								transition->instruction(),
+								std::make_shared<Write>(hb_read, write->address(), HB_SPACE)
+							)
+						);
+						resultThread->makeTransition(
+							helperFrom,
+							helperTo,
+							std::make_shared<Atomic>(
+								check_not_blocked,
+								std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
+								std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, write->address())),
+								std::make_shared<Write>(one, successVar, SERVICE_SPACE)
+							)
+						);
+					} else if (transition->instruction()->as<Atomic>()) {
+						assert(!"Sorry, atomics in input programs are not supported.");
+					} else {
+						resultThread->makeTransition(helperFrom, helperTo, transition->instruction());
+					}
 				}
 			}
 		}

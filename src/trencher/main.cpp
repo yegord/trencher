@@ -21,7 +21,9 @@ int main(int argc, char **argv) {
 	try {
 		enum {
 			ROBUSTNESS,
-			FENCES
+			FENCES,
+			TRIANGULAR_RACE_FREEDOM,
+			TRF_FENCES
 		} action = FENCES;
 
 		for (int i = 1; i < argc; ++i) {
@@ -31,6 +33,10 @@ int main(int argc, char **argv) {
 				action = ROBUSTNESS;
 			} else if (arg == "-f") {
 				action = FENCES;
+			} else if (arg == "-trf") {
+				action = TRIANGULAR_RACE_FREEDOM;
+			} else if (arg == "-ftrf") {
+				action = TRF_FENCES;
 			} else if (arg.size() >= 1 && arg[0] == '-') {
 				throw std::runtime_error("unknown option: " + arg);
 			} else {
@@ -47,7 +53,7 @@ int main(int argc, char **argv) {
 
 				switch (action) {
 					case ROBUSTNESS: {
-						if (trench::isAttackFeasible(program)) {
+						if (trench::isAttackFeasible(program, false)) {
 							std::cout << "Program IS NOT robust." << std::endl;
 						} else {
 							std::cout << "Program IS robust." << std::endl;
@@ -55,7 +61,21 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case FENCES: {
-						std::cout << "Number of computed fences: " << trench::computeFences(program).size() << std::endl;
+						std::cout << "Number of computed fences for enforcing robustness: "
+						          << trench::computeFences(program, false).size() << std::endl;
+						break;
+					}
+					case TRIANGULAR_RACE_FREEDOM: {
+						if (trench::isAttackFeasible(program, true)) {
+							std::cout << "Program IS NOT triangular data race-free." << std::endl;
+						} else {
+							std::cout << "Program IS triangular data race-free." << std::endl;
+						}
+						break;
+					}
+					case TRF_FENCES: {
+						std::cout << "Number of computed fences for triangular race freedom: "
+						          << trench::computeFences(program, true).size() << std::endl;
 						break;
 					}
 					default: {

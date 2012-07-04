@@ -11,7 +11,7 @@ class State;
 class Thread;
 class Transition;
 
-bool isAttackFeasible(const Program &program,
+bool isAttackFeasible(const Program &program, bool searchForTdrOnly,
                       Thread *attacker = NULL, Transition *attackWrite = NULL, Transition *attackRead = NULL,
 		      const boost::unordered_set<State *> &fenced = boost::unordered_set<State *>());
 

@@ -53,13 +53,16 @@ class Attack {
 
 class AttackChecker {
 	Attack &attack_;
+	bool searchForTdrOnly_;
 
 	public:
 
-	AttackChecker(Attack &attack): attack_(attack) {}
+	AttackChecker(Attack &attack, bool searchForTdrOnly):
+		attack_(attack), searchForTdrOnly_(searchForTdrOnly)
+	{}
 
 	void operator()() {
-		if (isAttackFeasible(attack_.program(), attack_.attacker(), attack_.write(), attack_.read())) {
+		if (isAttackFeasible(attack_.program(), searchForTdrOnly_, attack_.attacker(), attack_.write(), attack_.read())) {
 			attack_.setFeasible(true);
 
 			boost::unordered_set<State *> visited;
@@ -128,10 +131,13 @@ class Attacker {
 
 class AttackerNeutralizer {
 	Attacker &attacker_;
+	bool searchForTdrOnly_;
 
 	public:
 
-	AttackerNeutralizer(Attacker &attacker): attacker_(attacker) {}
+	AttackerNeutralizer(Attacker &attacker, bool searchForTdrOnly):
+		attacker_(attacker), searchForTdrOnly_(searchForTdrOnly)
+	{}
 
 	void operator()() {
 		/*
@@ -188,7 +194,8 @@ class AttackerNeutralizer {
 		if (usedFences.size() == nfences) {
 			bool success = true;
 			foreach (const Attack *attack, attacker_.attacks()) {
-				if (isAttackFeasible(attack->program(), attack->attacker(), attack->write(), attack->read(), usedFences)) {
+				if (isAttackFeasible(attack->program(), searchForTdrOnly_,
+				    attack->attacker(), attack->write(), attack->read(), usedFences)) {
 					success = false;
 					break;
 				}
@@ -216,7 +223,7 @@ class AttackerNeutralizer {
 
 } // anonymous namespace
 
-FenceSet computeFences(const Program &program) {
+FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 	std::vector<Attack> attacks;
 
 	foreach (Thread *thread, program.threads()) {
@@ -241,7 +248,7 @@ FenceSet computeFences(const Program &program) {
 	boost::threadpool::pool pool(boost::thread::hardware_concurrency());
 
 	foreach (Attack &attack, attacks) {
-		pool.schedule(AttackChecker(attack));
+		pool.schedule(AttackChecker(attack, searchForTdrOnly));
 	}
 
 	pool.wait();
@@ -255,7 +262,7 @@ FenceSet computeFences(const Program &program) {
 	}
 
 	foreach (Attacker &attacker, thread2attacker | boost::adaptors::map_values) {
-		pool.schedule(AttackerNeutralizer(attacker));
+		pool.schedule(AttackerNeutralizer(attacker, searchForTdrOnly));
 	}
 
 	pool.wait();

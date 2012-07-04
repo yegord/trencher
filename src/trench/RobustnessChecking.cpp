@@ -48,7 +48,7 @@ bool isReachable(State *state, State *target, boost::unordered_set<State *> &vis
 
 } // anonymous namespace
 
-bool isAttackFeasible(const Program &program, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
+bool isAttackFeasible(const Program &program, bool searchForTdrOnly, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
 	if (attackWrite && attackRead) {
 		boost::unordered_set<State *> visited(fenced);
 		if (!isReachable(attackWrite->to(), attackRead->from(), visited)) {
@@ -57,7 +57,7 @@ bool isAttackFeasible(const Program &program, Thread *attacker, Transition *atta
 	}
 
 	trench::Program augmentedProgram;
-	trench::reduce(program, augmentedProgram, attacker, attackWrite, attackRead, fenced);
+	trench::reduce(program, augmentedProgram, searchForTdrOnly, attacker, attackWrite, attackRead, fenced);
 
 	trench::SpinModelChecker checker;
 	return checker.check(augmentedProgram);
