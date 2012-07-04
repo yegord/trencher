@@ -67,9 +67,9 @@ int main(int argc, char **argv) {
 					}
 					case TRIANGULAR_RACE_FREEDOM: {
 						if (trench::isAttackFeasible(program, true)) {
-							std::cout << "Program IS NOT triangular data race-free." << std::endl;
+							std::cout << "Program IS NOT free from triangular data races." << std::endl;
 						} else {
-							std::cout << "Program IS triangular data race-free." << std::endl;
+							std::cout << "Program IS free from triangular data races." << std::endl;
 						}
 						break;
 					}
