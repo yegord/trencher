@@ -1,6 +1,8 @@
-# Dekker's mutex algorithm: http://en.wikipedia.org/wiki/Dekker's_algorithm
 #
-# Should be non-robust.
+# Should be NOT robust.
+#
+# Dekker's mutex algorithm:
+# http://en.wikipedia.org/wiki/Dekker's_algorithm
 #
 # q0:   flag[0] = true;
 # q1:   while (flag[1] == true) {
@@ -17,6 +19,11 @@
 # q9:   turn    = 1;
 # q10:   flag[0] = false;
 #    // remainder section
+#
+# Memory layout:
+# 0 — flag[0]
+# 1 — flag[1]
+# 2 — turn
 
 thread t1
 initial q0

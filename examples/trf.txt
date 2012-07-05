@@ -1,10 +1,11 @@
-# A program with a triangular data race.
+# A robust program with a triangular data race.
 
 thread t1
 initial q0
 transition q0 q1	write	1	0
 transition q1 q2	read	r0	1
 end
+
 thread t2
 initial q0
 transition q0 q1	write	1	1

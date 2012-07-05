@@ -17,7 +17,6 @@
 #
 #
 # Memory layout:
-#
 # tail pointer              : 0
 # myPred pointer of thread 1: 1
 # myNode pointer of thread 1: 2

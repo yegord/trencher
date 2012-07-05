@@ -1,6 +1,7 @@
-# https://github.com/Begun/lockfree-malloc/blob/33e3f229caed2416e5bcf9af196d354247d5e185/stack.h
 #
 # Should be robust.
+#
+# https://github.com/Begun/lockfree-malloc/blob/33e3f229caed2416e5bcf9af196d354247d5e185/stack.h
 #
 # void push (T* obj) {
 # q0:
@@ -12,12 +13,11 @@
 #         }
 # }
 #
-# address 1: m_head
-# address 2: obj pushed by push1
-# address 3: obj pushed by push2
-#
+# Memory layout:
+# 1 — m_head
+# 2 — obj pushed by push1
+# 3 — obj pushed by push2
 
-# push(2)
 thread push1
 initial q0
 transition q0	q1	local	obj	2
@@ -32,10 +32,9 @@ transition q3_4	q0	unlock
 
 transition q3_3	q3_4	check	!= flag 0
 transition q3_4	q3_5	write	obj	1
-transition q3_5	q3_6	unlock
+transition q3_5	q4	unlock
 end
 
-# push(3)
 thread push2
 initial q0
 transition q0	q1	local	obj	3
@@ -50,7 +49,7 @@ transition q3_4	q0	unlock
 
 transition q3_3	q3_4	check	!= flag 0
 transition q3_4	q3_5	write	obj	1
-transition q3_5	q3_6	unlock
+transition q3_5	q4	unlock
 end
 
 
@@ -69,8 +68,7 @@ end
 #     }
 # }
 
-# pop()
-thread pop
+thread pop1
 initial q0
 transition q0	q1	read	old	0
 
@@ -89,7 +87,30 @@ transition q4_3	q4_5	check	== flag	0
 transition q4_5	q4_a	unlock
 
 transition q4_a	q5	check	== flag 0
-transition q5	q_end	local	result	old
+
+transition q4_1	q0	check	!= flag	0
+
+end
+
+thread pop2
+initial q0
+transition q0	q1	read	old	0
+
+transition q1	q2	check	== old 0
+transition q2	q_end	local	result	0
+
+transition q1	q3	check 	!= old 0
+transition q3	q4	read	next	old
+
+transition q4	q4_1	lock
+transition q4_1	q4_2	read	tmp	1
+transition q4_2	q4_3	local	flag	== tmp old
+transition q4_3	q4_4	check	!= flag 0
+transition q4_4 q4_5	write	next	1
+transition q4_3	q4_5	check	== flag	0
+transition q4_5	q4_a	unlock
+
+transition q4_a	q5	check	== flag 0
 
 transition q4_1	q0	check	!= flag	0
 

@@ -1,0 +1,83 @@
+#
+# Should be robust.
+#
+# The Non-Blocking Write Protocol NBW: A Solution to a Real-Time
+# Synchronisation Problem. H. Kopetz and J. Reisinger IEEE Real-Time
+# Systems Symposium 1993
+
+# Memory layout:
+# 0 — buf
+# 1 — counter
+# 2 — spinlock counter
+
+# TODO: should noop be something else?
+
+thread release
+initial	rel0
+transition	rel0	rel1	write	1	2
+end
+
+thread writer
+initial w0
+transition	w0	w0_1	local	buf	0
+transition	w0_1	w1	local	counter	1
+transition	w1	w2	read	cnt	counter
+transition	w2	w3	write	+ cnt 1	counter
+transition	w3	w4	write	666	buf
+transition	w4	w5	write	+ cnt 2	counter
+end
+
+thread lockerreader
+initial acq0
+transition	acq0	acq1	lock
+transition	acq1	acq2	read	counter	2
+transition	acq2	acq3	local	counter	- counter 1
+transition	acq3	acq4	write	counter	2
+transition	acq4	acq5	unlock
+transition	acq5	enter	check	>= counter 0
+transition	acq5	acq6	check	< counter 0
+transition	acq6	q7	read	counter	2
+transition	acq7	acq6	check 	<= counter 0
+transition	acq7	acq0	check	> counter 0
+
+transition	enter	rel0	noop
+
+transition	rel0	rel1	write	1	2
+
+transition	acq6	q7	read	counter	2
+transition	acq7	acq6	check 	<= counter 0
+transition	acq7	acq0	check	> counter 0
+transition	r0	r0_1	local	buf	0
+transition	r0_1	r1	local	counter	1
+transition	r1	r2	read	cnt_b	counter
+transition	r2	r3	read	value	buf
+transition	r4	r5	read	cnt_e	counter
+transition	r5	r0	check	|| != cnt_b cnt_e  == & cnt_b 1 1
+transition	r5	r6	check	&& == cnt_b cnt_e  == & cnt_b 1 0
+end
+
+thread readerlocker
+initial r0
+transition	r0	r0_1	local	buf	0
+transition	r0_1	r1	local	counter	1
+transition	r1	r2	read	cnt_b	counter
+transition	r2	r3	read	value	buf
+transition	r4	r5	read	cnt_e	counter
+transition	r5	r0	check	|| != cnt_b cnt_e  == & cnt_b 1 1
+transition	r5	acq0	check	&& == cnt_b cnt_e  == & cnt_b 1 0
+
+transition	acq0	acq1	lock
+transition	acq1	acq2	read	counter	2
+transition	acq2	acq3	local	counter	- counter 1
+transition	acq3	acq4	write	counter	2
+transition	acq4	acq5	unlock
+transition	acq5	enter	check	>= counter 0
+transition	acq5	acq6	check	< counter 0
+transition	acq6	q7	read	counter	2
+transition	acq7	acq6	check 	<= counter 0
+transition	acq7	acq0	check	> counter 0
+
+transition	enter	rel0	noop
+
+transition	rel0	rel1	write	1	2
+end
