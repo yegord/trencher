@@ -122,15 +122,17 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 				if (fenced.find(transition->from()) != fenced.end()) {
 					/* No transition from an extra fenced state. */
 				} else if (Write *write = transition->instruction()->as<Write>()) {
-					/* Writes write to the buffer. */
-					resultThread->makeTransition(
-						attackerFrom,
-						attackerTo,
-						std::make_shared<Atomic>(
-							std::make_shared<Write>(write->value(), write->address(), BUFFER_SPACE),
-							std::make_shared<Write>(one,            write->address(), IS_BUFFERED_SPACE)
-						)
-					);
+					if (!searchForTdrOnly) {
+						/* Writes write to the buffer. */
+						resultThread->makeTransition(
+							attackerFrom,
+							attackerTo,
+							std::make_shared<Atomic>(
+								std::make_shared<Write>(write->value(), write->address(), BUFFER_SPACE),
+								std::make_shared<Write>(one,            write->address(), IS_BUFFERED_SPACE)
+							)
+						);
+					}
 				} else if (Read *read = transition->instruction()->as<Read>()) {
 					/* Reads either read from the buffer... */
 					resultThread->makeTransition(

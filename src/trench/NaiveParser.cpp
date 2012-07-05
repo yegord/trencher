@@ -69,6 +69,10 @@ std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) 
 		std::shared_ptr<Expression> left = parseExpression(in, program);
 		std::shared_ptr<Expression> right = parseExpression(in, program);
 		return std::make_shared<BinaryOperator>(BinaryOperator::SUB, left, right);
+	} else if (token == "*") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+		return std::make_shared<BinaryOperator>(BinaryOperator::MUL, left, right);
 	} else {
 		return program.makeRegister(token);
 	}
@@ -138,14 +142,14 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 						throw std::runtime_error("expected an instruction name, got EOF");
 					} else if (token == "read") {
 						auto reg = parseRegister(in, program);
-						auto expression = parseExpression(in, program);
-						
-						instruction.reset(new Read(reg, expression));
-					} else if (token == "write") {
 						auto address = parseExpression(in, program);
+						
+						instruction.reset(new Read(reg, address));
+					} else if (token == "write") {
 						auto value = parseExpression(in, program);
+						auto address = parseExpression(in, program);
 
-						instruction.reset(new Write(address, value));
+						instruction.reset(new Write(value, address));
 					} else if (token == "mfence") {
 						instruction.reset(new Mfence());
 					} else if (token == "local") {

@@ -76,7 +76,8 @@ class BinaryOperator: public Expression {
 		AND,
 		OR,
 		ADD,
-		SUB
+		SUB,
+		MUL
 	};
 
 	private:

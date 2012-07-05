@@ -9,7 +9,7 @@
 #include <trench/RobustnessChecking.h>
 
 void help() {
-	std::cout << "Usage: trencher [-r] [-f] file..." << std::endl;
+	std::cout << "Usage: trencher [-r] [-f] [-trf] [-ftrf] file..." << std::endl;
 }
 
 int main(int argc, char **argv) {

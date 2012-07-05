@@ -36,6 +36,30 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 					out << "!=";
 					break;
 				}
+				case BinaryOperator::LT:
+					out << '<';
+					break;
+				case BinaryOperator::LEQ:
+					out << "<=";
+					break;
+				case BinaryOperator::GT:
+					out << '>';
+					break;
+				case BinaryOperator::GEQ:
+					out << ">=";
+					break;
+				case BinaryOperator::OR:
+					out << "||";
+					break;
+				case BinaryOperator::ADD:
+					out << '+';
+					break;
+				case BinaryOperator::SUB:
+					out << '-';
+					break;
+				case BinaryOperator::MUL:
+					out << '*';
+					break;
 				default: {
 					 assert(!"NEVER REACHED");
 				}

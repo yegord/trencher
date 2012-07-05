@@ -77,6 +77,9 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 				case BinaryOperator::SUB:
 					out << '-';
 					break;
+				case BinaryOperator::MUL:
+					out << '*';
+					break;
 				default: {
 					 assert(!"NEVER REACHED");
 				}
