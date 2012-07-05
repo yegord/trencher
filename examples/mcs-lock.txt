@@ -1,6 +1,9 @@
 #
 # Turns out to be robust.
 #
+# MCS lock. Page 155 of The Art of Multiprocessor Programming (Herlihy, Shavit).
+
+# 
 #   public void lock() {
 # q1: QNode qnode = myNode.get();
 # q2: QNode pred = tail.getAndSet(qnode);
@@ -20,6 +23,12 @@
 # q5: qnode.next.locked = false;
 # q6: qnode.next = null;
 # }
+#
+#
+# Memory layout:
+# tail pointer              : 0
+# myNode pointer of thread 1: 1
+# myNode pointer of thread 2: 2
 
 
 thread lock1

@@ -1,4 +1,8 @@
-# Simplified Dekker. Should be robust.
+#
+# Should be robust.
+#
+# Simplified Dekker (fully fenced).
+#
 
 thread t1
 initial q0

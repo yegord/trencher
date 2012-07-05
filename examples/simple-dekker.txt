@@ -1,4 +1,7 @@
-# Simplified Dekker. Should be non-robust.
+#
+# Should be NOT robust.
+#
+# Simplified Dekker.
 
 thread t1
 initial q0
@@ -8,8 +11,7 @@ transition q2 q3	check	== r0 0
 end
 thread t2
 initial q0
-transition q0 q11	write	1	1
-transition q11 q1	mfence
+transition q0 q1	write	1	1
 transition q1 q2 	read	r0	0
 transition q2 q3 	check	r0
 end
