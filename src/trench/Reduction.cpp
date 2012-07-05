@@ -201,6 +201,8 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							helperTo,
 							std::make_shared<Atomic>(
 								check_not_blocked,
+								std::make_shared<Read>(access_type, write->address(), HB_SPACE),
+								check_access_type_is_read_or_write,
 								std::make_shared<Write>(one, successVar, SERVICE_SPACE)
 							)
 						);

@@ -60,7 +60,7 @@ bool SpinModelChecker::check(const Program &program) {
 
 	bool result = boost::filesystem::exists(trail);
 
-//	boost::filesystem::remove_all(temp_dir);
+	boost::filesystem::remove_all(temp_dir);
 
 	return result;
 }
