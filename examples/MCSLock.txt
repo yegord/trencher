@@ -32,6 +32,7 @@ transition	q4	q5	write	1	+ 0 * 2 qnode
 transition	q5	q6	write	qnode	+ 1 * 2 pred
 transition	q6	q6_1	read	locked	+ 0 * 2 qnode
 transition	q6_1	q6	check	locked
+transition	q6_1	end	check	== locked 0
 end
 
 thread unlock1
@@ -64,6 +65,7 @@ transition	q4	q5	write	1	+ 0 * 2 qnode
 transition	q5	q6	write	qnode	+ 1 * 2 pred
 transition	q6	q6_1	read	locked	+ 0 * 2 qnode
 transition	q6_1	q6	check	locked
+transition	q6_1	end	check	== locked 0
 end
 
 thread unlock2

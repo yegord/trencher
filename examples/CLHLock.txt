@@ -1,0 +1,113 @@
+# public void lock() {
+#  q1: QNode qnode = myNode.get();
+#  q2: qnode.locked = true;
+#  q3: QNode pred = tail.getAndSet(qnode);
+#  q4: myPred.set(pred);
+#  q5: while (pred.locked) {}
+# }
+#
+# public void unlock() {
+#  q1: QNode qnode = myNode.get();
+#  q2: qnode.locked = false;
+#  q3: myNode.set(myPred.get());
+# }
+#
+# tail pointer              : 0
+# myPred pointer of thread 1: 1
+# myNode pointer of thread 1: 2
+# myPred pointer of thread 1: 3
+# myNode pointer of thread 1: 4
+
+memory_size 20
+
+thread initialize
+initial q0
+transition	q1	q2	write	5	1
+transition	q2	q2	write	6	2
+transition	q3	q2	write	7	3
+transition	q4	q2	write	8	4
+end
+
+thread lock1
+initial q0
+transition	q0	q0_1	read	test	4
+transition	q0_1	q1	check	test
+
+transition	q1	q2	read	qnode	2
+transition	q2	q3	write	1	+ 0 * 2 qnode
+transition	q3	q3_1	lock
+transition	q3_1	q3_2	read	pred	0
+transition	q3_2	q3_3	write	qnode	0
+transition	q3_3	q4	unlock
+transition	q4	q5	write	pred	1
+transition	q5	q5_1	read	locked	+ 0 * 2 pred
+transition	q5_1	q5	check	!= locked 0
+transition	q5	end	check	== locked 0
+end
+
+thread unlock1
+initial q0
+transition	q0	q0_1	read	test	4
+transition	q0_1	q1	check	test
+
+transition	q1	q2	read	qnode	2
+transition	q2	q3	write	0	+ 0 * 2 qnode
+transition	q3	q3_1	read	pred	1
+transition	q3_1	q4	write	pred	2
+end
+
+thread lock1_1
+initial q0
+transition	q0	q0_1	read	test	4
+transition	q0_1	q1	check	test
+
+transition	q1	q2	read	qnode	2
+transition	q2	q3	write	1	+ 0 * 2 qnode
+transition	q3	q3_1	lock
+transition	q3_1	q3_2	read	pred	0
+transition	q3_2	q3_3	write	qnode	0
+transition	q3_3	q4	unlock
+transition	q4	q5	write	pred	1
+transition	q5	q5_1	read	locked	+ 0 * 2 pred
+transition	q5_1	q5	check	!= locked 0
+transition	q5	end	check	== locked 0
+end
+
+thread unlock1_1
+initial q0
+transition	q0	q0_1	read	test	4
+transition	q0_1	q1	check	test
+
+transition	q1	q2	read	qnode	2
+transition	q2	q3	write	0	+ 0 * 2 qnode
+transition	q3	q3_1	read	pred	1
+transition	q3_1	q4	write	pred	2
+end
+
+thread lock2
+initial q0
+transition	q0	q0_1	read	test	4
+transition	q0_1	q1	check	test
+
+transition	q1	q2	read	qnode	4
+transition	q2	q3	write	1	+ 0 * 2 qnode
+transition	q3	q3_1	lock
+transition	q3_1	q3_2	read	pred	0
+transition	q3_2	q3_3	write	qnode	0
+transition	q3_3	q4	unlock
+transition	q4	q5	write	pred	3
+transition	q5	q5_1	read	locked	+ 0 * 2 pred
+transition	q5_1	q5	check	!= locked 0
+transition	q5	end	check	== locked 0
+end
+
+thread unlock2
+initial q0
+transition	q0	q0_1	read	test	4
+transition	q0_1	q1	check	test
+
+transition	q1	q2	read	qnode	4
+transition	q2	q3	write	0	+ 0 * 2 qnode
+transition	q3	q3_1	read	pred	3
+transition	q3_1	q4	write	pred	4
+end
