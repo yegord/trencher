@@ -1,3 +1,6 @@
+#
+# Turns out to be robust.
+#
 # public void lock() {
 #  q1: QNode qnode = myNode.get();
 #  q2: qnode.locked = true;
@@ -11,6 +14,9 @@
 #  q2: qnode.locked = false;
 #  q3: myNode.set(myPred.get());
 # }
+#
+#
+# Memory layout:
 #
 # tail pointer              : 0
 # myPred pointer of thread 1: 1

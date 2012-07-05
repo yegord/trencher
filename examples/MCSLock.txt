@@ -1,3 +1,6 @@
+#
+# Turns out to be robust.
+#
 #   public void lock() {
 # q1: QNode qnode = myNode.get();
 # q2: QNode pred = tail.getAndSet(qnode);

@@ -68,6 +68,9 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 				case BinaryOperator::GEQ:
 					out << ">=";
 					break;
+				case BinaryOperator::AND:
+					out << "&&";
+					break;
 				case BinaryOperator::OR:
 					out << "||";
 					break;
@@ -80,8 +83,11 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 				case BinaryOperator::MUL:
 					out << '*';
 					break;
+				case BinaryOperator::BIN_AND:
+					out << '&';
+					break;
 				default: {
-					 assert(!"NEVER REACHED");
+					assert(!"NEVER REACHED");
 				}
 			}
 			out << ' ';
