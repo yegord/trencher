@@ -6,7 +6,7 @@ thread t0
 initial start
 transition	start	q0	local	i	0
 transition	q0	q0_1	write	i	0
-transition	q0_1	q_1	mfence
+transition	q0_1	q1	mfence
 transition	q1	q2	read	y	1
 transition	q2	q0	check	!= y 0
 transition	q2	q3	check	== y 0
@@ -25,7 +25,7 @@ thread t1
 initial start
 transition	start	q0	local	i	1
 transition	q0	q0_1	write	i	0
-transition	q0_1	q_1	mfence
+transition	q0_1	q1	mfence
 transition	q1	q2	read	y	1
 transition	q2	q0	check	!= y 0
 transition	q2	q3	check	== y 0
@@ -44,7 +44,7 @@ thread t2
 initial start
 transition	start	q0	local	i	2
 transition	q0	q0_1	write	i	0
-transition	q0_1	q_1	mfence
+transition	q0_1	q1	mfence
 transition	q1	q2	read	y	1
 transition	q2	q0	check	!= y 0
 transition	q2	q3	check	== y 0
