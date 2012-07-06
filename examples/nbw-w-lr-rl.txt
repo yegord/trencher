@@ -1,5 +1,5 @@
 #
-# Should be robust.
+# Should be robust. But NOT TRF.
 #
 # The Non-Blocking Write Protocol NBW: A Solution to a Real-Time
 # Synchronisation Problem. H. Kopetz and J. Reisinger IEEE Real-Time
@@ -9,8 +9,7 @@
 # 0 — buf
 # 1 — counter
 # 2 — spinlock counter
-
-# TODO: should noop be something else?
+# 3 - z
 
 thread release
 initial	rel0
@@ -36,17 +35,14 @@ transition	acq3	acq4	write	counter	2
 transition	acq4	acq5	unlock
 transition	acq5	enter	check	>= counter 0
 transition	acq5	acq6	check	< counter 0
-transition	acq6	q7	read	counter	2
+transition	acq6	acq7	read	counter	2
 transition	acq7	acq6	check 	<= counter 0
 transition	acq7	acq0	check	> counter 0
 
-transition	enter	rel0	noop
+transition	enter	rel0	write	1	3
 
-transition	rel0	rel1	write	1	2
+transition	rel0	r0	write	1	2
 
-transition	acq6	q7	read	counter	2
-transition	acq7	acq6	check 	<= counter 0
-transition	acq7	acq0	check	> counter 0
 transition	r0	r0_1	local	buf	0
 transition	r0_1	r1	local	counter	1
 transition	r1	r2	read	cnt_b	counter
@@ -73,11 +69,11 @@ transition	acq3	acq4	write	counter	2
 transition	acq4	acq5	unlock
 transition	acq5	enter	check	>= counter 0
 transition	acq5	acq6	check	< counter 0
-transition	acq6	q7	read	counter	2
+transition	acq6	acq7	read	counter	2
 transition	acq7	acq6	check 	<= counter 0
 transition	acq7	acq0	check	> counter 0
 
-transition	enter	rel0	noop
+transition	enter	rel0	read	z	3
 
 transition	rel0	rel1	write	1	2
 end

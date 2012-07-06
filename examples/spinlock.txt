@@ -1,5 +1,5 @@
 #
-# Linux Spinlock from Owens2010 paper.
+# Linux Spinlock from Owens2010 paper (Fig 2).
 #
 # Used in nbw-* examples.
 #
@@ -23,7 +23,7 @@ transition	acq4	acq5	unlock
 transition	acq5	enter	check	>= counter 0
 transition	acq5	acq6	check	< counter 0
 
-transition	acq6	q7	read	counter	2
+transition	acq6	acq7	read	counter	2
 transition	acq7	acq6	check 	<= counter 0
 transition	acq7	acq0	check	> counter 0
 end

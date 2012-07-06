@@ -37,4 +37,3 @@ transition	r4	r5	read	cnt_e	counter
 transition	r5	r0	check	|| != cnt_b cnt_e  == & cnt_b 1 1
 transition	r5	r6	check	&& == cnt_b cnt_e  == & cnt_b 1 0
 end
-
