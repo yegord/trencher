@@ -9,7 +9,7 @@
 # 0 — buf
 # 1 — counter
 # 2 — spinlock counter
-# 3 - z
+# 3 — z
 
 thread release
 initial	rel0

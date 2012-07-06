@@ -10,7 +10,7 @@
 # Memory layout:
 # 0 — buf
 # 1 — counter
-# 3 - z
+# 3 — z
 
 thread writer
 initial w0
