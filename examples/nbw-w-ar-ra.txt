@@ -1,0 +1,50 @@
+#
+# Should be robust.
+#
+# The Non-Blocking Write Protocol NBW: A Solution to a Real-Time
+# Synchronisation Problem. H. Kopetz and J. Reisinger IEEE Real-Time
+# Systems Symposium 1993
+#
+# TODO: Why did the previous implementation think that it is robust?
+
+# Memory layout:
+# 0 — buf
+# 1 — counter
+# 3 - z
+
+thread writer
+initial w0
+transition	w0	w0_1	local	buf	0
+transition	w0_1	w1	local	counter	1
+transition	w1	w2	read	cnt	counter
+transition	w2	w3	write	+ cnt 1	counter
+transition	w3	w4	write	666	buf
+transition	w4	w5	write	+ cnt 2	counter
+end
+
+thread accreader
+initial acc0
+transition	acc0	r0	write	888	3
+
+transition	r0	r0_1	local	buf	0
+transition	r0_1	r1	local	counter	1
+transition	r1	r2	read	cnt_b	counter
+transition	r2	r3	read	value	buf
+transition	r4	r5	read	cnt_e	counter
+transition	r5	r0	check	|| != cnt_b cnt_e  == & cnt_b 1 1
+transition	r5	r6	check	&& == cnt_b cnt_e  == & cnt_b 1 0
+end
+
+thread readeracc
+initial r0
+transition	r0	r0_1	local	buf	0
+transition	r0_1	r1	local	counter	1
+transition	r1	r2	read	cnt_b	counter
+transition	r2	r3	read	value	buf
+transition	r4	r5	read	cnt_e	counter
+transition	r5	r0	check	|| != cnt_b cnt_e  == & cnt_b 1 1
+transition	r5	acc0	check	&& == cnt_b cnt_e  == & cnt_b 1 0
+
+transition	acc0	acc1	write	777	3
+
+end
