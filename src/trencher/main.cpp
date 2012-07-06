@@ -3,10 +3,12 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <trench/Foreach.h>
 #include <trench/FenceInsertion.h>
 #include <trench/NaiveParser.h>
 #include <trench/Program.h>
 #include <trench/RobustnessChecking.h>
+#include <trench/State.h>
 
 void help() {
 	std::cout << "Usage: trencher [-r] [-f] [-trf] [-ftrf] file..." << std::endl;
@@ -61,8 +63,12 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case FENCES: {
-						std::cout << "Number of computed fences for enforcing robustness: "
-						          << trench::computeFences(program, false).size() << std::endl;
+						auto fences = trench::computeFences(program, false);
+						std::cout << "Computed fences for enforcing robustness (" << fences.size() << " total):";
+						foreach (const auto &fence, fences) {
+							std::cout << " (" << fence.first->name() << "," << fence.second->name() << ')';
+						}
+						std::cout << std::endl;
 						break;
 					}
 					case TRIANGULAR_RACE_FREEDOM: {
@@ -74,8 +80,12 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case TRF_FENCES: {
-						std::cout << "Number of computed fences for triangular race freedom: "
-						          << trench::computeFences(program, true).size() << std::endl;
+						auto fences = trench::computeFences(program, false);
+						std::cout << "Computed fences for enforcing triangular race freedom (" << fences.size() << " total):";
+						foreach (const auto &fence, fences) {
+							std::cout << " (" << fence.first->name() << "," << fence.second->name() << ')';
+						}
+						std::cout << std::endl;
 						break;
 					}
 					default: {
