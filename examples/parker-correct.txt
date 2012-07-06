@@ -1,0 +1,25 @@
+#
+# Should be robust.
+#
+#
+# Memory layout:
+# 0 — cond
+# 1 — park_counter
+
+thread parker
+initial q0
+transition	q0	q1	read	cond	0
+transition	q1	finish	check	!= cond 0
+transition	q1	q2	check	== cond 0
+
+transition	q2	q3	read	counter	1
+transition	q3	q4	write	0	1
+transition	q4	q0	mfence
+end
+
+thread unparker
+initial q0
+transition	q0	q1	write	1	0
+transition	q1	q2	mfence
+transition	q2	q3	write	1	1
+end
