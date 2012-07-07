@@ -28,7 +28,7 @@ transition	q3	q4	check	== flag1 1
 transition	q4	q5	read	turn	2
 transition	q5	enter	check	!= turn 1
 transition	q5	q2	check	== turn 1
-transition	enter	finish	write	0	0
+transition	enter	q0	write	0	0
 end
 
 # Thread t1 is symmetric.
@@ -43,5 +43,5 @@ transition	q3	q4	check	== flag0 1
 transition	q4	q5	read	turn	2
 transition	q5	enter	check	!= turn 0
 transition	q5	q2	check	== turn 0
-transition	enter	finish	write	0	1
+transition	enter	q0	write	0	1
 end
