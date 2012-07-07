@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case TRF_FENCES: {
-						auto fences = trench::computeFences(program, false);
+						auto fences = trench::computeFences(program, true);
 						if (!benchmarking) {
 							std::cout << "Computed fences for enforcing triangular race freedom (" << fences.size() << " total):";
 							foreach (const auto &fence, fences) {

@@ -81,7 +81,7 @@ class Statistics {
 	long verifierTime() const { return verifierTime_; }
 
 	void addRealTime(double milliseconds) { mutex_.lock(); realTime_ += milliseconds; mutex_.unlock(); }
-	long realTime() const { return verifierTime_; }
+	long realTime() const { return realTime_; }
 };
 
 std::ostream &operator<<(std::ostream &out, const Statistics &statistics);
