@@ -1,4 +1,6 @@
 set(TRENCH_SOURCES
+	Benchmarking.cpp
+	Benchmarking.h
 	Census.cpp
 	Census.h
 	Expression.h

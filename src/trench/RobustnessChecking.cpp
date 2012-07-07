@@ -1,5 +1,6 @@
 #include "RobustnessChecking.h"
 
+#include "Benchmarking.h"
 #include "Foreach.h"
 #include "Program.h"
 #include "Reduction.h"
@@ -49,9 +50,13 @@ bool isReachable(State *state, State *target, boost::unordered_set<State *> &vis
 } // anonymous namespace
 
 bool isAttackFeasible(const Program &program, bool searchForTdrOnly, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
+
+	Statistics::instance().incPotentialAttacksCount();
+
 	if (attackWrite && attackRead) {
 		boost::unordered_set<State *> visited(fenced);
 		if (!isReachable(attackWrite->to(), attackRead->from(), visited)) {
+			Statistics::instance().incInfeasibleAttacksCount1();
 			return false;
 		}
 	}
@@ -60,7 +65,15 @@ bool isAttackFeasible(const Program &program, bool searchForTdrOnly, Thread *att
 	trench::reduce(program, augmentedProgram, searchForTdrOnly, attacker, attackWrite, attackRead, fenced);
 
 	trench::SpinModelChecker checker;
-	return checker.check(augmentedProgram);
+	bool feasible = checker.check(augmentedProgram);
+
+	if (feasible) {
+		Statistics::instance().incFeasibleAttacksCount();
+	} else {
+		Statistics::instance().incInfeasibleAttacksCount2();
+	}
+
+	return feasible;
 }
 
 } // namespace trench

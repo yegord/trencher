@@ -1,5 +1,6 @@
 #include "SpinModelChecker.h"
 
+#include <chrono>
 #include <cstdlib> /* system */
 #include <cstring> /* strerror */
 #include <fstream>
@@ -7,6 +8,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
+#include "Benchmarking.h"
 #include "SpinPrinter.h"
 
 namespace trench {
@@ -21,13 +23,20 @@ boost::filesystem::path makeTempDir() {
 	return path.string();
 }
 
-void run(const std::string &commandLine) {
+long run(const std::string &commandLine) {
+	using std::chrono::system_clock;
+
+	auto startTime = std::chrono::system_clock::now();
 	int status = system(commandLine.c_str());
+	auto endTime = std::chrono::system_clock::now();
+
 	if (status == -1) {
 		throw std::runtime_error((boost::format("could not run '%s': %s") % commandLine % strerror(errno)).str());
 	} else if (status != 0) {
 		throw std::runtime_error((boost::format("'%s' finished with non-zero exit code: %d") % commandLine % status).str());
 	}
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 }
 
 } // anonymous namespace
@@ -54,9 +63,9 @@ bool SpinModelChecker::check(const Program &program) {
 	}
 	out.close();
 
-	run((boost::format(spinCommandLine())     % temp_dir % program_pml).str());
-	run((boost::format(compilerCommandLine()) % temp_dir % verifier % verifier_c).str());
-	run((boost::format(verifierCommandLine()) % temp_dir % verifier).str());
+	Statistics::instance().addSpinTime    (run((boost::format(spinCommandLine())     % temp_dir % program_pml).str()));
+	Statistics::instance().addCompilerTime(run((boost::format(compilerCommandLine()) % temp_dir % verifier % verifier_c).str()));
+	Statistics::instance().addVerifierTime(run((boost::format(verifierCommandLine()) % temp_dir % verifier).str()));
 
 	bool result = boost::filesystem::exists(trail);
 

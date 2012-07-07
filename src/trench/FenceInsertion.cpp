@@ -5,6 +5,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
+#include "Benchmarking.h"
 #include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
@@ -273,6 +274,9 @@ FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 			result.push_back(Fence(item.first, state));
 		}
 	}
+
+	Statistics::instance().incFencesCount(result.size());
+
 	return result;
 }
 
