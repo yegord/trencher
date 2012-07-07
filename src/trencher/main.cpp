@@ -124,7 +124,8 @@ int main(int argc, char **argv) {
 					std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
 
 				if (benchmarking) {
-					std::cout << "filename " << arg << trench::Statistics::instance() << std::endl;
+					std::cout << "filename " << arg << " action " << action <<
+						trench::Statistics::instance() << std::endl;
 				}
 			}
 		}
