@@ -15,6 +15,7 @@ std::ostream &operator<<(std::ostream &out, const Statistics &statistics) {
 		<< " spinTime " << statistics.spinTime()
 		<< " compilerTime " << statistics.compilerTime()
 		<< " verifierTime " << statistics.verifierTime()
+		<< " cpuTime " << statistics.cpuTime()
 		<< " realTime " << statistics.realTime()
 	;
 }

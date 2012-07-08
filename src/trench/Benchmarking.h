@@ -22,6 +22,7 @@ class Statistics {
 	long spinTime_;
 	long compilerTime_;
 	long verifierTime_;
+	long cpuTime_;
 	long realTime_;
 
 	public:
@@ -44,6 +45,7 @@ class Statistics {
 		spinTime_     = 0;
 		compilerTime_ = 0;
 		verifierTime_ = 0;
+		cpuTime_      = 0;
 		realTime_     = 0;
 	}
 
@@ -84,6 +86,9 @@ class Statistics {
 
 	void addVerifierTime(double milliseconds) { mutex_.lock(); verifierTime_ += milliseconds; mutex_.unlock(); }
 	long verifierTime() const { return verifierTime_; }
+
+	void addCpuTime(double milliseconds) { mutex_.lock(); cpuTime_ += milliseconds; mutex_.unlock(); }
+	long cpuTime() const { return cpuTime_; }
 
 	void addRealTime(double milliseconds) { mutex_.lock(); realTime_ += milliseconds; mutex_.unlock(); }
 	long realTime() const { return realTime_; }

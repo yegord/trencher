@@ -1,5 +1,6 @@
 #include <cassert>
 #include <chrono>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -69,6 +70,7 @@ int main(int argc, char **argv) {
 				}
 
 				auto startTime = std::chrono::system_clock::now();
+				clock_t startClock = clock();
 
 				switch (action) {
 					case ROBUSTNESS: {
@@ -120,7 +122,10 @@ int main(int argc, char **argv) {
 					}
 				}
 
+				clock_t endClock = clock();
 				auto endTime = std::chrono::system_clock::now();
+
+				trench::Statistics::instance().addCpuTime((endClock - startClock) * 1000 / CLOCKS_PER_SEC);
 				trench::Statistics::instance().addRealTime(
 					std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
 
