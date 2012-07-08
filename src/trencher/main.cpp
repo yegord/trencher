@@ -61,6 +61,7 @@ int main(int argc, char **argv) {
 					}
 					parser.parse(in, program);
 
+					trench::Statistics::instance().incThreadsCount(program.threads().size());
 					foreach (trench::Thread *thread, program.threads()) {
 						trench::Statistics::instance().incStatesCount(thread->states().size());
 						trench::Statistics::instance().incTransitionsCount(thread->transitions().size());

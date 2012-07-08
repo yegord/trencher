@@ -4,6 +4,7 @@ namespace trench {
 
 std::ostream &operator<<(std::ostream &out, const Statistics &statistics) {
 	return out
+		<< " threadsCount " << statistics.threadsCount()
 		<< " statesCount " << statistics.statesCount()
 		<< " transitionsCount " << statistics.transitionsCount()
 		<< " potentialAttacksCount " << statistics.potentialAttacksCount()

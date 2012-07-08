@@ -9,6 +9,7 @@ namespace trench {
 class Statistics {
 	boost::mutex mutex_;
 
+	int threadsCount_;
 	int statesCount_;
 	int transitionsCount_;
 
@@ -30,6 +31,7 @@ class Statistics {
 	}
 
 	void reset() {
+		threadsCount_     = 0;
 		statesCount_      = 0;
 		transitionsCount_ = 0;
 
@@ -49,6 +51,9 @@ class Statistics {
 		static Statistics statistics;
 		return statistics;
 	}
+
+	void incThreadsCount(int value = 1) { mutex_.lock(); threadsCount_ += value; mutex_.unlock(); }
+	int threadsCount() const { return threadsCount_; }
 
 	void incStatesCount(int value = 1) { mutex_.lock(); statesCount_ += value; mutex_.unlock(); }
 	int statesCount() const { return statesCount_; }
