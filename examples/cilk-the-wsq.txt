@@ -5,7 +5,7 @@
 
 thread release_lock
 initial q0
-transition	q0	q1	write	1	1
+transition	q0	q1	write	1	2
 end
 
 thread push1
@@ -102,9 +102,10 @@ transition	steal2	steal3	check	!= L 0
 transition	steal3	steal4	write	- L 1	2
 transition	steal4	steal5	unlock
 
-transition	steal5	steal7	read	H	0
-transition	steal7	steal8	local	H	+ 1 H
-transition	steal8	steal9	write	H	0
+transition	steal5	steal6	read	H	0
+transition	steal6	steal7	local	H	+ 1 H
+transition	steal7	steal8	write	H	0
+transition	steal8	steal9	read	T	1
 transition	steal9	steal10	check	<= H T
 transition	steal9	steal14	check	> H T
 
@@ -116,32 +117,6 @@ transition	steal13	success	unlock
 transition	steal14	steal15	write	- H 1	0
 transition	steal15	steal16	lock
 transition	steal16	steal17	read	L	2
-transition	steal17	steal18	write	- 1 L	2
-transition	steal18	failure	unlock
-end
-
-thread steal2
-initial steal0
-transition	steal0	steal1	lock
-transition	steal1	steal2	read	L	2
-transition	steal2	steal3	check	!= L 0
-transition	steal3	steal4	write	- L 1	2
-transition	steal4	steal5	unlock
-
-transition	steal5	steal7	read	H	0
-transition	steal7	steal8	local	H	+ 1 H
-transition	steal8	steal9	write	H	0
-transition	steal9	steal10	check	<= H T
-transition	steal9	steal14	check	> H T
-
-transition	steal10	steal11	lock
-transition	steal11	steal12	read	L	2
-transition	steal12	steal13	write	+ 1 L	2
-transition	steal13	success	unlock
-
-transition	steal14	steal15	write	- H 1	0
-transition	steal15	steal16	lock
-transition	steal16	steal17	read	L	2
-transition	steal17	steal18	write	- 1 L	2
+transition	steal17	steal18	write	+ 1 L	2
 transition	steal18	failure	unlock
 end
