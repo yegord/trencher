@@ -38,7 +38,7 @@ transition	pop12	pop13	write	- T 1	1
 
 transition	pop13	pop14	read	H	0
 transition	pop15	pop16	check	<= H T
-transition	pop15	pop20	check	> H 1
+transition	pop15	pop20	check	> H T
 
 transition	pop16	pop17	lock
 transition	pop17	pop18	read	L	2
@@ -78,7 +78,7 @@ transition	pop12	pop13	write	- T 1	1
 
 transition	pop13	pop14	read	H	0
 transition	pop15	pop16	check	<= H T
-transition	pop15	pop20	check	> H 1
+transition	pop15	pop20	check	> H T
 
 transition	pop16	pop17	lock
 transition	pop17	pop18	read	L	2
