@@ -6,7 +6,7 @@
 # 
 # IS NOT robust.
 # 
-# There are happens-before cycles with popX being an attacker and steal0 being a helper.
+# There are happens-before cycles involving pop and steal.
 #
 # Memory layout:
 # 0 — H
