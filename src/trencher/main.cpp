@@ -23,7 +23,15 @@
 #include <trench/State.h>
 
 void help() {
-	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf] file..." << std::endl;
+	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf] file..." << std::endl
+	<< std::endl
+	<< "Options:" << std::endl
+	<< "  -b     Switch benchmarking mode on (print only execution statistics)." << std::endl
+	<< "  -nb    Switch benchmarking mode off." << std::endl
+	<< "  -r     Check robustness." << std::endl
+	<< "  -f     Do fence insertion for enforcing robustness." << std::endl
+	<< "  -trf   Check triangular data race freedom." << std::endl
+	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl;
 }
 
 int main(int argc, char **argv) {
