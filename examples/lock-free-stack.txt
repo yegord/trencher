@@ -1,7 +1,14 @@
 #
-# Should be robust.
+# A model of the lock-free stack implementation by Ivan Tkachev:
 #
 # https://github.com/Begun/lockfree-malloc/blob/33e3f229caed2416e5bcf9af196d354247d5e185/stack.h
+#
+# Description of the lock-free stack data structure in literature can be found in
+#
+# Maurice Herlihy and Nir Shavit. The art of multiprocessor programming.
+# Morgan Kaufmann, 2008. Page 153.
+#
+# IS robust.
 #
 # void push (T* obj) {
 # q0:
@@ -12,6 +19,8 @@
 # q4:         return;
 #         }
 # }
+#
+# IS robust.
 #
 # Memory layout:
 # 1 — m_head

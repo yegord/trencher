@@ -1,7 +1,8 @@
 #
-# Should be NOT robust.
+# Simplified Dekker's mutex algorithm.
 #
-# Simplified Dekker.
+# IS NOT robust.
+#
 
 thread t1
 initial q0

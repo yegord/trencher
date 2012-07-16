@@ -1,6 +1,13 @@
 #
-# Should be NOT robust.
+# A model of the example revealing bug in the Parker class:
 #
+# D. Dice. A race in locksupport park() arising from weak memory models.
+# https://blogs.oracle.com/dave/entry/a_race_in_locksupport_park, Nov 2009.
+#
+# Thread parker executes: while (cond == 0) park();
+# Thread unparker executes: cond = 1; unpark(T1);
+#
+# IS NOT robust.
 #
 # Memory layout:
 # 0 — cond

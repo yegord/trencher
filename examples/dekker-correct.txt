@@ -1,8 +1,8 @@
 #
-# Should be robust.
-#
 # Dekker's mutex algorithm (fully fenced):
 # http://en.wikipedia.org/wiki/Dekker's_algorithm
+#
+# IS robust.
 #
 # q0:   flag[0] = true;
 # q1:   while (flag[1] == true) {

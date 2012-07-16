@@ -1,7 +1,7 @@
 #
-# Should be robust.
+# Simplified Dekker's mutex algorithm (fully fenced).
 #
-# Simplified Dekker (fully fenced).
+# IS robust.
 #
 
 thread t1

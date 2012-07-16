@@ -1,9 +1,12 @@
 #
-# Linux Spinlock from Owens2010 paper (Fig 2).
+# Linux Spinlock from the paper (Fig 2):
 #
-# Used in nbw-* examples.
+# S. Owens. Reasoning about the implementation of concurrency ab-
+# stractions on x86-TSO. In ECOOP, volume 6183 of LNCS, pages
+# 478–503. Springer, 2010.
 #
-
+# Used in some nbw-* examples.
+#
 # Memory layout:
 # 2 — spinlock counter
 

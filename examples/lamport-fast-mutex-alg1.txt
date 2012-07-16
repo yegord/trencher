@@ -1,3 +1,11 @@
+#
+# Lamport's fast mutex algorithm 1, as presented in
+#
+# L. Lamport. A fast mutual exclusion algorithm. ACM Trans. Comput.
+# Syst., 5(1), 1987.
+#
+# IS NOT robust.
+#
 # Memory layout:
 # 0 — x
 # 1 — y

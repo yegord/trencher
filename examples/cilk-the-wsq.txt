@@ -1,3 +1,13 @@
+#
+# A model of the work-stealing queue from Cilk 5, as presented in
+#
+# Matteo Frigo, Charles E. Leiserson, and Keith H. Randall. The implementation
+# of the cilk-5 multithreaded language. SIGPLAN Not., 33(5):212–223, May 1998.
+# 
+# IS NOT robust.
+# 
+# There are happens-before cycles with popX being an attacker and steal0 being a helper.
+#
 # Memory layout:
 # 0 — H
 # 1 — T

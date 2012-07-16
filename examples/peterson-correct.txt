@@ -1,5 +1,8 @@
 #
-# Should be robust.
+# Peterson's mutex algorithm (properly fenced):
+# http://en.wikipedia.org/wiki/Peterson's_algorithm
+#
+# IS robust.
 #
 # flag[0] = true;
 #    turn = 1;
