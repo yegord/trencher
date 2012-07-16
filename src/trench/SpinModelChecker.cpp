@@ -52,7 +52,7 @@ long run(const std::string &commandLine) {
 
 SpinModelChecker::SpinModelChecker() {
 	setSpinCommandLine("cd \"%1%\" && spin -a \"%2%\"");
-	setCompilerCommandLine("clang -DSAFETY -DVECTORSZ=4444 -DBITSTATE -o \"%2%\" \"%3%\"");
+	setCompilerCommandLine("clang -DSAFETY -DVECTORSZ=4444 -DBITSTATE -o \"%2%\" \"%3%\" 2> \"%3%.clang.stderr\" || cc -DSAFETY -DVECTORSZ=4444 -DBITSTATE -o \"%2%\" \"%3%\"");
 	setVerifierCommandLine("cd \"%1%\" && \"%2%\" > \"%2%.stdout\" 2> \"%2%.stderr\"");
 }
 
