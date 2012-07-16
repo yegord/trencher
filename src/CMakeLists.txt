@@ -19,7 +19,7 @@ endif()
 
 find_package(Threads)
 
-find_package(Boost 1.46.0 REQUIRED filesystem system thread)
+find_package(Boost 1.46.0 REQUIRED chrono filesystem system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories(${TRENCHER_SOURCE_DIR})

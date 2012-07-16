@@ -8,11 +8,12 @@
  */
 
 #include <cassert>
-#include <chrono>
 #include <ctime>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+
+#include <boost/chrono.hpp>
 
 #include <trench/Benchmarking.h>
 #include <trench/Foreach.h>
@@ -86,7 +87,7 @@ int main(int argc, char **argv) {
 					}
 				}
 
-				auto startTime = std::chrono::system_clock::now();
+				auto startTime = boost::chrono::system_clock::now();
 				clock_t startClock = clock();
 
 				switch (action) {
@@ -140,11 +141,11 @@ int main(int argc, char **argv) {
 				}
 
 				clock_t endClock = clock();
-				auto endTime = std::chrono::system_clock::now();
+				auto endTime = boost::chrono::system_clock::now();
 
 				trench::Statistics::instance().addCpuTime((endClock - startClock) * 1000 / CLOCKS_PER_SEC);
 				trench::Statistics::instance().addRealTime(
-					std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
+					boost::chrono::duration_cast<boost::chrono::milliseconds>(endTime - startTime).count());
 
 				if (benchmarking) {
 					std::cout << "filename " << arg << " action " << action <<

@@ -9,11 +9,11 @@
 
 #include "SpinModelChecker.h"
 
-#include <chrono>
 #include <cstdlib> /* system */
 #include <cstring> /* strerror */
 #include <fstream>
 
+#include <boost/chrono.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
@@ -33,11 +33,9 @@ boost::filesystem::path makeTempDir() {
 }
 
 long run(const std::string &commandLine) {
-	using std::chrono::system_clock;
-
-	auto startTime = std::chrono::system_clock::now();
+	auto startTime = boost::chrono::system_clock::now();
 	int status = system(commandLine.c_str());
-	auto endTime = std::chrono::system_clock::now();
+	auto endTime = boost::chrono::system_clock::now();
 
 	if (status == -1) {
 		throw std::runtime_error((boost::format("could not run '%s': %s") % commandLine % strerror(errno)).str());
@@ -45,7 +43,7 @@ long run(const std::string &commandLine) {
 		throw std::runtime_error((boost::format("'%s' finished with non-zero exit code: %d") % commandLine % status).str());
 	}
 
-	return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+	return boost::chrono::duration_cast<boost::chrono::milliseconds>(endTime - startTime).count();
 }
 
 } // anonymous namespace
