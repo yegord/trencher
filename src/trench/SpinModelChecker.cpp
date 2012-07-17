@@ -61,7 +61,7 @@ bool SpinModelChecker::check(const Program &program) {
 	boost::filesystem::path verifier = temp_dir/"pan";
 	boost::filesystem::path trail = temp_dir/"program.pml.trail";
 
-	std::ofstream out(program_pml.c_str());
+	std::ofstream out(boost::filesystem::canonical(program_pml).string().c_str());
 
 	SpinPrinter printer;
 	printer.print(out, program);
