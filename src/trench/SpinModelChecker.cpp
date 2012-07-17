@@ -49,8 +49,12 @@ long run(const std::string &commandLine) {
 } // anonymous namespace
 
 SpinModelChecker::SpinModelChecker() {
-	setSpinCommandLine("cd \"%1%\" && spin -a \"%2%\"");
-	setCompilerCommandLine("clang -DSAFETY -DVECTORSZ=4444 -DBITSTATE -o \"%2%\" \"%3%\" 2> \"%3%.clang.stderr\" || cc -DSAFETY -DVECTORSZ=4444 -DBITSTATE -o \"%2%\" \"%3%\"");
+	std::string spin = "spin";
+	if (boost::filesystem::exists("spin.exe")) {
+		spin = boost::filesystem::absolute("spin.exe").string();
+	}
+	setSpinCommandLine("cd \"%1%\" && \"" + spin + "\" -a \"%2%\"");
+	setCompilerCommandLine("clang -DSAFETY -DVECTORSZ=4444 -DBITSTATE -o \"%2%\" \"%3%\" 2> \"%3%.clang.stderr\" || cc -DSAFETY -DVECTORSZ=4444 -DBITSTATE -o \"%2%\" \"%3%\" 2> \"%3%.cc.stderr\"");
 	setVerifierCommandLine("cd \"%1%\" && \"%2%\" > \"%2%.stdout\" 2> \"%2%.stderr\"");
 }
 
@@ -61,7 +65,7 @@ bool SpinModelChecker::check(const Program &program) {
 	boost::filesystem::path verifier = temp_dir/"pan";
 	boost::filesystem::path trail = temp_dir/"program.pml.trail";
 
-	std::ofstream out(boost::filesystem::canonical(program_pml).string().c_str());
+	std::ofstream out(program_pml.string().c_str());
 
 	SpinPrinter printer;
 	printer.print(out, program);
