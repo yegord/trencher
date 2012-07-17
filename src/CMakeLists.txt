@@ -8,9 +8,14 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
+	add_definitions(-fno-strict-aliasing)
 	add_definitions(-Wall -Wextra)
 	add_definitions(-fshow-column)
         set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++11)
+
+	if(WIN32)
+		add_definitions(-DBOOST_THREAD_USE_LIB)
+	endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
