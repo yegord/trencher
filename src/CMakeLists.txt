@@ -12,10 +12,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions(-Wall -Wextra)
 	add_definitions(-fshow-column)
         set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++11)
-
-	if(WIN32)
-		add_definitions(-DBOOST_THREAD_USE_LIB)
-	endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
@@ -24,6 +20,10 @@ endif()
 
 find_package(Threads)
 
+if(WIN32)
+	set(Boost_USE_STATIC_LIBS ON)
+	add_definitions(-DBOOST_THREAD_USE_LIB)
+endif()
 find_package(Boost 1.46.0 REQUIRED chrono filesystem system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 
