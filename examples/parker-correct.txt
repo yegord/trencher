@@ -7,7 +7,7 @@
 # Thread parker executes: while (cond == 0) park();
 # Thread unparker executes: cond = 1; unpark(T1);
 #
-# IS NOT robust.
+# IS robust.
 #
 # Memory layout:
 # 0 — cond
