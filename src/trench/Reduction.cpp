@@ -167,17 +167,14 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 						)
 					);
 
-					/* ...or from memory and update HB. This is the final aim of attacker's existence. */
+					/* ...or from anywhere and update HB. This is the final aim of attacker's existence. */
 					if (transition == attackRead || attackRead == NULL) {
 						resultThread->makeTransition(
 							attackerFrom,
 							resultThread->makeState("final"),
 							std::make_shared<Atomic>(
 								check_not_blocked,
-								std::make_shared<Read> (is_buffered, read->address(), IS_BUFFERED_SPACE),
-								check_is_not_buffered,
-								transition->instruction(),
-								std::make_shared<Write>(hb_read,     read->address(), HB_SPACE)
+								std::make_shared<Write>(hb_read, read->address(), HB_SPACE)
 							)
 						);
 					}
