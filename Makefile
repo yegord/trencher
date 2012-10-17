@@ -1,14 +1,15 @@
 SRC_DIR		= $(CURDIR)/src
 CMAKELISTS	= $(SRC_DIR)/CMakeLists.txt
 BUILD_DIR	= $(CURDIR)/build
+EXAMPLES_DIR	= $(CURDIR)/examples
 MAKEFILE	= $(BUILD_DIR)/Makefile
 TAGS		= tags
 
 .PHONY: all
-all: tags recursion
+all: tags build
 
-.PHONY: recursion
-recursion: $(MAKEFILE)
+.PHONY: build
+build: $(MAKEFILE)
 	$(MAKE) -C $(BUILD_DIR)
 
 $(MAKEFILE): $(CMAKELISTS)
@@ -23,6 +24,10 @@ clean:
 	rm -f tags gmon.out core vgcore.*
 	-$(MAKE) -C $(BUILD_DIR) clean
 
-.PHONY:
+.PHONY: distclean
 distclean: clean
 	rm -rf $(BUILD_DIR)
+
+.PHONY: benchmark
+benchmark: build
+	build/trencher/trencher -b -f $(EXAMPLES_DIR)/*.txt -ftrf $(EXAMPLES_DIR)/*.txt
