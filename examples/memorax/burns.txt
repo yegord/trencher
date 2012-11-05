@@ -1,0 +1,31 @@
+# Burn's algorithm for two processes
+# translated from burns.rmm
+# Memory layout:
+# 0 - flag[0]
+# 1 - flag[1]
+
+thread t0
+initial q0
+transition q0 q1 write 1 0
+transition q1 q2 read chk 1
+transition q2 q1 check != chk 0
+transition q2 q3 check == chk 0
+
+transition q3 q0 write 0 0
+
+end
+
+thread t1
+initial q0
+transition q0 q1 read chk 0
+transition q1 q0 check != chk 0
+transition q1 q2 check == chk 0
+
+transition q2 q3 write 1 1
+transition q3 q4 read chk 0
+transition q4 q5 check == chk 0
+transition q5 q0 write 0 1
+transition q4 q6 check == chk 1
+transition q6 q0 write 0 1
+
+end
