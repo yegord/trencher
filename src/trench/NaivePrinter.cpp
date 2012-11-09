@@ -36,51 +36,8 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 		}
 		case Expression::BINARY: {
 			BinaryOperator *binary = expression->as<BinaryOperator>();
-			switch (binary->kind()) {
-				case BinaryOperator::EQ: {
-					out << "==";
-					break;
-				}
-				case BinaryOperator::NEQ: {
-					out << "!=";
-					break;
-				}
-				case BinaryOperator::LT:
-					out << '<';
-					break;
-				case BinaryOperator::LEQ:
-					out << "<=";
-					break;
-				case BinaryOperator::GT:
-					out << '>';
-					break;
-				case BinaryOperator::GEQ:
-					out << ">=";
-					break;
-				case BinaryOperator::AND:
-					out << "&&";
-					break;
-				case BinaryOperator::OR:
-					out << "||";
-					break;
-				case BinaryOperator::ADD:
-					out << '+';
-					break;
-				case BinaryOperator::SUB:
-					out << '-';
-					break;
-				case BinaryOperator::MUL:
-					out << '*';
-					break;
-				case BinaryOperator::BIN_AND:
-					out << '&';
-					break;
-				default: {
-					 assert(!"NEVER REACHED");
-				}
-			}
 
-			out << ' ';
+			out << binary->getOperatorSign() << ' ';
 			printExpression(out, binary->left());
 			out << ' ';
 			printExpression(out, binary->right());

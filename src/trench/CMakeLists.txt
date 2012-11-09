@@ -3,6 +3,9 @@ set(TRENCH_SOURCES
 	Benchmarking.h
 	Census.cpp
 	Census.h
+	DotPrinter.cpp
+	DotPrinter.h
+	Expression.cpp
 	Expression.h
 	FenceInsertion.cpp
 	FenceInsertion.h

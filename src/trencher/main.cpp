@@ -16,6 +16,7 @@
 #include <boost/chrono.hpp>
 
 #include <trench/Benchmarking.h>
+#include <trench/DotPrinter.h>
 #include <trench/Foreach.h>
 #include <trench/FenceInsertion.h>
 #include <trench/NaiveParser.h>
@@ -32,7 +33,8 @@ void help() {
 	<< "  -r     Check robustness." << std::endl
 	<< "  -f     Do fence insertion for enforcing robustness." << std::endl
 	<< "  -trf   Check triangular data race freedom." << std::endl
-	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl;
+	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl
+	<< "  -dot   Print the example in dot format." << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -46,7 +48,8 @@ int main(int argc, char **argv) {
 			ROBUSTNESS,
 			FENCES,
 			TRIANGULAR_RACE_FREEDOM,
-			TRF_FENCES
+			TRF_FENCES,
+			PRINT_DOT
 		} action = FENCES;
 
 		bool benchmarking = false;
@@ -66,6 +69,8 @@ int main(int argc, char **argv) {
 				benchmarking = true;
 			} else if (arg == "-nb") {
 				benchmarking = false;
+			} else if (arg == "-dot") {
+				action = PRINT_DOT;
 			} else if (arg.size() >= 1 && arg[0] == '-') {
 				throw std::runtime_error("unknown option: " + arg);
 			} else {
@@ -133,6 +138,11 @@ int main(int argc, char **argv) {
 							}
 							std::cout << std::endl;
 						}
+						break;
+					}
+					case PRINT_DOT: {
+						trench::DotPrinter printer;
+						printer.print(std::cout, program);
 						break;
 					}
 					default: {

@@ -86,6 +86,9 @@ std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) 
 		std::shared_ptr<Expression> left = parseExpression(in, program);
 		std::shared_ptr<Expression> right = parseExpression(in, program);
 		return std::make_shared<BinaryOperator>(BinaryOperator::BIN_AND, left, right);
+	} else if (token == "!") {
+		std::shared_ptr<Expression> operand = parseExpression(in, program);
+		return std::make_shared<UnaryOperator>(UnaryOperator::NOT, operand);
 	} else {
 		return program.makeRegister(token);
 	}

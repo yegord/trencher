@@ -61,15 +61,28 @@ class Register: public Expression {
 };
 
 class UnaryOperator: public Expression {
+	public:
+
+	enum Kind {
+		NOT
+	};
+
+	private:
+
 	std::shared_ptr<Expression> operand_;
+
+	Kind kind_;
 
 	public:
 
-	UnaryOperator(const std::shared_ptr<Expression> &operand):
-		Expression(UNARY), operand_(operand)
+	UnaryOperator(Kind kind, const std::shared_ptr<Expression> &operand):
+		Expression(UNARY), kind_(kind), operand_(operand)
 	{}
 
+	Kind kind() const { return kind_; }
 	const std::shared_ptr<Expression> &operand() const { return operand_; }
+
+	const char *getOperatorSign() const;
 };
 
 class BinaryOperator: public Expression {
@@ -105,6 +118,8 @@ class BinaryOperator: public Expression {
 	Kind kind() const { return kind_; }
 	const std::shared_ptr<Expression> &left() const { return left_; }
 	const std::shared_ptr<Expression> &right() const { return right_; }
+
+	const char *getOperatorSign() const;
 };
 
 class NotBlocked: public Expression {
