@@ -40,6 +40,10 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 			out << ')';
 			break;
 		}
+		case Expression::NOT_BLOCKED: {
+			out << "not_blocked";
+			break;
+		}
 		default: {
 			assert(!"NEVER REACHED");
 		}
@@ -93,9 +97,10 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 		}
 		case Instruction::ATOMIC: {
 			Atomic *atomic = instruction->as<Atomic>();
-			out << "atomic {";
+			out << "atomic {\\n";
 			foreach (const auto &instr, atomic->instructions()) {
 				printInstruction(out, instr);
+				out << "\\n";
 			}
 			out << "};";
 			break;

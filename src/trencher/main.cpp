@@ -21,6 +21,7 @@
 #include <trench/FenceInsertion.h>
 #include <trench/NaiveParser.h>
 #include <trench/Program.h>
+#include <trench/Reduction.h>
 #include <trench/RobustnessChecking.h>
 #include <trench/State.h>
 
@@ -34,7 +35,8 @@ void help() {
 	<< "  -f     Do fence insertion for enforcing robustness." << std::endl
 	<< "  -trf   Check triangular data race freedom." << std::endl
 	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl
-	<< "  -dot   Print the example in dot format." << std::endl;
+	<< "  -dot   Print the example in dot format." << std::endl
+	<< "  -rdot  Print the example instrumented for robustness checking in dot format." << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -49,7 +51,8 @@ int main(int argc, char **argv) {
 			FENCES,
 			TRIANGULAR_RACE_FREEDOM,
 			TRF_FENCES,
-			PRINT_DOT
+			PRINT_DOT,
+			PRINT_ROBUSTNESS_DOT
 		} action = FENCES;
 
 		bool benchmarking = false;
@@ -71,6 +74,8 @@ int main(int argc, char **argv) {
 				benchmarking = false;
 			} else if (arg == "-dot") {
 				action = PRINT_DOT;
+			} else if (arg == "-rdot") {
+				action = PRINT_ROBUSTNESS_DOT;
 			} else if (arg.size() >= 1 && arg[0] == '-') {
 				throw std::runtime_error("unknown option: " + arg);
 			} else {
@@ -143,6 +148,14 @@ int main(int argc, char **argv) {
 					case PRINT_DOT: {
 						trench::DotPrinter printer;
 						printer.print(std::cout, program);
+						break;
+					}
+					case PRINT_ROBUSTNESS_DOT: {
+						trench::Program instrumentedProgram;
+						trench::reduce(program, instrumentedProgram, false);
+
+						trench::DotPrinter printer;
+						printer.print(std::cout, instrumentedProgram);
 						break;
 					}
 					default: {
