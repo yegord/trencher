@@ -1,0 +1,64 @@
+# translated from clh.rmm
+# Memory layout:
+# 0 - m0
+# 1 - m1
+# 2 - m2
+# 3 - lock
+# 4 - flag (1 iff init thread is done)
+
+thread ini
+initial q0
+transition q0 q1 write 2 3
+transition q1 q2 write 1 4
+end
+
+thread t0
+initial ini0
+transition ini0 ini1 local i 0
+transition ini1 ini2 local p 0
+transition ini2 ini3 read go 4
+transition ini3 ini2 check != go 1
+transition ini3 l0 check == go 1
+
+transition l0 q1 write 1 i
+transition q1 q2 read p 3
+transition q2 q3 lock
+transition q3 q4 read cas 3
+transition q4 q3 check != cas p
+transition q4 q5 check == cas p
+transition q5 q6 write i 3
+transition q6 q7 unlock
+transition q7 q8 read chk p
+transition q8 q7 check != chk 0
+transition q8 q9 check == chk 0
+
+transition q9 q10 write 0 i
+transition q10 l0 local i p
+
+end
+
+thread t1
+initial ini0
+transition ini0 ini1 local i 1
+transition ini1 ini2 local p 1
+transition ini2 ini3 read go 4
+transition ini3 ini2 check != go 1
+transition ini3 l0 check == go 1
+
+transition l0 q1 write 1 i
+transition q1 q2 read p 3
+transition q2 q3 lock
+transition q3 q4 read cas 3
+transition q4 q3 check != cas p
+transition q4 q5 check == cas p
+transition q5 q6 write i 3
+transition q6 q7 unlock
+transition q7 q8 read chk p
+transition q8 q7 check != chk 0
+transition q8 q9 check == chk 0
+
+transition q9 q10 write 0 i
+transition q10 l0 local i p
+
+end
+

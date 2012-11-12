@@ -1,0 +1,68 @@
+# translated from lamport_fast.rmm
+# Memory layout:
+# 0 - x
+# 1 - y
+# 2 - b[0]
+# 3 - b[1]
+
+thread t0
+initial l0
+transition l0 q1 write 1 2
+transition q1 q2 write 1 0
+
+transition q2 q3 read y 1
+transition q3 q4 check != y 0
+transition q4 q5 write 0 2
+transition q5 q6 read y 1
+transition q6 q5 check != y 0
+transition q6 l0 check == y 0
+transition q3 q7 check == y 0
+
+transition q7 q8 write 1 1
+
+transition q8 q9 read x 0
+transition q9 q10 check != x 1
+transition q10 q11 write 0 2
+transition q11 q12 read b 3
+transition q12 q11 check != b 0
+transition q12 q13 read y 1
+transition q13 l0 check == y 0
+transition q13 q14 check == y 1
+transition q13 q12 check == y 2
+transition q9 q14 check == x 1
+
+transition q14 q15 write 0 1
+transition q15 l0 write 0 2
+
+end
+
+thread t1
+initial l0
+transition l0 q1 write 1 3
+transition q1 q2 write 2 0
+
+transition q2 q3 read y 1
+transition q3 q4 check != y 0
+transition q4 q5 write 0 3
+transition q5 q6 read y 1
+transition q6 q5 check != y 0
+transition q6 l0 check == y 0
+transition q3 q7 check == y 0
+
+transition q7 q8 write 2 1
+
+transition q8 q9 read x 0
+transition q9 q10 check != x 2
+transition q10 q11 write 0 3
+transition q11 q12 read b 2
+transition q12 q11 check != b 0
+transition q12 q13 read y 1
+transition q13 l0 check == y 0
+transition q13 q14 check == y 2
+transition q13 12 check == y 1
+
+transition q14 q15 write 0 1
+transition q15 l0 write 0 3
+
+end
+
