@@ -26,7 +26,7 @@
 #include <trench/State.h>
 
 void help() {
-	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf] file..." << std::endl
+	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf|-dot|-rdot] file..." << std::endl
 	<< std::endl
 	<< "Options:" << std::endl
 	<< "  -b     Switch benchmarking mode on (print only execution statistics)." << std::endl
