@@ -1,0 +1,51 @@
+# Dijkstra's lock
+# Translated from dijkstra.fenced.rmm
+# Memory layout:
+# 0 - turn
+# 1 - flag[0]
+# 2 - flag[1]
+
+thread t0
+initial q0
+transition q0 q1 write 1 1
+transition q1 q2 read turn 0
+transition q2 q3 check != turn 0
+transition q2 endwhile check == turn 0
+transition q3 q4 read flag 2
+transition q4 q5 check == flag 0
+transition q4 q6 check != flag 0
+transition q5 q6 write 0 0
+transition q6 q2 read turn 0
+
+transition endwhile q7 lock
+transition q7 q8 write 2 1
+transition q8 q9 unlock
+transition q9 q10 read flag 2
+transition q10 q0 check == flag 2
+transition q10 q11 check != lag 2
+transition q11 q0 write 0 1
+
+end
+
+
+thread t1
+initial q0
+transition q0 q1 write 1 2
+transition q1 q2 read turn 0
+transition q2 q3 check != turn 1
+transition q2 endwhile check == turn 1
+transition q3 q4 read flag 1
+transition q4 q5 check == flag 0
+transition q4 q6 check != flag 0
+transition q5 q6 write 1 0
+transition q6 q2 read turn 0
+
+transition endwhile q7 lock
+transition q7 q8 write 2 2
+transition q8 q9 unlock
+transition q9 q10 read flag 1
+transition q10 q0 check == flag 2
+transition q10 q11 check != flag 2
+transition q11 q0 write 0 2
+
+end

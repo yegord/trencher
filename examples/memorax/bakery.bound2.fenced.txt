@@ -1,0 +1,55 @@
+# Lamport's bakery algorithm for two processes
+# translated from bakery.bound2.fenced.rmm
+# to get trencher to report 'robust' use the mfence instructions (q81 and q121) below.
+# Memory layout:
+# 0 - c[0]
+# 1 - c[1]
+# 2 - n[0]
+# 3 - n[1]
+
+thread t0
+initial q0
+transition q0 q1 lock
+transition q1 q2 write 1 0
+transition q2 q3 unlock
+transition q3 q4 read r0 3
+transition q4 q5 local r1 + r0 1
+transition q5 q6 lock
+transition q6 q7 write r1 2
+transition q7 q8 unlock
+transition q8 q9 write 0 0
+transition q81 q9 mfence
+transition q9 q10 read c 1
+transition q10 q9 check != c 0
+transition q10 l1 check == c 0
+transition l1 q11 read r0 3
+transition q11 l1 check && != r0 0 < r0 r1
+transition q11 q12 check || == r0 0 >= r0 r1
+transition q12 q0 write 0 2
+transition q121 q0 mfence
+
+end
+
+thread t1
+initial q0
+transition q0 q1 lock
+transition q1 q2 write 1 1
+transition q2 q3 unlock
+transition q3 q4 read r0 2
+transition q4 q5 local r1 + r0 1
+transition q5 q6 lock
+transition q6 q7 write r1 3
+transition q7 q8 unlock
+transition q8 q9 write 0 1
+transition q81 q9 mfence
+transition q9 q10 read c 0
+transition q10 q9 check != c 0
+transition q10 l1 check == c 0
+transition l1 q11 read r0 2
+transition q11 l1 check && != r0 0 <= r0 r1
+transition q11 q12 check || == r0 0 > r0 r1
+transition q12 q0 write 0 3
+transition q121 q0 mfence
+
+end
+
