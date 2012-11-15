@@ -83,7 +83,7 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 		case Instruction::LOCAL: {
 			Local *local = instruction->as<Local>();
 			printExpression(out, local->reg());
-			out << ":= ";
+			out << ":=";
 			printExpression(out, local->value());
 			out << ';';
 			break;
