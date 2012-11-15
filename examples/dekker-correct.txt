@@ -70,7 +70,7 @@ transition q2	q2_1	read	turn	2
 transition q2_1	q3	check	!= turn 1
 transition q2_1	q1	check	== turn 1
 
-transition q3	q3_1	write	0	0
+transition q3	q3_1	write	0	1
 transition q3_1	q4	mfence
 
 transition q4	q4_1	read	turn	2
