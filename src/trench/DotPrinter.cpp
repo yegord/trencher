@@ -113,7 +113,7 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			break;
 		}
 		case Instruction::UNLOCK: {
-			out << "lock";
+			out << "unlock";
 			break;
 		}
 		default: {
