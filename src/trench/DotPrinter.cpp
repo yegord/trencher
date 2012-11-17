@@ -108,6 +108,14 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 		case Instruction::NOOP: {
 			break;
 		}
+		case Instruction::LOCK: {
+			out << "lock";
+			break;
+		}
+		case Instruction::UNLOCK: {
+			out << "lock";
+			break;
+		}
 		default: {
 			assert(!"NEVER REACHED");
 		}
