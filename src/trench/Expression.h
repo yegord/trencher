@@ -69,9 +69,8 @@ class UnaryOperator: public Expression {
 
 	private:
 
-	std::shared_ptr<Expression> operand_;
-
 	Kind kind_;
+	std::shared_ptr<Expression> operand_;
 
 	public:
 
