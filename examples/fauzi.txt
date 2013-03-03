@@ -1,5 +1,5 @@
 #
-# The example is NOT robust.
+# The program is NOT robust.
 #
 
 thread t1
