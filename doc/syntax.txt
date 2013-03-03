@@ -35,8 +35,8 @@ The following kinds of instructions exist:
     8. unlock (flush the buffers, allow others to write to memory)
 
 Operands of instructions are expressions. Expressions are written in
-infix form (so it is was easier to parse them). The following kinds of
-expressions exist:
+prefix notation (so it is was easier to parse them). The following kinds
+of expressions exist:
 
     1. A name of a register <reg-name> is just a string without spaces.
     2. An integer constant. Should fit into the `int' type of your C++
