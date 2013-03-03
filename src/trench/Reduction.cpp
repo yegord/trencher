@@ -242,7 +242,8 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 								check_not_blocked,
 								std::make_shared<Read>(access_type, write->address(), HB_SPACE),
 								check_access_type_is_read_or_write,
-								transition->instruction()
+								transition->instruction(),
+								std::make_shared<Write>(hb_write,   write->address(), HB_SPACE)
 							)
 						);
 					}
@@ -289,7 +290,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							std::make_shared<Atomic>(
 								check_not_blocked,
 								transition->instruction(),
-								std::make_shared<Write>(hb_read, write->address(), HB_SPACE)
+								std::make_shared<Write>(hb_write, write->address(), HB_SPACE)
 							)
 						);
 						resultThread->makeTransition(

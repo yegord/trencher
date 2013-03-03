@@ -1,0 +1,26 @@
+#
+# The example is NOT robust.
+#
+
+thread t1
+initial q0
+transition q0 q1    write    1    0
+end
+
+thread t2
+initial q0
+transition q0 q1    write    2    1
+transition q1 q2    write    1    1
+transition q2 q3    read    ebx    0
+transition q3 q4    check    == ebx 0
+end
+
+thread t3
+initial q0
+transition q0 q1    read    ecx    0
+transition q1 q2    check    == ecx 1
+transition q2 q3    read    edy    1
+transition q3 q4    check    == edy 0
+transition q4 q5    read    edy    1
+transition q5 q6    check    == edy 2
+end
