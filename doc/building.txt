@@ -21,7 +21,8 @@ capable of building it:
 The following software must be installed before Trencher can be built:
 
     * CMake >= 2.8 <http://cmake.org/>
-    * Boost >= 1.46 <http://www.boost.org/> (headers and libraries)
+    * Boost >= 1.46 <http://www.boost.org/> (headers and the following
+      libraries: chrono, filesystem, system, thread).
 
 Building on UNIX
 ================

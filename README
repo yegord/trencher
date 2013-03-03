@@ -1,0 +1,10 @@
+Trencher is a tool for checking and enforcing robustness against Total
+Store Ordering.
+
+For building instructions, see `doc/building.txt'.
+For running instructions, see `doc/running.txt'.
+The input format of Trencher is described in `doc/syntax.txt'.
+
+Enjoy!
+
+# vim:set et sts=4 sw=4 tw=72:

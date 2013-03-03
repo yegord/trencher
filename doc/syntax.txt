@@ -1,0 +1,81 @@
+This document explains the syntax of Trencher's input files.
+
+Introduction
+============
+
+Trencher's input is a text file describing a parallel program consisting
+of a fixed number of threads. Each thread is an automaton with a name,
+an initial state, and a sequence of transitions. Each transition
+consists of a source state, a destination state, and an instruction.
+
+Unless you defined TRENCH_FRIENDLY_SPIN_NAMES in src/trench/config.h,
+names of threads and names of states can be any strings without spaces.
+
+Lines starting from # are comments, but not if they are within a thread
+description block, sorry.
+
+You can also specify the size of the global memory by the `memory_size'
+directive (see the example below). By default it is set to 10, i.e. the
+threads can use addresses from 0 to 9. If you want to use less memory,
+it is okay. If you want to use more, please, do specify how much, e.g.:
+`memory_size 100'.
+
+Instructions and Expressions
+============================
+
+The following kinds of instructions exist:
+    1. write <value-expr> <addr-expr> (write/store to memory)
+    2. read  <reg-name>   <addr-expr> (read/load from memory)
+    3. mfence (flush the write buffers)
+    4. local <reg-name>   <value-expr> (local assignment)
+    5. check <expr> (assertion, executable only if <expr> is non-zero)
+    6. noop (always executable, has no effect)
+    7. lock (flush the buffers, get an exclusive permission to write to
+       memory)
+    8. unlock (flush the buffers, allow others to write to memory)
+
+Operands of instructions are expressions. Expressions are written in
+infix form (so it is was easier to parse them). The following kinds of
+expressions exist:
+
+    1. A name of a register <reg-name> is just a string without spaces.
+    2. An integer constant. Should fit into the `int' type of your C++
+       compiler.
+    3. A unary expression. Operator: ! (logical NOT).
+    4. A binary expression. Operators: ==, !=, <, <=, >, >=, &&, ||, +,
+       -, *, &. The meanings are just like in C.
+
+Example
+=======
+
+Here is a meaningless example to make you familiar with the syntax:
+
+-----------------------------------------------------------------------
+# We do not touch addresses greater than 5
+memory_size 6
+
+# A thread t1 with the initial state q0 performing an atomic increment
+# on address 5:
+
+thread t1
+initial q0
+transition q0 q1    lock
+transition q1 q2    read    tmp     5
+transition q2 q3    write   + tmp 1 5
+transition q3 q4    unlock
+end
+
+# A thread t2 that initializes addresses from 1 to 5 by values 1 to 5:
+
+thread t2
+initial q0
+transition q0 q1    local   i   1
+transition q1 q2    check   <= i 5
+transition q2 q3    write   i   i
+transition q3 q1    local   i   + i 1
+end
+-----------------------------------------------------------------------
+
+More meaningful examples can be found in the examples/ directory.
+
+# vim:set et sts=4 sw=4 tw=72:

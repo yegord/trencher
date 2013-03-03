@@ -11,6 +11,9 @@
 
 #include <algorithm> /* std::find */
 #include <cassert>
+#ifndef TRENCH_FRIENDLY_SPIN_NAMES
+#include <sstream>
+#endif
 
 #include "Census.h"
 #include "Foreach.h"
