@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "config.h"
+#include <trench/config.h>
 
 #include <map>
 #include <memory>

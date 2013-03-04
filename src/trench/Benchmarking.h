@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <trench/config.h>
+
 #include <boost/thread.hpp>
 
 #include <ostream>
