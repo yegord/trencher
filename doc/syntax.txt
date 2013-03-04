@@ -11,7 +11,7 @@ consists of a source state, a destination state, and an instruction.
 Unless you defined TRENCH_FRIENDLY_SPIN_NAMES in src/trench/config.h,
 names of threads and names of states can be any strings without spaces.
 
-Lines starting from # are comments, but not if they are within a thread
+Lines starting with # are comments, but not if they are within a thread
 description block, sorry.
 
 You can also specify the size of the global memory by the `memory_size'
