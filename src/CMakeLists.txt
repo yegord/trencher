@@ -24,7 +24,7 @@ if(WIN32)
 	set(Boost_USE_STATIC_LIBS ON)
 	add_definitions(-DBOOST_THREAD_USE_LIB)
 endif()
-find_package(Boost 1.46.0 REQUIRED chrono filesystem system thread)
+find_package(Boost 1.47.0 REQUIRED chrono filesystem system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories(${TRENCHER_SOURCE_DIR})
