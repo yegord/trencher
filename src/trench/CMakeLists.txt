@@ -33,6 +33,8 @@ set(TRENCH_SOURCES
 	Transition.cpp
 	Transition.h
 	config.h
+  ReachabilityChecking.cpp
+  ReachabilityChecking.h
 )
 
 add_library(trench ${TRENCH_SOURCES})

@@ -24,6 +24,7 @@
 #include <trench/Reduction.h>
 #include <trench/RobustnessChecking.h>
 #include <trench/State.h>
+#include <trench/ReachabilityChecking.h>
 
 void help() {
 	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf|-dot|-rdot] file..." << std::endl
@@ -36,7 +37,9 @@ void help() {
 	<< "  -trf   Check triangular data race freedom." << std::endl
 	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl
 	<< "  -dot   Print the example in dot format." << std::endl
-	<< "  -rdot  Print the example instrumented for robustness checking in dot format." << std::endl;
+	<< "  -rdot  Print the example instrumented for robustness checking in dot format." << std::endl
+  << "  -rsc   Check reachability under SC." << std::endl
+  << "  -rtso  Check reachability under TSO using robustness." << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -52,15 +55,21 @@ int main(int argc, char **argv) {
 			TRIANGULAR_RACE_FREEDOM,
 			TRF_FENCES,
 			PRINT_DOT,
-			PRINT_ROBUSTNESS_DOT
+			PRINT_ROBUSTNESS_DOT,
+      REACHABILITY_SC,
+      REACHABILITY_TSO
 		} action = FENCES;
 
 		bool benchmarking = false;
 
 		for (int i = 1; i < argc; ++i) {
 			std::string arg = argv[i];
-
-			if (arg == "-r") {
+      
+      if (arg == "-rsc") {
+        action = REACHABILITY_SC;
+			} else if (arg == "-rtso") {
+        action = REACHABILITY_TSO;
+      } else if (arg == "-r") {
 				action = ROBUSTNESS;
 			} else if (arg == "-f") {
 				action = FENCES;
@@ -101,6 +110,26 @@ int main(int argc, char **argv) {
 				clock_t startClock = clock();
 
 				switch (action) {
+          case REACHABILITY_SC: {
+            bool reachable = trench::scReachable(program);
+            if (reachable) {
+              std::cout << "Final state IS reachable under SC." << std::endl;
+            } else {
+              std::cout << "Final state IS NOT reachable under SC." << std::endl;
+            }
+            break;
+          }
+          case REACHABILITY_TSO: {
+            int reachable = trench::tsoReachable(program);
+            if (reachable == -1) {
+              std::cout << "Unknown: increase bound on robustness cyles detected." << std::endl;
+            } else if (reachable == 1) {
+              std::cout << "Final state IS reachable under TSO." << std::endl;
+            } else {
+              std::cout << "Final state IS NOT reachable under TSO." << std::endl;
+            }
+            break;
+          }
 					case ROBUSTNESS: {
 						bool feasible = trench::isAttackFeasible(program, false);
 						if (!benchmarking) {

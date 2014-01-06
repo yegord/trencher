@@ -24,6 +24,12 @@ if(WIN32)
 	set(Boost_USE_STATIC_LIBS ON)
 	add_definitions(-DBOOST_THREAD_USE_LIB)
 endif()
+
+if(APPLE)
+  set(BOOST_ROOT /usr/local/Cellar/boost)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
+
 find_package(Boost 1.47.0 REQUIRED chrono filesystem system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 

@@ -29,6 +29,7 @@ class Thread {
 	std::vector<State *> states_;
 
 	State *initialState_;
+  State *finalState_;
 
 	std::vector<Transition *> transitions_;
 
@@ -44,6 +45,9 @@ class Thread {
 
 	State *initialState() const { return initialState_; }
 	void setInitialState(State *state) { initialState_ = state; }
+
+  State *finalState() const { return finalState_; }
+  void setFinalState(State *state) { finalState_ = state; }
 
 	const std::vector<Transition *> &transitions() const { return transitions_; }
 	Transition *makeTransition(State *from, State *to, const std::shared_ptr<Instruction> &instruction);

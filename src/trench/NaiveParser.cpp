@@ -142,7 +142,13 @@ void NaiveParser::parse(std::istream &in, Program &program) const {
 					}
 					State *initial = thread->makeState(token);
 					thread->setInitialState(initial);
-				} else if (token == "transition") {
+				} else if (token == "final") {
+          if (!(in >> token)) {
+            std::runtime_error("expected final state, got EOF");
+          }
+          State *final = thread->makeState(token);
+          thread->setFinalState(final);
+        } else if (token == "transition") {
 					if (!(in >> token)) {
 						std::runtime_error("expected source state, got EOF");
 					}
