@@ -25,7 +25,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 	assert(attackWrite == NULL || attackWrite->instruction()->is<Write>());
 	assert(attackRead == NULL || attackRead->instruction()->is<Read>());
 
-	resultProgram.setMemorySize(std::max(program.memorySize(), 2));
+	resultProgram.setMemorySize(std::max(program.memorySize(), 3));
 
 	enum {
 		DEFAULT_SPACE = Space(),
