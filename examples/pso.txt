@@ -1,0 +1,26 @@
+# A program which is robust under TSO, but not robust under PSO.
+# Taken from not-ICALP-2012 paper.
+
+# Memory layout:
+# 0 — x
+# 1 — y
+# 2 — z
+
+thread t1
+initial q0
+transition q0 q1	write	1	0
+transition q1 q2	write	1	1
+end
+
+thread t2
+initial q0
+transition q0 q1	read	r	1
+transition q1 q2	read	r	2
+transition q2 q3	read	r	0
+end
+
+thread t3
+initial q0
+transition q0 q1	write	1	0
+transition q1 q2	write	1	2
+end
