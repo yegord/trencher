@@ -15,8 +15,10 @@ end
 thread t2
 initial q0
 transition q0 q1	read	r	1
-transition q1 q2	read	r	2
-transition q2 q3	read	r	0
+transition q1 q2	check	== r 1
+transition q2 q3	read	r	2
+transition q3 q4	check	== r 1
+transition q4 q5	read	r	0
 end
 
 thread t3
