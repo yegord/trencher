@@ -9,7 +9,6 @@
 
 #include "SpinPrinter.h"
 
-#include <algorithm> /* std::find */
 #include <cassert>
 #ifndef TRENCH_FRIENDLY_SPIN_NAMES
 #include <sstream>
