@@ -35,7 +35,7 @@ transition	r0	r0_1	local	buf	0
 transition	r0_1	r1	local	counter	1
 transition	r1	r2	read	cnt_b	counter
 transition	r2	r3	read	value	buf
-transition	r4	r5	read	cnt_e	counter
-transition	r5	r0	check	|| != cnt_b cnt_e  == & cnt_b 1 1
-transition	r5	r6	check	&& == cnt_b cnt_e  == & cnt_b 1 0
+transition	r3	r4	read	cnt_e	counter
+transition	r4	r0	check	|| != cnt_b cnt_e  == & cnt_b 1 1
+transition	r4	r5	check	&& == cnt_b cnt_e  == & cnt_b 1 0
 end
