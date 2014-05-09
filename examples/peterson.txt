@@ -39,7 +39,7 @@ end
 thread t1
 initial q0
 transition	q0	q1	write	1	1
-transition	q1	q2	write	1	2
+transition	q1	q2	write	0	2
 transition	q2	q3	read	flag0	0
 transition	q3	enter	check	== flag0 0
 transition	q3	q4	check	== flag0 1
