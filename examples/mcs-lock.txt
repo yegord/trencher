@@ -17,13 +17,14 @@
 #   }
 #
 #   public void unlock() {
-# q1: QNode qnode = myNode.get();
-# q2: if (qnode.next == null) {
-# q3:   if (tail.compareAndSet(qnode, null))
-# q4:     return;
+# u1: QNode qnode = myNode.get();
+# u2: if (qnode.next == null) {
+# u3:   if (tail.compareAndSet(qnode, null))
+# u4:     return;
+# u5:   while (qnode.next == null) {}
 #     }
-# q5: qnode.next.locked = false;
-# q6: qnode.next = null;
+# u6: qnode.next.locked = false;
+# u7: qnode.next = null;
 # }
 #
 # Memory layout:
@@ -41,28 +42,29 @@ transition	q2_1	q2_2	read	pred	tail
 transition	q2_2	q2_3	write	qnode	tail
 transition	q2_3	q3	unlock
 transition	q3	q4	check	!= pred 0
+transition	q3	u1	check	== pred 0
 transition	q4	q5	write	1	+ 0 * 2 qnode
 transition	q5	q6	write	qnode	+ 1 * 2 pred
 transition	q6	q6_1	read	locked	+ 0 * 2 qnode
 transition	q6_1	q6	check	locked
-transition	q6_1	end	check	== locked 0
-end
+transition	q6_1	u1	check	== locked 0
 
-thread unlock1
-initial q1
-transition	q1	q2	local	qnode	1
-transition	q2	q2_1	read	next	+ 1 * 2 qnode
-transition	q2_1	q3	check	== next	0
-transition	q3	q3_1	lock
-transition	q3_1	q3_2	read	tmp	tail
-transition	q3_2	q3_3	check	== tmp	qnode
-transition	q3_3	q3_4	write	0	qnode
-transition	q3_4	q4	unlock
-transition	q3_2	q3_6	check	!= tmp qnode
-transition	q3_6	q5	unlock
-transition	q5	q5_1	read	next	+ 1 * 2 qnode
-transition	q5_1	q6	write	0	+ 0 * 2 next
-transition	q6	q7	write	0	+ 1 * 2 qnode
+transition	u1	u2	local	qnode	1
+transition	u2	u2_1	read	next	+ 1 * 2 qnode
+transition	u2_1	u3	check	== next	0
+transition	u3	u3_1	lock
+transition	u3_1	u3_2	read	tmp	tail
+transition	u3_2	u3_3	check	== tmp	qnode
+transition	u3_3	u3_4	write	0	tail
+transition	u3_4	u4	unlock
+transition	u3_2	u3_6	check	!= tmp qnode
+transition	u3_6	u5	unlock
+transition	u5	u5_1	read	next	+ 1 * 2 qnode
+transition	u5_1	u6	check	!= next 0
+transition	u5_1	u5	check	== next 0
+transition	u6	u6_1	read	next	+ 1 * 2 qnode
+transition	u6_1	u7	write	0	+ 0 * 2 next
+transition	u7	u8	write	0	+ 1 * 2 qnode
 end
 
 thread lock2
@@ -74,26 +76,27 @@ transition	q2_1	q2_2	read	pred	tail
 transition	q2_2	q2_3	write	qnode	tail
 transition	q2_3	q3	unlock
 transition	q3	q4	check	!= pred 0
+transition	q3	u1	check	== pred 0
 transition	q4	q5	write	1	+ 0 * 2 qnode
 transition	q5	q6	write	qnode	+ 1 * 2 pred
 transition	q6	q6_1	read	locked	+ 0 * 2 qnode
 transition	q6_1	q6	check	locked
-transition	q6_1	end	check	== locked 0
-end
+transition	q6_1	u1	check	== locked 0
 
-thread unlock2
-initial q1
-transition	q1	q2	local	qnode	2
-transition	q2	q2_1	read	next	+ 1 * 2 qnode
-transition	q2_1	q3	check	== next	0
-transition	q3	q3_1	lock
-transition	q3_1	q3_2	read	tmp	tail
-transition	q3_2	q3_3	check	== tmp	qnode
-transition	q3_3	q3_4	write	0	qnode
-transition	q3_4	q4	unlock
-transition	q3_2	q3_6	check	!= tmp qnode
-transition	q3_6	q5	unlock
-transition	q5	q5_1	read	next	+ 1 * 2 qnode
-transition	q5_1	q6	write	0	+ 0 * 2 next
-transition	q6	q7	write	0	+ 1 * 2 qnode
+transition	u1	u2	local	qnode	2
+transition	u2	u2_1	read	next	+ 1 * 2 qnode
+transition	u2_1	u3	check	== next	0
+transition	u3	u3_1	lock
+transition	u3_1	u3_2	read	tmp	tail
+transition	u3_2	u3_3	check	== tmp	qnode
+transition	u3_3	u3_4	write	0	tail
+transition	u3_4	u4	unlock
+transition	u3_2	u3_6	check	!= tmp qnode
+transition	u3_6	u5	unlock
+transition	u5	u5_1	read	next	+ 1 * 2 qnode
+transition	u5_1	u6	check	!= next 0
+transition	u5_1	u5	check	== next 0
+transition	u6	u6_1	read	next	+ 1 * 2 qnode
+transition	u6_1	u7	write	0	+ 0 * 2 next
+transition	u7	u8	write	0	+ 1 * 2 qnode
 end
