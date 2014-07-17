@@ -33,6 +33,7 @@ class Statistics {
 	long spinTime_;
 	long compilerTime_;
 	long verifierTime_;
+  long trailTime_;
 	long cpuTime_;
 	long realTime_;
 
@@ -56,6 +57,7 @@ class Statistics {
 		spinTime_     = 0;
 		compilerTime_ = 0;
 		verifierTime_ = 0;
+    trailTime_    = 0;
 		cpuTime_      = 0;
 		realTime_     = 0;
 	}
@@ -97,6 +99,9 @@ class Statistics {
 
 	void addVerifierTime(double milliseconds) { mutex_.lock(); verifierTime_ += milliseconds; mutex_.unlock(); }
 	long verifierTime() const { return verifierTime_; }
+
+	void addTrailTime(double milliseconds) { mutex_.lock(); trailTime_ += milliseconds; mutex_.unlock(); }
+	long trailTime() const { return trailTime_; }
 
 	void addCpuTime(double milliseconds) { mutex_.lock(); cpuTime_ += milliseconds; mutex_.unlock(); }
 	long cpuTime() const { return cpuTime_; }

@@ -58,7 +58,8 @@ bool isReachable(State *state, State *target, boost::unordered_set<State *> &vis
 
 } // anonymous namespace
 
-bool isAttackFeasible(const Program &program, bool searchForTdrOnly, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
+bool isAttackFeasible(const Program &program, Thread *attacker, Transition *attackWrite, Transition *attackRead, 
+                      const boost::unordered_set<State *> &fenced) {
 
 	Statistics::instance().incPotentialAttacksCount();
 
@@ -71,18 +72,37 @@ bool isAttackFeasible(const Program &program, bool searchForTdrOnly, Thread *att
 	}
 
 	trench::Program augmentedProgram;
-	trench::reduce(program, augmentedProgram, searchForTdrOnly, attacker, attackWrite, attackRead, fenced);
+	trench::reduce(program, augmentedProgram, attacker, attackWrite, attackRead, fenced);
 
 	trench::SpinModelChecker checker;
-	bool feasible = checker.check(augmentedProgram);
+  bool feasible = (checker.check(augmentedProgram,NULL) != NULL);
 
 	if (feasible) {
-		Statistics::instance().incFeasibleAttacksCount();
+    Statistics::instance().incFeasibleAttacksCount();
 	} else {
 		Statistics::instance().incInfeasibleAttacksCount2();
 	}
 
 	return feasible;
+}
+
+Program* isAttackFeasible(const Program &program, const Attack *attack, const boost::unordered_set<State *> &fenced) {
+  Statistics::instance().incPotentialAttacksCount();
+  boost::unordered_set<State *> visited(fenced);
+  if (!isReachable(attack->write()->to(), attack->read()->from(), visited)) {
+    Statistics::instance().incInfeasibleAttacksCount1();
+    return NULL;
+  }
+  Program augmentedProgram;
+  reduce(program, augmentedProgram, attack->attacker(), attack->write(), attack->read(), fenced);
+  SpinModelChecker checker;
+  Program *result = checker.check(augmentedProgram,attack);
+  if (result != NULL) {
+    Statistics::instance().incFeasibleAttacksCount();
+  } else {
+    Statistics::instance().incInfeasibleAttacksCount2();
+  }
+  return result;
 }
 
 } // namespace trench

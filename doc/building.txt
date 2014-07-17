@@ -10,13 +10,11 @@ Trencher's source code can be obtained from the tool's web page:
 Prerequisites
 =============
 
-Trencher is written in C++. The following compilers are known to be
-capable of building it:
+Trencher is written in C++. The following compilers are known to be capable of building it:
 
     * GCC >= 4.7 <http://gcc.gnu.org/>
     * Clang >= 3.1 <http://llvm.clang.org>
-    * MinGW GCC >= 4.7 <http://mingw.org/> (do install the `C++
-      Compiler' option)
+    * MinGW GCC >= 4.7 <http://mingw.org/> (do install the `C++ Compiler' option)
 
 The following software must be installed before Trencher can be built:
 
@@ -31,21 +29,16 @@ The simplest way to compile Trencher on UNIX is:
 
     1. `cd' to the directory containing the package's source code.
 
-    2. Type `make' to configure and build the package. The package will
-       be built in the subdirectory called `build'.
+    2. Type `make' to configure and build the package. 
+        The package will be built in the subdirectory called `build'.
 
-Note that you will need a make utility installed (one is usually a
-recommended dependency of CMake).
+Note that you will need a make utility installed (one is usually a recommended dependency of CMake).
 On MacOS boost is installed via "brew install boost --with-c++11".
-
 
 Building on Windows
 ===================
 
-    1. Run `cmake-gui'. Specify source and build directories, paths to
-       the libraries, choose a compiler.
+    1. Run `cmake-gui'. Specify source and build directories, paths to the libraries, choose a compiler.
 
-    2. Run `cmake --build <selected build directory>'. The package will
-       be built in the specified directory.
+    2. Run `cmake --build <selected build directory>'. The package will be built in the specified directory.
 
-# vim:set et sts=4 sw=4 tw=72:

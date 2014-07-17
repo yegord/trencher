@@ -82,7 +82,17 @@ std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) 
 		std::shared_ptr<Expression> left = parseExpression(in, program);
 		std::shared_ptr<Expression> right = parseExpression(in, program);
 		return std::make_shared<BinaryOperator>(BinaryOperator::MUL, left, right);
-	} else if (token == "&") {
+	} else if (token == "^") {
+		std::shared_ptr<Expression> left = parseExpression(in, program);
+		std::shared_ptr<Expression> right = parseExpression(in, program);
+    
+    std::shared_ptr<Expression> result = program.makeConstant(1);
+    for (int i=0; i < right->as<Constant>()->value(); i++) {
+      std::shared_ptr<Expression> tmp = std::make_shared<BinaryOperator>(BinaryOperator::MUL, left, result);
+      result = tmp;
+    }
+    return result;
+  } else if (token == "&") {
 		std::shared_ptr<Expression> left = parseExpression(in, program);
 		std::shared_ptr<Expression> right = parseExpression(in, program);
 		return std::make_shared<BinaryOperator>(BinaryOperator::BIN_AND, left, right);
@@ -98,7 +108,7 @@ std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) 
 
 } // anonymous namespace
 
-void NaiveParser::parse(std::istream &in, Program &program) const {
+void NaiveParser::parse(std::istream &in, Program &program) {
 	in >> std::skipws;
 
 	std::string token;

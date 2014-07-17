@@ -28,97 +28,62 @@ namespace trench {
 
 namespace {
 
-class Attack {
-	const Program &program_;
-	Thread *attacker_;
-	Transition *write_;
-	Transition *read_;
-
-	bool feasible_;
-	std::vector<State *> intermediary_;
-
-	public:
-
-	Attack(const Program &program, Thread *attacker, Transition *write, Transition *read):
-		program_(program), attacker_(attacker), write_(write), read_(read), feasible_(false)
-	{
-	}
-
-	const Program &program() const { return program_; }
-	Thread *attacker() const { return attacker_; }
-	Transition *write() const { return write_; }
-	Transition *read() const { return read_; }
-
-	bool feasible() const { return feasible_; }
-	void setFeasible(bool value) { feasible_ = value; }
-
-	const std::vector<State *> &intermediary() const { return intermediary_; }
-
-	template<class T>
-	void setIntermediary(const T &container) {
-		intermediary_.clear();
-		intermediary_.insert(intermediary_.end(), container.begin(), container.end());
-	}
-};
-
 class AttackChecker {
-	Attack &attack_;
-	bool searchForTdrOnly_;
+  Attack *attack_;
 
-	public:
+  public:
 
-	AttackChecker(Attack &attack, bool searchForTdrOnly):
-		attack_(attack), searchForTdrOnly_(searchForTdrOnly)
-	{}
+  AttackChecker(Attack *attack):
+    attack_(attack) {}
 
-	void operator()() {
-		if (isAttackFeasible(attack_.program(), searchForTdrOnly_, attack_.attacker(), attack_.write(), attack_.read())) {
-			attack_.setFeasible(true);
+  void operator()() {
+    if (isAttackFeasible(attack_->program(), attack_->attacker(), attack_->write(), attack_->read())) {
+      attack_->setFeasible(true);
 
-			boost::unordered_set<State *> visited;
-			boost::unordered_set<State *> intermediary;
+      boost::unordered_set<State *> visited;
+      boost::unordered_set<State *> intermediary;
 
-			dfs(attack_.write()->to(), attack_.read()->from(), visited, intermediary);
+      dfs(attack_->write()->to(), attack_->read()->from(), visited, intermediary);
 
-			attack_.setIntermediary(intermediary);
-		}
-	}
+      attack_->setIntermediary(intermediary);
+    }
+  }
 
-	private:
+  private:
 
-	static void dfs(State *state, State *target, boost::unordered_set<State *> &visited, boost::unordered_set<State *> &intermediary) {
-		if (state == target) {
-			intermediary.insert(state);
-			return;
-		}
+  static void dfs(State *state, State *target, boost::unordered_set<State *> &visited, boost::unordered_set<State *> &intermediary) {
+    if (state == target) {
+      intermediary.insert(state);
+      return;
+    }
 
-		if (visited.find(state) != visited.end()) {
-			return;
-		}
+    if (visited.find(state) != visited.end()) {
+      return;
+    }
 
-		visited.insert(state);
+    visited.insert(state);
 
-		foreach (Transition *transition, state->out()) {
-			switch (transition->instruction()->mnemonic()) {
-				case Instruction::READ:
-				case Instruction::WRITE:
-				case Instruction::LOCAL:
-				case Instruction::CONDITION:
-				case Instruction::NOOP:
-					dfs(transition->to(), target, visited, intermediary);
+    foreach (Transition *transition, state->out()) {
+      switch (transition->instruction()->mnemonic()) {
+        case Instruction::READ:
+        case Instruction::WRITE:
+        case Instruction::LOCAL:
+        case Instruction::CONDITION:
+        case Instruction::NOOP:
+          dfs(transition->to(), target, visited, intermediary);
 
-					if (intermediary.find(transition->to()) != intermediary.end()) {
-						intermediary.insert(state);
-					}
-					break;
-				case Instruction::MFENCE:
-					break;
-				default: {
-					assert(!"NEVER REACHED");
-				}
-			}
-		}
-	}
+          if (intermediary.find(transition->to()) != intermediary.end()) {
+            intermediary.insert(state);
+          }
+          break;
+        case Instruction::MFENCE:
+          break;
+        default: {
+          assert(!"NEVER REACHED");
+        }
+      }
+    }
+  }
 };
 
 class Attacker {
@@ -141,18 +106,14 @@ class Attacker {
 
 class AttackerNeutralizer {
 	Attacker &attacker_;
-	bool searchForTdrOnly_;
 
 	public:
 
-	AttackerNeutralizer(Attacker &attacker, bool searchForTdrOnly):
-		attacker_(attacker), searchForTdrOnly_(searchForTdrOnly)
-	{}
+	AttackerNeutralizer(Attacker &attacker):
+		attacker_(attacker)	{}
 
 	void operator()() {
-		/*
-		 * It is always safe to insert fences after each attacker's write.
-		 */
+		/* It is always safe to insert fences after each attacker's write. */
 		std::vector<State *> fences;
 		foreach (const Attack *attack, attacker_.attacks()) {
 			fences.push_back(attack->write()->to());
@@ -160,10 +121,7 @@ class AttackerNeutralizer {
 		sort_and_unique(fences);
 		attacker_.setFences(fences);
 
-		/*
-		 * Can we improve the result?
-		 */
-
+		/* Can we improve the result? */
 		boost::unordered_map<State *, std::size_t> occurrences;
 
 		/* For each state, compute the number of attacks it belongs to. */
@@ -184,11 +142,8 @@ class AttackerNeutralizer {
 
 		/*
 		 * Iterate all the subsets of potential fences of size up to fences.size() - 1.
-		 *
-		 * This can be optimized by considering independent attacks independently and
-		 * even concurrently.
+		 * Can be optimized by considering independent attacks independently and concurrently.
 		 */
-
 		boost::unordered_set<State *> usedFences;
 		for (std::size_t nfences = 1; nfences < fences.size(); ++nfences) {
 			if (tryFence(potentialFences, usedFences, nfences, 0)) {
@@ -204,8 +159,7 @@ class AttackerNeutralizer {
 		if (usedFences.size() == nfences) {
 			bool success = true;
 			foreach (const Attack *attack, attacker_.attacks()) {
-				if (isAttackFeasible(attack->program(), searchForTdrOnly_,
-				    attack->attacker(), attack->write(), attack->read(), usedFences)) {
+				if (isAttackFeasible(attack->program(), attack->attacker(), attack->write(), attack->read(), usedFences)) {
 					success = false;
 					break;
 				}
@@ -233,7 +187,7 @@ class AttackerNeutralizer {
 
 } // anonymous namespace
 
-FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
+FenceSet computeFences(const Program &program) {
 	std::vector<Attack> attacks;
 
 	foreach (Thread *thread, program.threads()) {
@@ -258,7 +212,7 @@ FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 	boost::threadpool::pool pool(boost::thread::hardware_concurrency());
 
 	foreach (Attack &attack, attacks) {
-		pool.schedule(AttackChecker(attack, searchForTdrOnly));
+		pool.schedule(AttackChecker(&attack));
 	}
 
 	pool.wait();
@@ -272,7 +226,7 @@ FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 	}
 
 	foreach (Attacker &attacker, thread2attacker | boost::adaptors::map_values) {
-		pool.schedule(AttackerNeutralizer(attacker, searchForTdrOnly));
+		pool.schedule(AttackerNeutralizer(attacker));
 	}
 
 	pool.wait();

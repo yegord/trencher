@@ -47,8 +47,8 @@ transition	pop11	pop12	read	T	1
 transition	pop12	pop13	write	- T 1	1
 
 transition	pop13	pop14	read	H	0
-transition	pop15	pop16	check	<= H T
-transition	pop15	pop20	check	> H T
+transition	pop14	pop16	check	<= H T
+transition	pop14	pop20	check	> H T
 
 transition	pop16	pop17	lock
 transition	pop17	pop18	read	L	2
@@ -60,8 +60,8 @@ transition	pop21	pop22	write	+ T 1	1
 
 transition	pop22	pop23	lock
 transition	pop23	pop24	read	L	2
-transition	pop25	pop26	write	+ 1 L	2
-transition	pop27	failure	unlock
+transition	pop24	pop25	write	+ 1 L	2
+transition	pop25	failure	unlock
 end
 
 thread pop2
@@ -87,8 +87,8 @@ transition	pop11	pop12	read	T	1
 transition	pop12	pop13	write	- T 1	1
 
 transition	pop13	pop14	read	H	0
-transition	pop15	pop16	check	<= H T
-transition	pop15	pop20	check	> H T
+transition	pop14	pop16	check	<= H T
+transition	pop14	pop20	check	> H T
 
 transition	pop16	pop17	lock
 transition	pop17	pop18	read	L	2
@@ -100,8 +100,8 @@ transition	pop21	pop22	write	+ T 1	1
 
 transition	pop22	pop23	lock
 transition	pop23	pop24	read	L	2
-transition	pop25	pop26	write	+ 1 L	2
-transition	pop27	failure	unlock
+transition	pop24	pop25	write	+ 1 L	2
+transition	pop25	failure	unlock
 end
 
 thread steal1

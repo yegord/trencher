@@ -12,15 +12,18 @@
 #include <trench/config.h>
 
 #include <string>
+#include "Program.h"
 
 namespace trench {
 
 class Program;
+class Attack;
 
 class SpinModelChecker {
 	std::string spinCommandLine_;
 	std::string compilerCommandLine_;
 	std::string verifierCommandLine_;
+  std::string trailCommandLine_;
 
 	public:
 
@@ -34,8 +37,11 @@ class SpinModelChecker {
 
 	void setVerifierCommandLine(const std::string &commandLine) { verifierCommandLine_ = commandLine; }
 	const std::string &verifierCommandLine() const { return verifierCommandLine_; }
+  
+  void setTrailCommandLine(const std::string &commandLine) { trailCommandLine_ = commandLine; }
+  const std::string &trailCommandLine() const { return trailCommandLine_; }
 
-	bool check(const Program &program);
+	Program* check(Program &program, const Attack *attack);
 };
 
 } // namespace trench

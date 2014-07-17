@@ -9,7 +9,6 @@
 
 #include "Program.h"
 
-#include "Foreach.h"
 #include "Thread.h"
 
 namespace trench {

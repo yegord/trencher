@@ -11,18 +11,16 @@
 
 #include <trench/config.h>
 
-#include <istream>
+#include <ostream>
 
 namespace trench {
 
 class Program;
 
-class Parser {
-	public:
+class MPrinter {
+  public:
 
-	virtual ~Parser() {}
-
-	virtual void parse(std::istream &in, Program &program) const = 0;
+  void print(std::ostream &out, const Program &program);
 };
 
 } // namespace trench

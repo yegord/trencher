@@ -40,10 +40,10 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 			out << ')';
 			break;
 		}
-		case Expression::NOT_BLOCKED: {
-			out << "not_blocked";
-			break;
-		}
+    case Expression::NOT_BLOCKED: {
+      out << "not_blocked";
+      break;
+    }
 		default: {
 			assert(!"NEVER REACHED");
 		}
@@ -106,6 +106,7 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			break;
 		}
 		case Instruction::NOOP: {
+      out << "noop";
 			break;
 		}
 		case Instruction::LOCK: {
@@ -124,13 +125,21 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 
 } // namespace
 
-void DotPrinter::print(std::ostream &out, const Program &program) const {
+void DotPrinter::print(std::ostream &out, const Program &program) {
 	out << "digraph threads {" << std::endl;
 	foreach (const Thread *thread, program.threads()) {
 		out << "subgraph cluster" << this << " {" << std::endl;
-		foreach (const State *state, thread->states()) {
-			out << "state" << state << "[shape=\"ellipse\",label=\"" << state->name() << "\"];" << std::endl;
-		}
+		out << "state" << thread << "[shape=\"point\"];" << std::endl;
+    foreach (const State *state, thread->states()) {
+      if (state == thread->finalState()) {
+			  out << "state" << state << "[shape=\"ellipse\",peripheries=2,label=\"" << state->name() << "\"];" << std::endl;
+      } else {
+			  out << "state" << state << "[shape=\"ellipse\",label=\"" << state->name() << "\"];" << std::endl;
+		  }
+      if (state == thread->initialState()) {
+        out << "state" << thread << "->state" << state << "[];" << std::endl;
+      }
+    }
 		foreach (const Transition *transition, thread->transitions()) {
 			out << "state" << transition->from() << "->state" << transition->to() << "[label=\"";
 			printInstruction(out, transition->instruction());

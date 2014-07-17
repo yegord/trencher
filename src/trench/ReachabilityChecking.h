@@ -11,13 +11,14 @@
 
 #include <trench/config.h>
 
+#include <queue>
 
 namespace trench {
 
 class Program;
+class Attack;
 
 bool scReachable(const Program &program);
-
-int tsoReachable(const Program &program);
+void tsoReachable(std::queue<Program*> programs, int &reachable);
 
 } // namespace trench

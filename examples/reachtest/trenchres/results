@@ -1,0 +1,8 @@
+filename parker.txt threads 2 states 11 transitions 10 potentialAttacksCount 4 feasibleAttacks 1 spinTime 53 compilerTime 1987 verifierTime 64 trailTime 15 cpuTime 10 realTime 1229
+filename peterson.txt threads 2 states 14 transitions 18 potentialAttacksCount 12 feasibleAttacks 6 spinTime 278 compilerTime 9861 verifierTime 400 trailTime 110 cpuTime 100 realTime 1651
+filename dekker.txt threads 2 states 24 transitions 30 potentialAttacksCount 30 feasibleAttacks 18 spinTime 898 compilerTime 38413 verifierTime 1040 trailTime 332 cpuTime 670 realTime 3600
+filename lamport-fast-mutex-alg1.txt threads 3 states 33 transitions 36 potentialAttacksCount 27 feasibleAttacks 6 spinTime 506 compilerTime 22297 verifierTime 3740 trailTime 112 cpuTime 330 realTime 3061
+filename countdown.txt threads 2 states 12 transitions 12 potentialAttacksCount 3 feasibleAttacks 3 spinTime 83 compilerTime 3011 verifierTime 314 trailTime 32 cpuTime 10 realTime 1683
+filename mcs-lock.txt threads 4 states 52 transitions 50 potentialAttacksCount 30 feasibleAttacks 0 spinTime 117 compilerTime 4498 verifierTime 337 trailTime 0 cpuTime 20 realTime 1653
+filename clh-lock.txt threads 3 states 43 transitions 41 potentialAttacksCount 70 feasibleAttacks 0 spinTime 285 compilerTime 12083 verifierTime 167 trailTime 0 cpuTime 90 realTime 1998
+filename lock-free-stack.txt threads 4 states 46 transitions 50 potentialAttacksCount 14 feasibleAttacks 0 spinTime 13 compilerTime 475 verifierTime 25 trailTime 0 cpuTime 0 realTime 518

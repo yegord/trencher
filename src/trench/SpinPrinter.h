@@ -11,14 +11,18 @@
 
 #include <trench/config.h>
 
-#include "Printer.h"
+#include <ostream>
+#include <map>
 
 namespace trench {
 
-class SpinPrinter: public Printer {
-	public:
+class Program;
+class Transition;
 
-	virtual void print(std::ostream &out, const Program &program) const override;
+class SpinPrinter {
+  public:
+
+  void print(const Program &program, std::ostream &out, std::map<std::size_t,Transition*> &line2t);
 };
 
 } // namespace trench

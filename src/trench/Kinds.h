@@ -69,8 +69,7 @@ namespace trench {
  * 
  * Must be used at global namespace.
  * 
- * This macro MUST be invoked for each class that you wish to use with <tt>is</tt>
- * and <tt>as</tt> methods.
+ * This macro MUST be invoked for each class that you wish to use with <tt>is</tt> and <tt>as</tt> methods.
  * 
  * \param BASE                         Base class of the hierarchy that this class belongs to.
  * \param CLASS                        Class.
@@ -82,4 +81,3 @@ namespace trench {                                                              
     struct class_kind<CLASS, BASE>: public boost::mpl::int_<KIND> {};           \
 }
 
-/* vim:set et sts=4 sw=4: */

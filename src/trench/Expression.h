@@ -28,10 +28,10 @@ class Expression {
 		REGISTER,
 		UNARY,
 		BINARY,
-		NOT_BLOCKED,
+    NOT_BLOCKED
 	};
 
-	public:
+  public:
 
 	Expression(Kind kind): kind_(kind) {}
 };
@@ -53,9 +53,9 @@ class Register: public Expression {
 
 	public:
 
-	Register(const std::string &name):
-		Expression(REGISTER), name_(name)
-	{}
+	Register(const std::string &name): 
+    Expression(REGISTER), name_(name) 
+  {}
 
 	const std::string &name() const { return name_; }
 };
@@ -76,7 +76,7 @@ class UnaryOperator: public Expression {
 
 	UnaryOperator(Kind kind, const std::shared_ptr<Expression> &operand):
 		Expression(UNARY), kind_(kind), operand_(operand)
-	{}
+  {}
 
 	Kind kind() const { return kind_; }
 	const std::shared_ptr<Expression> &operand() const { return operand_; }
@@ -111,8 +111,8 @@ class BinaryOperator: public Expression {
 	public:
 
 	BinaryOperator(Kind kind, const std::shared_ptr<Expression> &left, const std::shared_ptr<Expression> &right):
-		Expression(BINARY), kind_(kind), left_(left), right_(right)
-	{}
+		Expression(BINARY), kind_(kind), left_(left), right_(right)	
+  {}
 
 	Kind kind() const { return kind_; }
 	const std::shared_ptr<Expression> &left() const { return left_; }
@@ -122,11 +122,11 @@ class BinaryOperator: public Expression {
 };
 
 class NotBlocked: public Expression {
-	public:
+  public:
 
-	NotBlocked():
-		Expression(NOT_BLOCKED)
-	{}
+  NotBlocked():
+    Expression(NOT_BLOCKED)
+  {}
 };
 
 } // namespace trench
@@ -136,3 +136,4 @@ TRENCH_REGISTER_CLASS_KIND(Expression, Register, Expression::REGISTER)
 TRENCH_REGISTER_CLASS_KIND(Expression, UnaryOperator, Expression::UNARY)
 TRENCH_REGISTER_CLASS_KIND(Expression, BinaryOperator, Expression::BINARY)
 TRENCH_REGISTER_CLASS_KIND(Expression, NotBlocked, Expression::NOT_BLOCKED)
+

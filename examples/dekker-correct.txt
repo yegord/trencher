@@ -27,6 +27,7 @@
 
 thread t0
 initial q0
+final q8
 transition q0	q1_a	write	1	0
 transition q1_a q1	mfence
 
@@ -57,6 +58,7 @@ end
 
 thread t1
 initial q0
+final q8
 transition q0	q1_a	write	1	1
 transition q1_a q1	mfence
 

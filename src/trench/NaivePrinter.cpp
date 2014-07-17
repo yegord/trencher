@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "NaivePrinter.h"
+#include "Printer.h"
 
 #include <cassert>
 
@@ -50,7 +50,7 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 
 } // anonymous namespace
 
-void NaivePrinter::print(std::ostream &out, const Program &program) const {
+void NaivePrinter::print(std::ostream &out, const Program &program) {
 	out << "memory_size " << program.memorySize() << std::endl;
 
 	foreach (const Thread *thread, program.threads()) {

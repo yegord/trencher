@@ -1,4 +1,4 @@
-This document explains how to run Trencher.
+This document explains how to run Trencher 2.0.
 
 Prerequisites
 =============
@@ -7,11 +7,9 @@ The following software must be installed before Trencher can be run:
 
     * SPIN <http://spinroot.com/>
 
-Make sure that SPIN's executable is in a directory included in PATH, or
-it is in the same directory as the Trencher's executable.
+Make sure that SPIN's executable is in a directory included in PATH, or it is in the same directory as the Trencher's executable.
 
-You may also want to install the following package to be able to produce
-visual representations of the input and instrumented programs:
+You may also want to install the following package to be able to produce visual representations of the input and instrumented programs:
 
     * Graphviz <http://www.graphviz.org/>
 
@@ -24,8 +22,7 @@ Trencher is a console tool that has four main command-line options:
     -trf  check for triangular race freedom,
     -ftrf insert fences to enforce triangular race freedom.
 
-Running the tool without arguments gives the full list of supported
-command-line options.
+Running the tool without arguments gives the full list of supported command-line options.
 
 Trencher's output should be self-explanatory:
 
@@ -47,13 +44,25 @@ Computed fences for enforcing triangular race freedom (1 total): (t1,q1)
 Dumping the Input and Instrumented Programs
 ===========================================
 
-Trencher allows to dump the input and the instrumented programs in DOT
-format.
+Trencher allows to dump the input and the instrumented programs in DOT format.
 
-Run 'trencher -dot file.txt | dot -Tpdf > file.pdf' to get a visual
-representation of the input program.
+Run 'trencher -dot file.txt | dot -Tpdf > file.pdf' to get a visual representation of the input program.
 
-Run 'trencher -rdot file.txt | dot -Tpdf > file.pdf' to get a visual
-representation of the input program instrumented for checking robustness.
+Run 'trencher -rdot file.txt | dot -Tpdf > file.pdf' to get a visual representation of the input program instrumented for checking robustness.
 
-# vim:set et sts=4 sw=4 tw=72:
+Checking TSO Reachability using Robustness
+==========================================
+
+The following command line options have been added:
+    -rsc    check for SC reachability
+    -rtso   check for TSO reachabiliy
+
+Trencher's output should again be self-explanatory:
+
+$ trencher -rsc examples/peterson.txt
+Final state IS NOT reachable under SC.
+
+$ trencher -rtso examples/peterson.txt
+Final state IS reachable under TSO.
+
+The implementation of TSO reachability is meant to be a semidecision procedure for now.

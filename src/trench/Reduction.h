@@ -20,8 +20,8 @@ class State;
 class Thread;
 class Transition;
 
-void reduce(const Program &program, Program &result, bool searchForTdrOnly,
+void reduce(const Program &program, Program &result,
             Thread *attacker = NULL, Transition *attackWrite = NULL, Transition *attackRead = NULL,
-	    const boost::unordered_set<State *> &fenced = boost::unordered_set<State *>());
+	          const boost::unordered_set<State *> &fenced = boost::unordered_set<State *>());
 
 } // namespace trench

@@ -36,6 +36,7 @@
 
 thread t0
 initial q0
+final q9
 transition q0	q1	write	1	0
 
 transition q1	q1_1	read	flag	1
@@ -64,6 +65,7 @@ end
 
 thread t1
 initial q0
+final q9
 transition q0	q1	write	1	1
 
 transition q1	q1_1	read	flag	0

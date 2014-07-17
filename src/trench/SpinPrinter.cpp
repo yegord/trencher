@@ -9,7 +9,6 @@
 
 #include "SpinPrinter.h"
 
-#include <algorithm> /* std::find */
 #include <cassert>
 #ifndef TRENCH_FRIENDLY_SPIN_NAMES
 #include <sstream>
@@ -22,6 +21,8 @@
 #include "State.h"
 #include "Transition.h"
 
+#include <iostream>
+
 namespace trench {
 
 namespace {
@@ -29,10 +30,10 @@ namespace {
 template<class T>
 std::string ident(const T *object) {
 #ifdef TRENCH_FRIENDLY_SPIN_NAMES
-	return object->name();
+	return "PTR_" + object->name();
 #else
 	std::stringstream ss;
-	ss << "_0x" << object;
+	ss << "PTR_" << object;
 	return ss.str();
 #endif
 }
@@ -70,10 +71,10 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 			out << ')';
 			break;
 		}
-		case Expression::NOT_BLOCKED: {
-			out << "(giant_lock == 0 || giant_lock == THREAD_ID)";
-			break;
-		}
+    case Expression::NOT_BLOCKED: {
+      out << "(giant_lock == 0 || giant_lock == THREAD_ID)";
+      break;
+    }
 		default: {
 			assert(!"NEVER REACHED");
 		}
@@ -81,16 +82,6 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 }
 
 void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &instruction) {
-	/* Guard. */
-	if (Condition *condition = instruction->as<Condition>()) {
-		out << ' ';
-		printExpression(out, condition->expression());
-		out << " ->";
-	}
-
-	out << ' ';
-
-	/* Instruction itself. */
 	switch (instruction->mnemonic()) {
 		case Instruction::READ: {
 			Read *read = instruction->as<Read>();
@@ -109,7 +100,7 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			break;
 		}
 		case Instruction::MFENCE: {
-			out << "skip /*mfence*/;" << std::endl;
+			out << "skip /*mfence*/;"; // << std::endl;
 			break;
 		}
 		case Instruction::LOCAL: {
@@ -120,7 +111,10 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			break;
 		}
 		case Instruction::CONDITION: {
-			out << "skip /*condition*/;";
+	    Condition *condition = instruction->as<Condition>();
+      out << ' ';
+      printExpression(out, condition->expression());
+  		out << " -> skip /*condition*/;";
 			break;
 		}
 		case Instruction::ATOMIC: {
@@ -134,7 +128,7 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			break;
 		}
 		case Instruction::NOOP: {
-			out << "skip /*no-op*/;";
+			out << "skip /*noop*/;";
 			break;
 		}
 		case Instruction::LOCK: {
@@ -153,25 +147,22 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 
 } // anonymous namespace
 
-void SpinPrinter::print(std::ostream &out, const Program &program) const {
-	/* Set of used spaces. */
-	std::vector<Space> spaces;
-
+void SpinPrinter::print(const Program &program, std::ostream &out, std::map<std::size_t,Transition*> &line2t) {
+  int lineCount = 0; 
 	Census programCensus;
 	programCensus.visit(program);
 
-	/* Shared memory. */
+  /* Shared memory. */
 	foreach (Space space, programCensus.spaces()) {
-		out << "int mem" << space << "[" << program.memorySize() << "] = " << Domain() << ';' << std::endl;
+    ++lineCount; out << "int mem" << space << "[" << program.memorySize() << "] = " << Domain() << ';' << std::endl;
 	}
-	out << "int giant_lock = 0;" << std::endl;
+	++lineCount; out << "int giant_lock = 0;" << std::endl;
 
 	/* Threads. */
 	int thread_id = 0;
 	foreach (Thread *thread, program.threads()) {
-		out << "active proctype " << ident(thread) << "() {" << std::endl;
-
-		out << "int THREAD_ID = " << ++thread_id << ';' << std::endl;
+		++lineCount; out << "active proctype " << ident(thread) << "() {" << std::endl;
+		++lineCount; out << "int THREAD_ID = " << ++thread_id << ';' << std::endl;
 
 		Census threadCensus;
 		threadCensus.visit(thread);
@@ -179,32 +170,35 @@ void SpinPrinter::print(std::ostream &out, const Program &program) const {
 		/* Register declarations. */
 		foreach (Expression *expression, threadCensus.expressions()) {
 			if (Register *reg = expression->as<Register>()) {
-				out << "int " << ident(reg) << ';' << std::endl;
+				++lineCount; out << "int " << ident(reg) << ';' << std::endl;
 			}
 		}
 
 		/* Goto initial state. */
 		if (thread->initialState()) {
-			out << "goto " << ident(thread->initialState()) << ";" << std::endl;
+			++lineCount; out << "goto " << ident(thread->initialState()) << ";" << std::endl;
 		}
 
 		/* Transitions. */
 		foreach (State *state, thread->states()) {
 			out << ident(state) << ": ";
 			if (state->out().empty()) {
-				out << "goto __done;" << std::endl;
+				++lineCount; out << "goto __done;" << std::endl;
 			} else {
-				out << "if" << std::endl;
+				++lineCount; out << "if" << std::endl;
 				foreach (Transition *transition, state->out()) {
 					out << "::";
 					printInstruction(out, transition->instruction());
-					out << " goto " << ident(transition->to()) << ';' << std::endl;
-				}
-				out << "fi;" << std::endl;
+					++lineCount; out << " goto " << ident(transition->to()) << ';' << std::endl;
+				  // update "line -> transition" map
+          line2t[lineCount] = transition;
+        }
+				++lineCount; out << "fi;" << std::endl;
 			}
 		}
-		out << "__done: skip;" << std::endl;
-		out << "}" << std::endl;
+		++lineCount; out << "__done: skip;" << std::endl;
+    line2t[lineCount] = NULL;
+    ++lineCount; out << "}" << std::endl;
 	}
 
 	/* Never claim. */
@@ -218,6 +212,13 @@ void SpinPrinter::print(std::ostream &out, const Program &program) const {
 		out << "accept_all: skip;" << std::endl;
 		out << "}" << std::endl;
 	}
+/* for testing purposes ...
+  std::cout << "line2t contains:";
+  for (auto& x: line2t) {
+    if (x.second != NULL) std::cout << " [" << x.first << ':' << x.second->from()->name() << "->" << x.second->to()->name() << ']';
+  }
+  std::cout << std::endl;
+*/
 }
 
 } // namespace trench

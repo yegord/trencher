@@ -1,0 +1,6 @@
+If CBMC, Memorax, and/or Trencher are installed, TSO reachability can be checked by (e.g.) 
+  cbmc --unwind "a natural number" --no-unwinding-assertions --error-label ERROR /path/to/testcases/cbmcres/file
+  memorax reach /path/to/testcases/memoraxres/file
+  trencher -rtso /path/to/testcases/trenchres/file
+
+For time analysis use `time' or, in the case of Trencher, give the extra -b option to the executable.

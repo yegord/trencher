@@ -7,8 +7,9 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <cassert>
+#include <queue>
 #include <ctime>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -17,13 +18,15 @@
 
 #include <trench/Benchmarking.h>
 #include <trench/DotPrinter.h>
-#include <trench/Foreach.h>
-#include <trench/FenceInsertion.h>
+//#include <trench/CPrinter.h>
+//#include <trench/MPrinter.h>
 #include <trench/NaiveParser.h>
+#include <trench/Foreach.h>
+#include <trench/State.h>
 #include <trench/Program.h>
 #include <trench/Reduction.h>
+#include <trench/FenceInsertion.h>
 #include <trench/RobustnessChecking.h>
-#include <trench/State.h>
 #include <trench/ReachabilityChecking.h>
 
 void help() {
@@ -34,9 +37,9 @@ void help() {
 	<< "  -nb    Switch benchmarking mode off." << std::endl
 	<< "  -r     Check robustness." << std::endl
 	<< "  -f     Do fence insertion for enforcing robustness." << std::endl
-	<< "  -trf   Check triangular data race freedom." << std::endl
-	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl
 	<< "  -dot   Print the example in dot format." << std::endl
+//  << "  -c     Print the example as a C program." << std::endl 
+//  << "  -m     Print the example as a Memorax program." << std::endl 
 	<< "  -rdot  Print the example instrumented for robustness checking in dot format." << std::endl
   << "  -rsc   Check reachability under SC." << std::endl
   << "  -rtso  Check reachability under TSO using robustness." << std::endl;
@@ -52,12 +55,12 @@ int main(int argc, char **argv) {
 		enum {
 			ROBUSTNESS,
 			FENCES,
-			TRIANGULAR_RACE_FREEDOM,
-			TRF_FENCES,
-			PRINT_DOT,
-			PRINT_ROBUSTNESS_DOT,
       REACHABILITY_SC,
-      REACHABILITY_TSO
+      REACHABILITY_TSO,
+			PRINT_DOT,
+//      PRINT_C,
+//      PRINT_M,
+      PRINT_ROBUSTNESS_DOT
 		} action = FENCES;
 
 		bool benchmarking = false;
@@ -73,18 +76,14 @@ int main(int argc, char **argv) {
 				action = ROBUSTNESS;
 			} else if (arg == "-f") {
 				action = FENCES;
-			} else if (arg == "-trf") {
-				action = TRIANGULAR_RACE_FREEDOM;
-			} else if (arg == "-ftrf") {
-				action = TRF_FENCES;
 			} else if (arg == "-b") {
 				benchmarking = true;
-			} else if (arg == "-nb") {
-				benchmarking = false;
 			} else if (arg == "-dot") {
 				action = PRINT_DOT;
-			} else if (arg == "-rdot") {
-				action = PRINT_ROBUSTNESS_DOT;
+//      } else if (arg == "-c") {
+//        action = PRINT_C;
+//      } else if (arg == "-m") {
+//        action = PRINT_M;
 			} else if (arg.size() >= 1 && arg[0] == '-') {
 				throw std::runtime_error("unknown option: " + arg);
 			} else {
@@ -112,26 +111,38 @@ int main(int argc, char **argv) {
 				switch (action) {
           case REACHABILITY_SC: {
             bool reachable = trench::scReachable(program);
-            if (reachable) {
-              std::cout << "Final state IS reachable under SC." << std::endl;
-            } else {
-              std::cout << "Final state IS NOT reachable under SC." << std::endl;
+            if (!benchmarking) {
+              if (reachable) {
+                std::cout << "Final state IS reachable under SC." << std::endl;
+              } else {
+                std::cout << "Final state IS NOT reachable under SC." << std::endl;
+              }
             }
             break;
           }
           case REACHABILITY_TSO: {
-            int reachable = trench::tsoReachable(program);
-            if (reachable == -1) {
-              std::cout << "Unknown: increase bound on robustness cyles detected." << std::endl;
-            } else if (reachable == 1) {
-              std::cout << "Final state IS reachable under TSO." << std::endl;
+            if (trench::scReachable(program)) {
+              if (!benchmarking) {
+                std::cout << "Final state IS reachable under SC, therefore under TSO too." << std::endl;
+              }
+              break;
             } else {
-              std::cout << "Final state IS NOT reachable under TSO." << std::endl;
+              std::queue<trench::Program*> queue; queue.push(&program);
+              int reachable = -1; trench::tsoReachable(queue,reachable);
+              if (!benchmarking) {
+                if (reachable == 1) {
+                  std::cout << "Final state IS reachable under TSO." << std::endl;
+                } else if (reachable == 0) {
+                  std::cout << "Final state IS NOT reachable under TSO." << std::endl;
+                } else {
+                  std::cout << "Never reached ... semidecision procedure!" << std::endl;
+                }
+              }
+              break;
             }
-            break;
           }
 					case ROBUSTNESS: {
-						bool feasible = trench::isAttackFeasible(program, false);
+						bool feasible = trench::isAttackFeasible(program);
 						if (!benchmarking) {
 							if (feasible) {
 								std::cout << "Program IS NOT robust." << std::endl;
@@ -142,31 +153,9 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case FENCES: {
-						auto fences = trench::computeFences(program, false);
+						auto fences = trench::computeFences(program);
 						if (!benchmarking) {
 							std::cout << "Computed fences for enforcing robustness (" << fences.size() << " total):";
-							foreach (const auto &fence, fences) {
-								std::cout << " (" << fence.first->name() << "," << fence.second->name() << ')';
-							}
-							std::cout << std::endl;
-						}
-						break;
-					}
-					case TRIANGULAR_RACE_FREEDOM: {
-						bool feasible = trench::isAttackFeasible(program, true);
-						if (!benchmarking) {
-							if (feasible) {
-								std::cout << "Program IS NOT free from triangular data races." << std::endl;
-							} else {
-								std::cout << "Program IS free from triangular data races." << std::endl;
-							}
-						}
-						break;
-					}
-					case TRF_FENCES: {
-						auto fences = trench::computeFences(program, true);
-						if (!benchmarking) {
-							std::cout << "Computed fences for enforcing triangular race freedom (" << fences.size() << " total):";
 							foreach (const auto &fence, fences) {
 								std::cout << " (" << fence.first->name() << "," << fence.second->name() << ')';
 							}
@@ -179,9 +168,19 @@ int main(int argc, char **argv) {
 						printer.print(std::cout, program);
 						break;
 					}
-					case PRINT_ROBUSTNESS_DOT: {
+/*          case PRINT_C: {
+            trench::CPrinter printer;
+            printer.print(std::cout, program);
+            break;
+          }
+          case PRINT_M: {
+            trench::MPrinter printer;
+            printer.print(std::cout, program);
+            break;
+          }
+*/					case PRINT_ROBUSTNESS_DOT: {
 						trench::Program instrumentedProgram;
-						trench::reduce(program, instrumentedProgram, false);
+						trench::reduce(program, instrumentedProgram);
 
 						trench::DotPrinter printer;
 						printer.print(std::cout, instrumentedProgram);
@@ -200,7 +199,7 @@ int main(int argc, char **argv) {
 					boost::chrono::duration_cast<boost::chrono::milliseconds>(endTime - startTime).count());
 
 				if (benchmarking) {
-					std::cout << "filename " << arg << " action " << action <<
+					std::cout << "filename " << arg << // " action " << action <<
 						trench::Statistics::instance() << std::endl;
 				}
 			}
