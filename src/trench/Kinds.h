@@ -76,10 +76,10 @@ namespace trench {
  * \param CLASS                        Class.
  * \param KIND                         Class kind.
  */
-#define TRENCH_REGISTER_CLASS_KIND(BASE, CLASS, KIND)                           \
-namespace trench {                                                              \
-    template<>                                                                  \
-    struct class_kind<CLASS, BASE>: public boost::mpl::int_<KIND> {};           \
+#define TRENCH_REGISTER_CLASS_KIND(BASE, CLASS, KIND)                   \
+namespace trench {                                                      \
+    template<>                                                          \
+    class class_kind<CLASS, BASE>: public boost::mpl::int_<KIND> {};    \
 }
 
 /* vim:set et sts=4 sw=4: */

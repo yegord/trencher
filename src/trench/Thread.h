@@ -11,9 +11,9 @@
 
 #include <trench/config.h>
 
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace trench {
@@ -25,16 +25,16 @@ class Transition;
 class Thread {
 	const std::string name_;
 
-	std::map<std::string, std::unique_ptr<State>> name2state_;
+	std::unordered_map<std::string, std::unique_ptr<State>> name2state_;
 	std::vector<State *> states_;
 
 	State *initialState_;
 
-	std::vector<Transition *> transitions_;
+	std::vector<std::unique_ptr<Transition>> transitions_;
 
-	public:
-
-	Thread(const std::string &name);
+public:
+	explicit
+	Thread(std::string name);
 	~Thread();
 
 	const std::string &name() const { return name_; }
@@ -45,8 +45,8 @@ class Thread {
 	State *initialState() const { return initialState_; }
 	void setInitialState(State *state) { initialState_ = state; }
 
-	const std::vector<Transition *> &transitions() const { return transitions_; }
-	Transition *makeTransition(State *from, State *to, const std::shared_ptr<Instruction> &instruction);
+	const std::vector<Transition *> &transitions() const { return reinterpret_cast<const std::vector<Transition *> &>(transitions_); }
+	Transition *makeTransition(State *from, State *to, std::shared_ptr<Instruction> instruction);
 };
 
 } // namespace trench

@@ -21,8 +21,7 @@ namespace trench {
 class Expression {
 	TRENCH_CLASS_WITH_KINDS(Expression, kind)
 
-	public:
-
+public:
 	enum Kind {
 		CONSTANT,
 		REGISTER,
@@ -31,8 +30,7 @@ class Expression {
 		NOT_BLOCKED,
 	};
 
-	public:
-
+public:
 	Expression(Kind kind): kind_(kind) {}
 };
 
@@ -41,8 +39,7 @@ typedef int Domain;
 class Constant: public Expression {
 	Domain value_;
 
-	public:
-
+public:
 	Constant(Domain value): Expression(CONSTANT), value_(value) {}
 
 	Domain value() const { return value_; }
@@ -51,8 +48,7 @@ class Constant: public Expression {
 class Register: public Expression {
 	std::string name_;
 
-	public:
-
+public:
 	Register(const std::string &name):
 		Expression(REGISTER), name_(name)
 	{}
@@ -61,19 +57,16 @@ class Register: public Expression {
 };
 
 class UnaryOperator: public Expression {
-	public:
-
+public:
 	enum Kind {
 		NOT
 	};
 
-	private:
-
+private:
 	Kind kind_;
 	std::shared_ptr<Expression> operand_;
 
-	public:
-
+public:
 	UnaryOperator(Kind kind, const std::shared_ptr<Expression> &operand):
 		Expression(UNARY), kind_(kind), operand_(operand)
 	{}
@@ -85,8 +78,7 @@ class UnaryOperator: public Expression {
 };
 
 class BinaryOperator: public Expression {
-	public:
-
+public:
 	enum Kind {
 		EQ,
 		NEQ,
@@ -102,14 +94,12 @@ class BinaryOperator: public Expression {
 		BIN_AND
 	};
 
-	private:
-
+private:
 	Kind kind_;
 	std::shared_ptr<Expression> left_;
 	std::shared_ptr<Expression> right_;
 
-	public:
-
+public:
 	BinaryOperator(Kind kind, const std::shared_ptr<Expression> &left, const std::shared_ptr<Expression> &right):
 		Expression(BINARY), kind_(kind), left_(left), right_(right)
 	{}
@@ -122,8 +112,7 @@ class BinaryOperator: public Expression {
 };
 
 class NotBlocked: public Expression {
-	public:
-
+public:
 	NotBlocked():
 		Expression(NOT_BLOCKED)
 	{}

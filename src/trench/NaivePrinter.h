@@ -11,14 +11,16 @@
 
 #include <trench/config.h>
 
-#include "Printer.h"
+#include <iosfwd>
 
 namespace trench {
 
-class NaivePrinter: public Printer {
+class Program;
+
+class NaivePrinter {
 	public:
 
-	virtual void print(std::ostream &out, const Program &program) const override;
+	void print(std::ostream &out, const Program &program) const;
 };
 
 } // namespace trench

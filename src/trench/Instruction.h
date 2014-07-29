@@ -32,8 +32,7 @@ const Space INVALID_SPACE = -1;
 class Instruction {
 	TRENCH_CLASS_WITH_KINDS(Instruction, mnemonic)
 
-	public:
-
+public:
 	enum Mnemonic {
 		READ,
 		WRITE,
@@ -46,8 +45,6 @@ class Instruction {
 		UNLOCK
 	};
 
-	public:
-	
 	Instruction(Mnemonic mnemonic):
 		mnemonic_(mnemonic)
 	{}
@@ -60,10 +57,9 @@ class Read: public Instruction {
 	std::shared_ptr<Expression> address_;
 	Space space_;
 
-	public:
-
-	Read(const std::shared_ptr<Register> &reg, const std::shared_ptr<Expression> &address, Space space = Space()):
-		Instruction(READ), reg_(reg), address_(address), space_(space)
+public:
+	Read(std::shared_ptr<Register> reg, std::shared_ptr<Expression> address, Space space = Space()):
+		Instruction(READ), reg_(std::move(reg)), address_(std::move(address)), space_(space)
 	{}
 
 	const std::shared_ptr<Register> &reg() const { return reg_; }
@@ -76,10 +72,9 @@ class Write: public Instruction {
 	std::shared_ptr<Expression> address_;
 	Space space_;
 
-	public:
-
-	Write(const std::shared_ptr<Expression> &value, const std::shared_ptr<Expression> &address, Space space = Space()):
-		Instruction(WRITE), value_(value), address_(address), space_(space)
+public:
+	Write(std::shared_ptr<Expression> value, std::shared_ptr<Expression> address, Space space = Space()):
+		Instruction(WRITE), value_(std::move(value)), address_(std::move(address)), space_(space)
 	{}
 
 	const std::shared_ptr<Expression> &value() const { return value_; }
@@ -88,21 +83,17 @@ class Write: public Instruction {
 };
 
 class Mfence: public Instruction {
-	public:
-
+public:
 	Mfence(): Instruction(MFENCE) {}
 };
 
 class Local: public Instruction {
-	public:
-
 	std::shared_ptr<Register> reg_;
 	std::shared_ptr<Expression> value_;
 
-	public:
-
-	Local(const std::shared_ptr<Register> &reg, const std::shared_ptr<Expression> &value):
-		Instruction(LOCAL), reg_(reg), value_(value)
+public:
+	Local(std::shared_ptr<Register> reg, std::shared_ptr<Expression> value):
+		Instruction(LOCAL), reg_(std::move(reg)), value_(std::move(value))
 	{}
 
 	const std::shared_ptr<Register> &reg() const { return reg_; }
@@ -112,10 +103,9 @@ class Local: public Instruction {
 class Condition: public Instruction {
 	std::shared_ptr<Expression> expression_;
 
-	public:
-
-	Condition(const std::shared_ptr<Expression> &expression):
-		Instruction(CONDITION), expression_(expression)
+public:
+	Condition(std::shared_ptr<Expression> expression):
+		Instruction(CONDITION), expression_(std::move(expression))
 	{}
 
 	const std::shared_ptr<Expression> &expression() const { return expression_; }
@@ -124,76 +114,36 @@ class Condition: public Instruction {
 class Atomic: public Instruction {
 	std::vector<std::shared_ptr<Instruction>> instructions_;
 
-	public:
-
-	Atomic(const std::shared_ptr<Instruction> &a): Instruction(ATOMIC) {
-		instructions_.push_back(a);
+public:
+	template<class... Ts>
+	Atomic(Ts &&...instructions): Instruction(ATOMIC) {
+		addInstructions(std::forward<Ts>(instructions)...);
 	}
 
-	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b): Instruction(ATOMIC) {
-		instructions_.reserve(2);
-		instructions_.push_back(a);
-		instructions_.push_back(b);
+	const std::vector<std::shared_ptr<Instruction>> &instructions() const { return instructions_; }
+
+private:
+	template<class T, class... Ts>
+	void addInstructions(T &&instruction, Ts &&...instructions) {
+		instructions_.push_back(std::forward<T>(instruction));
+		addInstructions(std::forward<Ts>(instructions)...);
 	}
 
-	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b,
-	       const std::shared_ptr<Instruction> &c): Instruction(ATOMIC) {
-		instructions_.reserve(3);
-		instructions_.push_back(a);
-		instructions_.push_back(b);
-		instructions_.push_back(c);
-	}
-
-	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b,
-	       const std::shared_ptr<Instruction> &c, const std::shared_ptr<Instruction> &d): Instruction(ATOMIC) {
-		instructions_.reserve(4);
-		instructions_.push_back(a);
-		instructions_.push_back(b);
-		instructions_.push_back(c);
-		instructions_.push_back(d);
-	}
-
-	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b,
-	       const std::shared_ptr<Instruction> &c, const std::shared_ptr<Instruction> &d,
-	       const std::shared_ptr<Instruction> &e): Instruction(ATOMIC) {
-		instructions_.reserve(5);
-		instructions_.push_back(a);
-		instructions_.push_back(b);
-		instructions_.push_back(c);
-		instructions_.push_back(d);
-		instructions_.push_back(e);
-	}
-
-	Atomic(const std::shared_ptr<Instruction> &a, const std::shared_ptr<Instruction> &b,
-	       const std::shared_ptr<Instruction> &c, const std::shared_ptr<Instruction> &d,
-	       const std::shared_ptr<Instruction> &e, const std::shared_ptr<Instruction> &f): Instruction(ATOMIC) {
-		instructions_.reserve(6);
-		instructions_.push_back(a);
-		instructions_.push_back(b);
-		instructions_.push_back(c);
-		instructions_.push_back(d);
-		instructions_.push_back(e);
-		instructions_.push_back(f);
-	}
-
-	const std::vector<std::shared_ptr<Instruction>> instructions() const { return instructions_; }
+	void addInstructions() {}
 };
 
 class Noop: public Instruction {
-	public:
-
+public:
 	Noop(): Instruction(NOOP) {}
 };
 
 class Lock: public Instruction {
-	public:
-
+public:
 	Lock(): Instruction(LOCK) {}
 };
 
 class Unlock: public Instruction {
-	public:
-
+public:
 	Unlock(): Instruction(UNLOCK) {}
 };
 

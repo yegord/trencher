@@ -12,16 +12,16 @@
 #include "Foreach.h"
 #include "State.h"
 #include "Transition.h"
+#include "make_unique.h"
 
 namespace trench {
 
-Thread::Thread(const std::string &name): name_(name), initialState_(NULL) {}
+Thread::Thread(std::string name):
+	name_(std::move(name)),
+	initialState_(NULL)
+{}
 
-Thread::~Thread() {
-	foreach (Transition *transition, transitions_) {
-		delete transition;
-	}
-}
+Thread::~Thread() {}
 
 State *Thread::makeState(const std::string &name) {
 	auto &result = name2state_[name];
@@ -32,14 +32,15 @@ State *Thread::makeState(const std::string &name) {
 	return result.get();
 }
 
-Transition *Thread::makeTransition(State *from, State *to, const std::shared_ptr<Instruction> &instruction) {
-	std::unique_ptr<Transition> result(new Transition(from, to, instruction));
-	transitions_.push_back(result.get());
+Transition *Thread::makeTransition(State *from, State *to, std::shared_ptr<Instruction> instruction) {
+	auto transition = make_unique<Transition>(from, to, std::move(instruction));
+	auto result = transition.get();
 
-	from->out_.push_back(result.get());
-	to->in_.push_back(result.get());
+	transitions_.push_back(std::move(transition));
+	from->out_.push_back(result);
+	to->in_.push_back(result);
 
-	return result.release();
+	return result;
 }
 
 } // namespace trench

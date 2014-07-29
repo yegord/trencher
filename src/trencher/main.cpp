@@ -16,14 +16,14 @@
 #include <boost/chrono.hpp>
 
 #include <trench/Benchmarking.h>
-#include <trench/DotPrinter.h>
-#include <trench/Foreach.h>
 #include <trench/FenceInsertion.h>
+#include <trench/Foreach.h>
 #include <trench/NaiveParser.h>
 #include <trench/Program.h>
 #include <trench/Reduction.h>
 #include <trench/RobustnessChecking.h>
 #include <trench/State.h>
+#include <trench/printAsDot.h>
 
 void help() {
 	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf|-dot|-rdot] file..." << std::endl
@@ -146,16 +146,14 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case PRINT_DOT: {
-						trench::DotPrinter printer;
-						printer.print(std::cout, program);
+						trench::printAsDot(std::cout, program);
 						break;
 					}
 					case PRINT_ROBUSTNESS_DOT: {
 						trench::Program instrumentedProgram;
 						trench::reduce(program, instrumentedProgram, false);
 
-						trench::DotPrinter printer;
-						printer.print(std::cout, instrumentedProgram);
+						trench::printAsDot(std::cout, instrumentedProgram);
 						break;
 					}
 					default: {

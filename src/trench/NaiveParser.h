@@ -11,14 +11,20 @@
 
 #include <trench/config.h>
 
-#include "Parser.h"
+#include <istream>
+#include <memory>
 
 namespace trench {
 
-class NaiveParser: public Parser {
-	public:
+class Program;
+class NaiveParserImpl;
 
-	virtual void parse(std::istream &in, Program &program) const override;
+class NaiveParser {
+	std::unique_ptr<NaiveParserImpl> impl_;
+public:
+	NaiveParser();
+	~NaiveParser();
+	void parse(std::istream &in, Program &program);
 };
 
 } // namespace trench

@@ -24,9 +24,8 @@ class State {
 	std::vector<Transition *> in_;
 	std::vector<Transition *> out_;
 
-	public:
-
-	State(const std::string &name): name_(name) {}
+public:
+	State(std::string name): name_(std::move(name)) {}
 
 	const std::string &name() const { return name_; }
 

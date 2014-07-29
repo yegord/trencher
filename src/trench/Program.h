@@ -11,8 +11,8 @@
 
 #include <trench/config.h>
 
-#include <map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "Instruction.h"
@@ -24,18 +24,13 @@ namespace trench {
 class Program {
 	int memorySize_;
 
-	std::map<std::string, std::unique_ptr<Thread>> name2thread_;
+	std::unordered_map<std::string, std::unique_ptr<Thread>> name2thread_;
 	std::vector<Thread *> threads_;
 
 	Domain interestingAddress_;
 	Space interestingSpace_;
 
-	std::map<std::string, std::shared_ptr<Register>> name2register_;
-
-	std::map<Domain, std::shared_ptr<Constant>> value2constant_;
-
-	public:
-
+public:
 	Program(int memorySize = 10):
 		memorySize_(memorySize),
 		interestingAddress_(0),
@@ -56,10 +51,6 @@ class Program {
 
 	Domain interestingAddress() const { return interestingAddress_;}
 	Space interestingSpace() const { return interestingSpace_;}
-
-	const std::shared_ptr<Register> &makeRegister(const std::string &name);
-
-	const std::shared_ptr<Constant> &makeConstant(Domain value);
 };
 
 } // namespace trench

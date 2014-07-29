@@ -3,10 +3,10 @@ set(TRENCH_SOURCES
 	Benchmarking.h
 	Census.cpp
 	Census.h
-	DotPrinter.cpp
-	DotPrinter.h
 	Expression.cpp
 	Expression.h
+	ExpressionsCache.cpp
+	ExpressionsCache.h
 	FenceInsertion.cpp
 	FenceInsertion.h
 	Foreach.h
@@ -16,7 +16,6 @@ set(TRENCH_SOURCES
 	NaiveParser.h
 	NaivePrinter.cpp
 	NaivePrinter.h
-	Printer.h
 	Program.cpp
 	Program.h
 	Reduction.cpp
@@ -25,14 +24,16 @@ set(TRENCH_SOURCES
 	RobustnessChecking.h
 	SpinModelChecker.cpp
 	SpinModelChecker.h
-	SpinPrinter.cpp
-	SpinPrinter.h
 	State.h
 	Thread.cpp
 	Thread.h
 	Transition.cpp
 	Transition.h
 	config.h
+	printAsDot.cpp
+	printAsDot.h
+	printAsPromela.cpp
+	printAsPromela.h
 )
 
 add_library(trench ${TRENCH_SOURCES})

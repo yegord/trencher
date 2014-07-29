@@ -1,6 +1,7 @@
-#include "DotPrinter.h"
+#include "printAsDot.h"
 
 #include <cassert>
+#include <ostream>
 
 #include "Foreach.h"
 #include "Instruction.h"
@@ -124,10 +125,10 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 
 } // namespace
 
-void DotPrinter::print(std::ostream &out, const Program &program) const {
+void printAsDot(std::ostream &out, const Program &program) {
 	out << "digraph threads {" << std::endl;
 	foreach (const Thread *thread, program.threads()) {
-		out << "subgraph cluster" << this << " {" << std::endl;
+		out << "subgraph cluster" << thread << " {" << std::endl;
 		foreach (const State *state, thread->states()) {
 			out << "state" << state << "[shape=\"ellipse\",label=\"" << state->name() << "\"];" << std::endl;
 		}
@@ -135,6 +136,10 @@ void DotPrinter::print(std::ostream &out, const Program &program) const {
 			out << "state" << transition->from() << "->state" << transition->to() << "[label=\"";
 			printInstruction(out, transition->instruction());
 			out << "\"];" << std::endl;
+		}
+		if (thread->initialState()) {
+			out << "initial [shape=none,label=\"\"];" << std::endl;
+			out << "initial -> state" << thread->initialState() << ';' << std::endl;
 		}
 		out << '}' << std::endl;
 	}

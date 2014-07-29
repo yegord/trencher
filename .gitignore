@@ -6,3 +6,4 @@ core
 vgcore.*
 gmon.out
 /tags
+*.pyc

@@ -18,7 +18,7 @@
 #include <boost/format.hpp>
 
 #include "Benchmarking.h"
-#include "SpinPrinter.h"
+#include "printAsPromela.h"
 
 namespace trench {
 
@@ -67,8 +67,7 @@ bool SpinModelChecker::check(const Program &program) {
 
 	std::ofstream out(program_pml.string().c_str());
 
-	SpinPrinter printer;
-	printer.print(out, program);
+	printAsPromela(out, program);
 	if (!out) {
 		throw std::runtime_error("could not create file: " + program_pml.string());
 	}

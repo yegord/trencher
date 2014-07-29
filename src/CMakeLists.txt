@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.6)
 project(TRENCHER C CXX)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
+
+# Generate compilation database for YouCompleteMe.
+set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)

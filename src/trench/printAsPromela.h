@@ -11,18 +11,12 @@
 
 #include <trench/config.h>
 
-#include <ostream>
+#include <iosfwd>
 
 namespace trench {
 
 class Program;
 
-class Printer {
-	public:
-
-	virtual ~Printer() {}
-
-	virtual void print(std::ostream &out, const Program &program) const = 0;
-};
+void printAsPromela(std::ostream &out, const Program &program);
 
 } // namespace trench

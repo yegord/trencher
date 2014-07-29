@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "SpinPrinter.h"
+#include "printAsPromela.h"
 
 #include <cassert>
 #ifndef TRENCH_FRIENDLY_SPIN_NAMES
@@ -152,7 +152,7 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 
 } // anonymous namespace
 
-void SpinPrinter::print(std::ostream &out, const Program &program) const {
+void printAsPromela(std::ostream &out, const Program &program) {
 	/* Set of used spaces. */
 	std::vector<Space> spaces;
 

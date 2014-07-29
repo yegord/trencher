@@ -13,6 +13,7 @@
 #include <cassert>
 
 #include "Expression.h"
+#include "ExpressionsCache.h"
 #include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
@@ -25,6 +26,8 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 	assert(attackWrite == NULL || attackWrite->instruction()->is<Write>());
 	assert(attackRead == NULL || attackRead->instruction()->is<Read>());
 
+	ExpressionsCache cache;
+
 	resultProgram.setMemorySize(std::max(program.memorySize(), 3));
 
 	enum {
@@ -35,42 +38,36 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 		SERVICE_SPACE
 	};
 
-	const std::shared_ptr<Constant>  zero = resultProgram.makeConstant(0);
-	const std::shared_ptr<Constant>  one  = resultProgram.makeConstant(1);
+	auto zero = cache.makeConstant(0);
+	auto one  = cache.makeConstant(1);
 
-	const std::shared_ptr<Register>  is_buffered(resultProgram.makeRegister("_is_buffered"));
+	auto is_buffered(cache.makeRegister("_is_buffered"));
 
-	const std::shared_ptr<Condition> check_is_buffered(
-		new Condition(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, one)));
-	const std::shared_ptr<Condition> check_is_not_buffered(
-		new Condition(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, zero)));
+	auto check_is_buffered = std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, one));
+	auto check_is_not_buffered = std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, zero));
 
-	const std::shared_ptr<Constant>  attackAddrVar = resultProgram.makeConstant(0);
-	const std::shared_ptr<Constant>  nattackersVar = resultProgram.makeConstant(1);
-	const std::shared_ptr<Constant>  successVar    = resultProgram.makeConstant(2);
+	auto attackAddrVar = cache.makeConstant(0);
+	auto nattackersVar = cache.makeConstant(1);
+	auto successVar    = cache.makeConstant(2);
 
 	resultProgram.setInterestingAddress(successVar->value(), SERVICE_SPACE);
 
-	const std::shared_ptr<Register>  addr(resultProgram.makeRegister("_addr"));
-	const std::shared_ptr<Register>  nattackers(resultProgram.makeRegister("_attacking"));
+	auto addr = cache.makeRegister("_addr");
+	auto nattackers = cache.makeRegister("_attacking");
 
-	const std::shared_ptr<Constant>  hb_nothing = resultProgram.makeConstant(0);
-	const std::shared_ptr<Constant>  hb_read    = resultProgram.makeConstant(1);
-	const std::shared_ptr<Constant>  hb_write   = resultProgram.makeConstant(2);
+	auto hb_nothing = cache.makeConstant(0);
+	auto hb_read    = cache.makeConstant(1);
+	auto hb_write   = cache.makeConstant(2);
 
-	const std::shared_ptr<Register>  access_type(resultProgram.makeRegister("_access_type"));
+	auto access_type = cache.makeRegister("_access_type");
 
-	const std::shared_ptr<Condition> check_access_type_is_write(
-		new Condition(std::make_shared<BinaryOperator>(BinaryOperator::EQ, access_type, hb_write)));
-	const std::shared_ptr<Condition> check_access_type_is_not_write(
-		new Condition(std::make_shared<BinaryOperator>(BinaryOperator::NEQ, access_type, hb_write)));
-	const std::shared_ptr<Condition> check_access_type_is_read_or_write(
-		new Condition(std::make_shared<BinaryOperator>(BinaryOperator::NEQ, access_type, hb_nothing)));
+	auto check_access_type_is_write = std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, access_type, hb_write));
+	auto check_access_type_is_not_write = std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::NEQ, access_type, hb_write));
+	auto check_access_type_is_read_or_write = std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::NEQ, access_type, hb_nothing));
 
-	const std::shared_ptr<Register>  tmp(resultProgram.makeRegister("_tmp"));
+	auto tmp = cache.makeRegister("_tmp");
 
-	const std::shared_ptr<Condition> check_not_blocked(
-		new Condition(std::make_shared<NotBlocked>()));
+	auto check_not_blocked = std::make_shared<Condition>(std::make_shared<NotBlocked>());
 
 	foreach (Thread *thread, program.threads()) {
 		Thread *resultThread = resultProgram.makeThread(thread->name());

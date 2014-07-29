@@ -11,14 +11,20 @@
 
 #include <trench/config.h>
 
-#include "Printer.h"
+#include <memory>
+#include <unordered_map>
+
+#include "Expression.h"
 
 namespace trench {
 
-class SpinPrinter: public Printer {
-	public:
+class ExpressionsCache {
+	std::unordered_map<std::string, std::shared_ptr<Register>> name2register_;
+	std::unordered_map<Domain, std::shared_ptr<Constant>> value2constant_;
 
-	virtual void print(std::ostream &out, const Program &program) const override;
+public:
+	const std::shared_ptr<Register> &makeRegister(const std::string &name);
+	const std::shared_ptr<Constant> &makeConstant(Domain value);
 };
 
 } // namespace trench
