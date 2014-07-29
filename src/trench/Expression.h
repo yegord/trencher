@@ -27,7 +27,7 @@ public:
 		REGISTER,
 		UNARY,
 		BINARY,
-		NOT_BLOCKED,
+		CAN_ACCESS_MEMORY,
 	};
 
 public:
@@ -111,10 +111,10 @@ public:
 	const char *getOperatorSign() const;
 };
 
-class NotBlocked: public Expression {
+class CanAccessMemory: public Expression {
 public:
-	NotBlocked():
-		Expression(NOT_BLOCKED)
+	CanAccessMemory():
+		Expression(CAN_ACCESS_MEMORY)
 	{}
 };
 
@@ -124,4 +124,4 @@ TRENCH_REGISTER_CLASS_KIND(Expression, Constant, Expression::CONSTANT)
 TRENCH_REGISTER_CLASS_KIND(Expression, Register, Expression::REGISTER)
 TRENCH_REGISTER_CLASS_KIND(Expression, UnaryOperator, Expression::UNARY)
 TRENCH_REGISTER_CLASS_KIND(Expression, BinaryOperator, Expression::BINARY)
-TRENCH_REGISTER_CLASS_KIND(Expression, NotBlocked, Expression::NOT_BLOCKED)
+TRENCH_REGISTER_CLASS_KIND(Expression, CanAccessMemory, Expression::CAN_ACCESS_MEMORY)

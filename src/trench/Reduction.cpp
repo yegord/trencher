@@ -67,7 +67,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 
 	auto tmp = cache.makeRegister("_tmp");
 
-	auto check_not_blocked = std::make_shared<Condition>(std::make_shared<NotBlocked>());
+	auto check_can_access_memory = std::make_shared<Condition>(std::make_shared<CanAccessMemory>());
 
 	foreach (Thread *thread, program.threads()) {
 		Thread *resultThread = resultProgram.makeThread(thread->name());
@@ -88,7 +88,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 					originalFrom,
 					originalTo,
 					std::make_shared<Atomic>(
-						check_not_blocked,
+						check_can_access_memory,
 						transition->instruction()
 					)
 				);
@@ -145,7 +145,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 						attackerFrom,
 						attackerTo,
 						std::make_shared<Atomic>(
-							check_not_blocked,
+							check_can_access_memory,
 							std::make_shared<Read>(is_buffered, read->address(), IS_BUFFERED_SPACE),
 							check_is_buffered,
 							std::make_shared<Read>(read->reg(), read->address(), BUFFER_SPACE)
@@ -157,7 +157,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 						attackerFrom,
 						attackerTo,
 						std::make_shared<Atomic>(
-							check_not_blocked,
+							check_can_access_memory,
 							std::make_shared<Read>(is_buffered, read->address(), IS_BUFFERED_SPACE),
 							check_is_not_buffered,
 							transition->instruction()
@@ -170,7 +170,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							attackerFrom,
 							resultThread->makeState("final"),
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								std::make_shared<Read> (is_buffered, read->address(), IS_BUFFERED_SPACE),
 								check_is_not_buffered,
 								transition->instruction(),
@@ -208,7 +208,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							originalFrom,
 							helperTo,
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								std::make_shared<Read>(access_type, write->address(), HB_SPACE),
 								check_access_type_is_read_or_write,
 								std::make_shared<Write>(one, successVar, SERVICE_SPACE)
@@ -225,7 +225,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							originalFrom,
 							helperTo,
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								std::make_shared<Read>(access_type, read->address(), HB_SPACE),
 								check_access_type_is_write,
 								transition->instruction()
@@ -236,7 +236,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							originalFrom,
 							helperTo,
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								std::make_shared<Read>(access_type, write->address(), HB_SPACE),
 								check_access_type_is_read_or_write,
 								transition->instruction(),
@@ -253,7 +253,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							helperFrom,
 							helperTo,
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								std::make_shared<Read>(access_type, read->address(), HB_SPACE),
 								check_access_type_is_write,
 								transition->instruction()
@@ -263,7 +263,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							helperFrom,
 							helperTo,
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								std::make_shared<Read>(access_type, read->address(), HB_SPACE),
 								check_access_type_is_not_write,
 								transition->instruction(),
@@ -274,7 +274,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							helperFrom,
 							helperTo,
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 								std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, read->address())),
 								std::make_shared<Write>(one, successVar, SERVICE_SPACE)
@@ -285,7 +285,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							helperFrom,
 							helperTo,
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								transition->instruction(),
 								std::make_shared<Write>(hb_write, write->address(), HB_SPACE)
 							)
@@ -294,7 +294,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 							helperFrom,
 							helperTo,
 							std::make_shared<Atomic>(
-								check_not_blocked,
+								check_can_access_memory,
 								std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
 								std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, write->address())),
 								std::make_shared<Write>(one, successVar, SERVICE_SPACE)

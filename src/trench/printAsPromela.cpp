@@ -69,8 +69,8 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 			out << ')';
 			break;
 		}
-		case Expression::NOT_BLOCKED: {
-			out << "(giant_lock == 0 || giant_lock == THREAD_ID)";
+		case Expression::CAN_ACCESS_MEMORY: {
+			out << "(memory_lock == 0 || memory_lock == THREAD_ID)";
 			break;
 		}
 		default: {
@@ -137,11 +137,11 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			break;
 		}
 		case Instruction::LOCK: {
-			out << "atomic { giant_lock == 0 -> giant_lock = THREAD_ID; }";
+			out << "atomic { memory_lock == 0 -> memory_lock = THREAD_ID; }";
 			break;
 		}
 		case Instruction::UNLOCK: {
-			out << "atomic { giant_lock == THREAD_ID -> giant_lock = 0; }";
+			out << "atomic { memory_lock == THREAD_ID -> memory_lock = 0; }";
 			break;
 		}
 		default: {
@@ -163,7 +163,7 @@ void printAsPromela(std::ostream &out, const Program &program) {
 	foreach (Space space, programCensus.spaces()) {
 		out << "int mem" << space << "[" << program.memorySize() << "] = " << Domain() << ';' << std::endl;
 	}
-	out << "int giant_lock = 0;" << std::endl;
+	out << "int memory_lock = 0;" << std::endl;
 
 	/* Threads. */
 	int thread_id = 0;

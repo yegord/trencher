@@ -41,8 +41,8 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 			out << ')';
 			break;
 		}
-		case Expression::NOT_BLOCKED: {
-			out << "not_blocked";
+		case Expression::CAN_ACCESS_MEMORY: {
+			out << "can_access_memory";
 			break;
 		}
 		default: {
