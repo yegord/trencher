@@ -49,8 +49,8 @@ class Register: public Expression {
 	std::string name_;
 
 public:
-	Register(const std::string &name):
-		Expression(REGISTER), name_(name)
+	Register(std::string name):
+		Expression(REGISTER), name_(std::move(name))
 	{}
 
 	const std::string &name() const { return name_; }
@@ -67,8 +67,8 @@ private:
 	std::shared_ptr<Expression> operand_;
 
 public:
-	UnaryOperator(Kind kind, const std::shared_ptr<Expression> &operand):
-		Expression(UNARY), kind_(kind), operand_(operand)
+	UnaryOperator(Kind kind, std::shared_ptr<Expression> operand):
+		Expression(UNARY), kind_(kind), operand_(std::move(operand))
 	{}
 
 	Kind kind() const { return kind_; }
@@ -100,8 +100,8 @@ private:
 	std::shared_ptr<Expression> right_;
 
 public:
-	BinaryOperator(Kind kind, const std::shared_ptr<Expression> &left, const std::shared_ptr<Expression> &right):
-		Expression(BINARY), kind_(kind), left_(left), right_(right)
+	BinaryOperator(Kind kind, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right):
+		Expression(BINARY), kind_(kind), left_(std::move(left)), right_(std::move(right))
 	{}
 
 	Kind kind() const { return kind_; }
