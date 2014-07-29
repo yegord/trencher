@@ -3,7 +3,6 @@
 #include <cassert>
 #include <ostream>
 
-#include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
 #include "State.h"
@@ -99,7 +98,7 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 		case Instruction::ATOMIC: {
 			Atomic *atomic = instruction->as<Atomic>();
 			out << "atomic {\\n";
-			foreach (const auto &instr, atomic->instructions()) {
+			for (const auto &instr : atomic->instructions()) {
 				printInstruction(out, instr);
 				out << "\\n";
 			}
@@ -127,12 +126,12 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 
 void printAsDot(std::ostream &out, const Program &program) {
 	out << "digraph threads {" << std::endl;
-	foreach (const Thread *thread, program.threads()) {
+	for (const Thread *thread : program.threads()) {
 		out << "subgraph cluster" << thread << " {" << std::endl;
-		foreach (const State *state, thread->states()) {
+		for (const State *state : thread->states()) {
 			out << "state" << state << "[shape=\"ellipse\",label=\"" << state->name() << "\"];" << std::endl;
 		}
-		foreach (const Transition *transition, thread->transitions()) {
+		for (const Transition *transition : thread->transitions()) {
 			out << "state" << transition->from() << "->state" << transition->to() << "[label=\"";
 			printInstruction(out, transition->instruction());
 			out << "\"];" << std::endl;

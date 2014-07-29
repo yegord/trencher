@@ -17,7 +17,6 @@
 
 #include <trench/Benchmarking.h>
 #include <trench/FenceInsertion.h>
-#include <trench/Foreach.h>
 #include <trench/NaiveParser.h>
 #include <trench/Program.h>
 #include <trench/Reduction.h>
@@ -91,7 +90,7 @@ int main(int argc, char **argv) {
 					parser.parse(in, program);
 
 					trench::Statistics::instance().incThreadsCount(program.threads().size());
-					foreach (trench::Thread *thread, program.threads()) {
+					for (trench::Thread *thread : program.threads()) {
 						trench::Statistics::instance().incStatesCount(thread->states().size());
 						trench::Statistics::instance().incTransitionsCount(thread->transitions().size());
 					}
@@ -116,7 +115,7 @@ int main(int argc, char **argv) {
 						auto fences = trench::computeFences(program, false);
 						if (!benchmarking) {
 							std::cout << "Computed fences for enforcing robustness (" << fences.size() << " total):";
-							foreach (const auto &fence, fences) {
+							for (const auto &fence : fences) {
 								std::cout << " (" << fence.first->name() << "," << fence.second->name() << ')';
 							}
 							std::cout << std::endl;
@@ -138,7 +137,7 @@ int main(int argc, char **argv) {
 						auto fences = trench::computeFences(program, true);
 						if (!benchmarking) {
 							std::cout << "Computed fences for enforcing triangular race freedom (" << fences.size() << " total):";
-							foreach (const auto &fence, fences) {
+							for (const auto &fence : fences) {
 								std::cout << " (" << fence.first->name() << "," << fence.second->name() << ')';
 							}
 							std::cout << std::endl;

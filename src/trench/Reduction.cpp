@@ -14,7 +14,6 @@
 
 #include "Expression.h"
 #include "ExpressionsCache.h"
-#include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
 #include "State.h"
@@ -69,14 +68,14 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 
 	auto check_can_access_memory = std::make_shared<Condition>(std::make_shared<CanAccessMemory>());
 
-	foreach (Thread *thread, program.threads()) {
+	for (Thread *thread : program.threads()) {
 		Thread *resultThread = resultProgram.makeThread(thread->name());
 
 		if (thread->initialState()) {
 			resultThread->setInitialState(resultThread->makeState("orig_" + thread->initialState()->name()));
 		}
 
-		foreach (Transition *transition, thread->transitions()) {
+		for (Transition *transition : thread->transitions()) {
 			/*
 			 * Original code.
 			 */

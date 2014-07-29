@@ -9,7 +9,6 @@
 
 #include "Thread.h"
 
-#include "Foreach.h"
 #include "State.h"
 #include "Transition.h"
 #include "make_unique.h"

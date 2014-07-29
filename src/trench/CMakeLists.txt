@@ -9,7 +9,6 @@ set(TRENCH_SOURCES
 	ExpressionsCache.h
 	FenceInsertion.cpp
 	FenceInsertion.h
-	Foreach.h
 	Instruction.h
 	Kinds.h
 	NaiveParser.cpp

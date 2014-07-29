@@ -15,7 +15,6 @@
 #endif
 
 #include "Census.h"
-#include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
 #include "State.h"
@@ -126,7 +125,7 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			Atomic *atomic = instruction->as<Atomic>();
 
 			out << "atomic {";
-			foreach (const auto &instr, atomic->instructions()) {
+			for (const auto &instr : atomic->instructions()) {
 				printInstruction(out, instr);
 			}
 			out << " }";
@@ -160,14 +159,14 @@ void printAsPromela(std::ostream &out, const Program &program) {
 	programCensus.visit(program);
 
 	/* Shared memory. */
-	foreach (Space space, programCensus.spaces()) {
+	for (Space space : programCensus.spaces()) {
 		out << "int mem" << space << "[" << program.memorySize() << "] = " << Domain() << ';' << std::endl;
 	}
 	out << "int memory_lock = 0;" << std::endl;
 
 	/* Threads. */
 	int thread_id = 0;
-	foreach (Thread *thread, program.threads()) {
+	for (Thread *thread : program.threads()) {
 		out << "active proctype " << ident(thread) << "() {" << std::endl;
 
 		out << "int THREAD_ID = " << ++thread_id << ';' << std::endl;
@@ -176,7 +175,7 @@ void printAsPromela(std::ostream &out, const Program &program) {
 		threadCensus.visit(thread);
 
 		/* Register declarations. */
-		foreach (Expression *expression, threadCensus.expressions()) {
+		for (Expression *expression : threadCensus.expressions()) {
 			if (Register *reg = expression->as<Register>()) {
 				out << "int " << ident(reg) << ';' << std::endl;
 			}
@@ -188,13 +187,13 @@ void printAsPromela(std::ostream &out, const Program &program) {
 		}
 
 		/* Transitions. */
-		foreach (State *state, thread->states()) {
+		for (State *state : thread->states()) {
 			out << ident(state) << ": ";
 			if (state->out().empty()) {
 				out << "goto __done;" << std::endl;
 			} else {
 				out << "if" << std::endl;
-				foreach (Transition *transition, state->out()) {
+				for (Transition *transition : state->out()) {
 					out << "::";
 					printInstruction(out, transition->instruction());
 					out << " goto " << ident(transition->to()) << ';' << std::endl;

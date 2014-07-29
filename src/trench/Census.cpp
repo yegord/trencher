@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include "Foreach.h"
 #include "Program.h"
 #include "SortAndUnique.h"
 #include "Thread.h"
@@ -21,13 +20,13 @@
 namespace trench {
 
 void Census::visit(const Program &program) {
-	foreach (Thread *thread, program.threads()) {
+	for (Thread *thread : program.threads()) {
 		visit(thread);
 	}
 }
 
 void Census::visit(const Thread *thread) {
-	foreach (Transition *transition, thread->transitions()) {
+	for (Transition *transition : thread->transitions()) {
 		visit(transition->instruction());
 	}
 }
@@ -67,7 +66,7 @@ void Census::visit(const std::shared_ptr<Instruction> &instruction) {
 		}
 		case Instruction::ATOMIC: {
 			Atomic *atomic = instruction->as<Atomic>();
-			foreach (const auto &instr, atomic->instructions()) {
+			for (const auto &instr : atomic->instructions()) {
 				visit(instr);
 			}
 			break;

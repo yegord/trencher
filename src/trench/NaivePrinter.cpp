@@ -10,9 +10,9 @@
 #include "NaivePrinter.h"
 
 #include <cassert>
+#include <ostream>
 
 #include "Expression.h"
-#include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
 #include "State.h"
@@ -53,12 +53,12 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 void NaivePrinter::print(std::ostream &out, const Program &program) const {
 	out << "memory_size " << program.memorySize() << std::endl;
 
-	foreach (const Thread *thread, program.threads()) {
+	for (const Thread *thread : program.threads()) {
 		out << "thread " << thread->name() << std::endl;
 		if (thread->initialState()) {
 			out << "initial " << thread->initialState()->name() << std::endl;
 		}
-		foreach (Transition *transition, thread->transitions()) {
+		for (Transition *transition : thread->transitions()) {
 			out << "transition " << transition->from()->name() << " " << transition->to()->name() << '\t';
 			switch (transition->instruction()->mnemonic()) {
 				case Instruction::READ: {

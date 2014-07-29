@@ -10,7 +10,6 @@
 #include "RobustnessChecking.h"
 
 #include "Benchmarking.h"
-#include "Foreach.h"
 #include "Program.h"
 #include "Reduction.h"
 #include "SpinModelChecker.h"
@@ -32,7 +31,7 @@ bool isReachable(State *state, State *target, boost::unordered_set<State *> &vis
 
 	visited.insert(state);
 
-	foreach (Transition *transition, state->out()) {
+	for (Transition *transition : state->out()) {
 		switch (transition->instruction()->mnemonic()) {
 			case Instruction::READ:
 			case Instruction::WRITE:

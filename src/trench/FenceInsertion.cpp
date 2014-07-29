@@ -15,7 +15,6 @@
 #include <boost/unordered_set.hpp>
 
 #include "Benchmarking.h"
-#include "Foreach.h"
 #include "Instruction.h"
 #include "Program.h"
 #include "RobustnessChecking.h"
@@ -98,7 +97,7 @@ class AttackChecker {
 
 		visited.insert(state);
 
-		foreach (Transition *transition, state->out()) {
+		for (Transition *transition : state->out()) {
 			switch (transition->instruction()->mnemonic()) {
 				case Instruction::READ:
 				case Instruction::WRITE:
@@ -154,7 +153,7 @@ class AttackerNeutralizer {
 		 * It is always safe to insert fences after each attacker's write.
 		 */
 		std::vector<State *> fences;
-		foreach (const Attack *attack, attacker_.attacks()) {
+		for (const Attack *attack : attacker_.attacks()) {
 			fences.push_back(attack->write()->to());
 		}
 		sort_and_unique(fences);
@@ -167,15 +166,15 @@ class AttackerNeutralizer {
 		boost::unordered_map<State *, std::size_t> occurrences;
 
 		/* For each state, compute the number of attacks it belongs to. */
-		foreach (const Attack *attack, attacker_.attacks()) {
-			foreach (State *state, attack->intermediary()) {
+		for (const Attack *attack : attacker_.attacks()) {
+			for (State *state : attack->intermediary()) {
 				++occurrences[state];
 			}
 		}
 
 		/* Compute the set of potential fences. */
 		std::vector<State *> potentialFences(fences);
-		foreach (const auto &item, occurrences) {
+		for (const auto &item : occurrences) {
 			if (item.second >= 2) {
 				potentialFences.push_back(item.first);
 			}
@@ -203,7 +202,7 @@ class AttackerNeutralizer {
 		usedFences.insert(potentialFences[i]);
 		if (usedFences.size() == nfences) {
 			bool success = true;
-			foreach (const Attack *attack, attacker_.attacks()) {
+			for (const Attack *attack : attacker_.attacks()) {
 				if (isAttackFeasible(attack->program(), searchForTdrOnly_,
 				    attack->attacker(), attack->write(), attack->read(), usedFences)) {
 					success = false;
@@ -236,11 +235,11 @@ class AttackerNeutralizer {
 FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 	std::vector<Attack> attacks;
 
-	foreach (Thread *thread, program.threads()) {
+	for (Thread *thread : program.threads()) {
 		std::vector<Transition *> reads;
 		std::vector<Transition *> writes;
 
-		foreach (Transition *transition, thread->transitions()) {
+		for (Transition *transition : thread->transitions()) {
 			if (transition->instruction()->is<Read>()) {
 				reads.push_back(transition);
 			} else if (transition->instruction()->as<Write>()) {
@@ -248,8 +247,8 @@ FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 			}
 		}
 
-		foreach (Transition *write, writes) {
-			foreach (Transition *read, reads) {
+		for (Transition *write : writes) {
+			for (Transition *read : reads) {
 				attacks.push_back(Attack(program, thread, write, read));
 			}
 		}
@@ -257,7 +256,7 @@ FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 
 	boost::threadpool::pool pool(boost::thread::hardware_concurrency());
 
-	foreach (Attack &attack, attacks) {
+	for (Attack &attack : attacks) {
 		pool.schedule(AttackChecker(attack, searchForTdrOnly));
 	}
 
@@ -265,21 +264,21 @@ FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 
 	boost::unordered_map<Thread *, Attacker> thread2attacker;
 
-	foreach (Attack &attack, attacks) {
+	for (Attack &attack : attacks) {
 		if (attack.feasible()) {
 			thread2attacker[attack.attacker()].addAttack(&attack);
 		}
 	}
 
-	foreach (Attacker &attacker, thread2attacker | boost::adaptors::map_values) {
+	for (Attacker &attacker : thread2attacker | boost::adaptors::map_values) {
 		pool.schedule(AttackerNeutralizer(attacker, searchForTdrOnly));
 	}
 
 	pool.wait();
 
 	FenceSet result;
-	foreach (const auto &item, thread2attacker) {
-		foreach (State *state, item.second.fences()) {
+	for (const auto &item : thread2attacker) {
+		for (State *state : item.second.fences()) {
 			result.push_back(Fence(item.first, state));
 		}
 	}
