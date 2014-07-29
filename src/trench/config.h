@@ -12,4 +12,6 @@
 #undef NULL
 #define NULL nullptr
 
+#undef NDEBUG
+
 //#define TRENCH_FRIENDLY_SPIN_NAMES
