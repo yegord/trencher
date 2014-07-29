@@ -13,8 +13,6 @@ set(TRENCH_SOURCES
 	Kinds.h
 	NaiveParser.cpp
 	NaiveParser.h
-	NaivePrinter.cpp
-	NaivePrinter.h
 	Program.cpp
 	Program.h
 	Reduction.cpp
