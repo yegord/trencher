@@ -20,8 +20,9 @@ class SCState {
 	SmallMap<std::pair<Space, Address>, Domain> memoryValuation_;
 	SmallMap<std::pair<const Thread *, const Register *>, Domain> registerValuation_;
 	const Thread *memoryLockOwner_;
+	const Thread *favourite_;
 public:
-	SCState(): memoryLockOwner_(NULL) {}
+	SCState(): memoryLockOwner_(NULL), favourite_(NULL) {}
 
 	const SmallMap<const Thread *, const State *> &controlStates() const { return controlStates_; }
 	void setControlState(const Thread *thread, const State *state) { controlStates_.set(thread, state); }
@@ -37,7 +38,15 @@ public:
 	const Thread *memoryLockOwner() const { return memoryLockOwner_; }
 	void setMemoryLockOwner(const Thread *thread) { memoryLockOwner_ = thread; }
 
-	std::size_t hash() const { return controlStates_.hash() ^ memoryValuation_.hash() ^ registerValuation_.hash() ^ reinterpret_cast<uintptr_t>(memoryLockOwner_); }
+	const Thread *favourite() const { return favourite_; }
+	void setFavourite(const Thread *thread) { favourite_ = thread; }
+
+	std::size_t hash() const {
+		return controlStates_.hash() ^
+		       memoryValuation_.hash() ^
+		       registerValuation_.hash() ^
+		       reinterpret_cast<uintptr_t>(memoryLockOwner_) ^
+		       (reinterpret_cast<uintptr_t>(favourite_) << 8); }
 };
 
 inline bool operator==(const SCState &a, const SCState &b) {

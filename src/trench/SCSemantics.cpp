@@ -113,6 +113,7 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 					read->space(),
 					evaluate(state, thread, *read->address())
 				));
+			result.setFavourite(NULL);
 			return result;
 		}
 		case Instruction::WRITE: {
@@ -123,12 +124,14 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 				evaluate(state, thread, *write->address()),
 				evaluate(state, thread, *write->value())
 			);
+			result.setFavourite(NULL);
 			return result;
 		}
 		case Instruction::MFENCE: /* FALLTHROUGH */
 		case Instruction::NOOP: {
 			/* No-op under SC. */
 			auto result = state;
+			result.setFavourite(thread);
 			return result;
 		}
 		case Instruction::LOCAL: {
@@ -139,6 +142,7 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 				local->reg().get(),
 				evaluate(state, thread, *local->value())
 			);
+			result.setFavourite(thread);
 			return result;
 		}
 		case Instruction::CONDITION: {
@@ -147,18 +151,24 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 				return boost::none;
 			}
 			auto result = state;
+			result.setFavourite(thread);
 			return result;
 		}
 		case Instruction::ATOMIC: {
 			auto atomic = instruction.as<Atomic>();
 			auto result = state;
+			auto newFavourite = thread;
 			for (const auto &instr : atomic->instructions()) {
 				if (auto destination = execute(result, thread, *instr)) {
 					result = *destination;
+					if (result.favourite() == NULL) {
+						newFavourite = NULL;
+					}
 				} else {
 					return boost::none;
 				}
 			}
+			result.setFavourite(newFavourite);
 		}
 		case Instruction::LOCK: {
 			if (state.memoryLockOwner() == NULL) {
@@ -189,7 +199,8 @@ std::vector<SCSemantics::Transition> SCSemantics::getTransitionsFrom(const State
 
 	for (const auto &threadAndState : state.controlStates()) {
 		auto thread = threadAndState.first;
-		if (state.memoryLockOwner() == NULL || state.memoryLockOwner() == thread) {
+		if ((state.memoryLockOwner() == NULL || state.memoryLockOwner() == thread) &&
+		    (state.favourite() == NULL || state.favourite() == thread)) {
 			auto controlState = threadAndState.second;
 			for (auto transition : controlState->out()) {
 				if (auto destination = execute(state, thread, *transition->instruction())) {
