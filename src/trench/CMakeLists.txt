@@ -21,6 +21,7 @@ set(TRENCH_SOURCES
 	RobustnessChecking.h
 	SCSemantics.cpp
 	SCSemantics.h
+	SmallMap.h
 	SpinModelChecker.cpp
 	SpinModelChecker.h
 	State.h

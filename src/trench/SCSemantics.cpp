@@ -8,58 +8,6 @@
 
 namespace trench {
 
-inline void SCState::setControlState(const Thread *thread, const State *state) {
-	hash_ ^= reinterpret_cast<uintptr_t>(state);
-
-	for (auto &threadAndState : controlStates_) {
-		if (threadAndState.first == thread) {
-			hash_ ^= reinterpret_cast<uintptr_t>(threadAndState.second);
-			threadAndState.second = state;
-			return;
-		}
-	}
-
-	controlStates_.push_back(std::make_pair(thread, state));
-}
-
-inline void SCState::setMemoryValue(Space space, Domain address, Domain value) {
-	auto &v = memoryValuation_[std::make_pair(space, address)];
-	hash_ ^= v ^ value;
-	if (value) {
-		v = value;
-	} else {
-		memoryValuation_.erase(std::make_pair(space, address));
-	}
-}
-
-inline Domain SCState::getMemoryValue(Space space, Domain address) const {
-	auto i = memoryValuation_.find(std::make_pair(space, address));
-	if (i != memoryValuation_.end()) {
-		return i->second;
-	} else {
-		return Domain();
-	}
-}
-
-inline void SCState::setRegisterValue(const Thread *thread, const Register *reg, Domain value) {
-	auto &v = registerValuation_[std::make_pair(thread, reg)];
-	hash_ ^= v ^ value;
-	if (value) {
-		v = value;
-	} else {
-		registerValuation_.erase(std::make_pair(thread, reg));
-	}
-}
-
-inline Domain SCState::getRegisterValue(const Thread *thread, const Register *reg) const {
-	auto i = registerValuation_.find(std::make_pair(thread, reg));
-	if (i != registerValuation_.end()) {
-		return i->second;
-	} else {
-		return Domain();
-	}
-}
-
 std::ostream &operator<<(std::ostream &out, const SCState &state) {
 	for (const auto &threadAndState : state.controlStates()) {
 		out << "cs(" << threadAndState.first->name() << ")=" << threadAndState.second->name() << "\\n";
@@ -147,7 +95,7 @@ Domain evaluate(const SCState &state, const Thread *thread, const Expression &ex
 			assert(!"NEVER REACHED");
 		}
 		case Expression::CAN_ACCESS_MEMORY: {
-			return state.memoryLock() == NULL || state.memoryLock() == thread;
+			return state.memoryLockOwner() == NULL || state.memoryLockOwner() == thread;
 		}
 	}
 	assert(!"NEVER REACHED");
@@ -213,18 +161,18 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 			}
 		}
 		case Instruction::LOCK: {
-			if (state.memoryLock() == NULL) {
+			if (state.memoryLockOwner() == NULL) {
 				auto result = state;
-				result.setMemoryLock(thread);
+				result.setMemoryLockOwner(thread);
 				return result;
 			} else {
 				return boost::none;
 			}
 		}
 		case Instruction::UNLOCK: {
-			if (state.memoryLock() == thread) {
+			if (state.memoryLockOwner() == thread) {
 				auto result = state;
-				result.setMemoryLock(NULL);
+				result.setMemoryLockOwner(NULL);
 				return state;
 			} else {
 				return boost::none;
@@ -241,7 +189,7 @@ std::vector<SCSemantics::Transition> SCSemantics::getTransitionsFrom(const State
 
 	for (const auto &threadAndState : state.controlStates()) {
 		auto thread = threadAndState.first;
-		if (state.memoryLock() == NULL || state.memoryLock() == thread) {
+		if (state.memoryLockOwner() == NULL || state.memoryLockOwner() == thread) {
 			auto controlState = threadAndState.second;
 			for (auto transition : controlState->out()) {
 				if (auto destination = execute(state, thread, *transition->instruction())) {

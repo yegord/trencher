@@ -35,6 +35,7 @@ public:
 };
 
 typedef int Domain;
+typedef Domain Address;
 
 class Constant: public Expression {
 	Domain value_;

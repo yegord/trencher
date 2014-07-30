@@ -3,11 +3,11 @@
 #include <trench/config.h>
 
 #include <sstream>
-#include <unordered_map>
 
 #include <ia/utility.h>
 
 #include "Program.h"
+#include "SmallMap.h"
 #include "State.h"
 #include "printAsDot.h"
 
@@ -16,32 +16,35 @@ namespace trench {
 class SCState {
 	friend bool operator==(const SCState &, const SCState &);
 
-	std::vector<std::pair<const Thread *, const State *>> controlStates_;
-	std::unordered_map<std::pair<Space, Domain>, Domain> memoryValuation_;
-	std::unordered_map<std::pair<const Thread *, const Register *>, Domain> registerValuation_;
-	const Thread *memoryLock_;
-	std::size_t hash_;
+	SmallMap<const Thread *, const State *> controlStates_;
+	SmallMap<std::pair<Space, Address>, Domain> memoryValuation_;
+	SmallMap<std::pair<const Thread *, const Register *>, Domain> registerValuation_;
+	const Thread *memoryLockOwner_;
 public:
-	SCState(): memoryLock_(NULL), hash_(0) {}
+	SCState(): memoryLockOwner_(NULL) {}
 
-	void setControlState(const Thread *thread, const State *state);
-	const std::vector<std::pair<const Thread *, const State *>> controlStates() const { return controlStates_; }
-	void setMemoryValue(Space space, Domain address, Domain value);
-	Domain getMemoryValue(Space space, Domain address) const;
-	const std::unordered_map<std::pair<Space, Domain>, Domain> &memoryValuation() const { return memoryValuation_; }
-	void setRegisterValue(const Thread *thread, const Register *reg, Domain value);
-	Domain getRegisterValue(const Thread *thread, const Register *reg) const;
-	const std::unordered_map<std::pair<const Thread *, const Register *>, Domain> &registerValuation() const { return registerValuation_; }
-	const Thread *memoryLock() const { return memoryLock_; }
-	void setMemoryLock(const Thread *thread) { memoryLock_ = thread; }
-	std::size_t hash() const { return hash_; }
+	const SmallMap<const Thread *, const State *> &controlStates() const { return controlStates_; }
+	void setControlState(const Thread *thread, const State *state) { controlStates_.set(thread, state); }
+
+	const SmallMap<std::pair<Space, Address>, Domain> &memoryValuation() const { return memoryValuation_; }
+	void setMemoryValue(Space space, Domain address, Domain value) { memoryValuation_.set(std::make_pair(space, address), value); }
+	Domain getMemoryValue(Space space, Domain address) const { return memoryValuation_.get(std::make_pair(space, address)); }
+
+	const SmallMap<std::pair<const Thread *, const Register *>, Domain> &registerValuation() const { return registerValuation_; }
+	void setRegisterValue(const Thread *thread, const Register *reg, Domain value) { registerValuation_.set(std::make_pair(thread, reg), value); }
+	Domain getRegisterValue(const Thread *thread, const Register *reg) const { return registerValuation_.get(std::make_pair(thread, reg)); }
+
+	const Thread *memoryLockOwner() const { return memoryLockOwner_; }
+	void setMemoryLockOwner(const Thread *thread) { memoryLockOwner_ = thread; }
+
+	std::size_t hash() const { return controlStates_.hash() ^ memoryValuation_.hash() ^ registerValuation_.hash() ^ reinterpret_cast<uintptr_t>(memoryLockOwner_); }
 };
 
 inline bool operator==(const SCState &a, const SCState &b) {
-	return a.hash() == b.hash() &&
-	       a.controlStates() == b.controlStates() &&
-	       a.memoryValuation_ == b.memoryValuation_ &&
-	       a.registerValuation_ == b.registerValuation_;
+	return a.controlStates() == b.controlStates() &&
+	       a.memoryValuation() == b.memoryValuation() &&
+	       a.registerValuation() == b.registerValuation() &&
+	       a.memoryLockOwner() == b.memoryLockOwner();
 }
 
 std::ostream &operator<<(std::ostream &out, const SCState &state);
