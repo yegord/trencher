@@ -10,33 +10,31 @@
 
 namespace trench {
 
-namespace {
-
-void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expression) {
-	switch (expression->kind()) {
+void printExpression(std::ostream &out, const Expression &expression) {
+	switch (expression.kind()) {
 		case Expression::CONSTANT: {
-			Constant *constant = expression->as<Constant>();
+			auto constant = expression.as<Constant>();
 			out << constant->value();
 			break;
 		}
 		case Expression::REGISTER: {
-			Register *reg = expression->as<Register>();
+			auto reg = expression.as<Register>();
 			out << reg->name();
 			break;
 		}
 		case Expression::UNARY: {
-			UnaryOperator *unary = expression->as<UnaryOperator>();
+			auto unary = expression.as<UnaryOperator>();
 			out << unary->getOperatorSign() << '(';
-			printExpression(out, unary->operand());
+			printExpression(out, *unary->operand());
 			out << ')';
 			break;
 		}
 		case Expression::BINARY: {
-			BinaryOperator *binary = expression->as<BinaryOperator>();
+			auto binary = expression.as<BinaryOperator>();
 			out << '(';
-			printExpression(out, binary->left());
+			printExpression(out, *binary->left());
 			out << ' ' << binary->getOperatorSign() << ' ';
-			printExpression(out, binary->right());
+			printExpression(out, *binary->right());
 			out << ')';
 			break;
 		}
@@ -50,29 +48,29 @@ void printExpression(std::ostream &out, const std::shared_ptr<Expression> &expre
 	}
 }
 
-void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &instruction) {
-	switch (instruction->mnemonic()) {
+void printInstruction(std::ostream &out, const Instruction &instruction) {
+	switch (instruction.mnemonic()) {
 		case Instruction::READ: {
-			Read *read = instruction->as<Read>();
+			auto read = instruction.as<Read>();
 			out << read->reg()->name() << ":= mem";
 			if (read->space()) {
 				out << read->space();
 			}
 			out << '[';
-			printExpression(out, read->address());
+			printExpression(out, *read->address());
 			out << "];";
 			break;
 		}
 		case Instruction::WRITE: {
-			Write *write = instruction->as<Write>();
+			auto write = instruction.as<Write>();
 			out << "mem";
 			if (write->space()) {
 				out << write->space();
 			}
 			out << '[';
-			printExpression(out, write->address());
+			printExpression(out, *write->address());
 			out << "]:=";
-			printExpression(out, write->value());
+			printExpression(out, *write->value());
 			out << ';';
 			break;
 		}
@@ -81,25 +79,25 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 			break;
 		}
 		case Instruction::LOCAL: {
-			Local *local = instruction->as<Local>();
-			printExpression(out, local->reg());
+			auto local = instruction.as<Local>();
+			printExpression(out, *local->reg());
 			out << ":=";
-			printExpression(out, local->value());
+			printExpression(out, *local->value());
 			out << ';';
 			break;
 		}
 		case Instruction::CONDITION: {
-			Condition *condition = instruction->as<Condition>();
+			auto condition = instruction.as<Condition>();
 			out << "check ";
-			printExpression(out, condition->expression());
+			printExpression(out, *condition->expression());
 			out << ';';
 			break;
 		}
 		case Instruction::ATOMIC: {
-			Atomic *atomic = instruction->as<Atomic>();
+			auto atomic = instruction.as<Atomic>();
 			out << "atomic {\\n";
 			for (const auto &instr : atomic->instructions()) {
-				printInstruction(out, instr);
+				printInstruction(out, *instr);
 				out << "\\n";
 			}
 			out << "};";
@@ -122,8 +120,6 @@ void printInstruction(std::ostream &out, const std::shared_ptr<Instruction> &ins
 	}
 }
 
-} // namespace
-
 void printAsDot(std::ostream &out, const Program &program) {
 	out << "digraph threads {" << std::endl;
 	for (const Thread *thread : program.threads()) {
@@ -133,7 +129,7 @@ void printAsDot(std::ostream &out, const Program &program) {
 		}
 		for (const Transition *transition : thread->transitions()) {
 			out << "state" << transition->from() << "->state" << transition->to() << "[label=\"";
-			printInstruction(out, transition->instruction());
+			printInstruction(out, *transition->instruction());
 			out << "\"];" << std::endl;
 		}
 		if (thread->initialState()) {

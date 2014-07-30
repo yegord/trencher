@@ -21,8 +21,11 @@
 #include <trench/Program.h>
 #include <trench/Reduction.h>
 #include <trench/RobustnessChecking.h>
+#include <trench/SCSemantics.h>
 #include <trench/State.h>
 #include <trench/printAsDot.h>
+
+#include <ia/printAsDot.h>
 
 void help() {
 	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf|-dot|-rdot] file..." << std::endl
@@ -35,7 +38,8 @@ void help() {
 	<< "  -trf   Check triangular data race freedom." << std::endl
 	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl
 	<< "  -dot   Print the example in dot format." << std::endl
-	<< "  -rdot  Print the example instrumented for robustness checking in dot format." << std::endl;
+	<< "  -rdot  Print the example instrumented for robustness checking in dot format." << std::endl
+	<< "  -scdot Print the SC semantics automaton for the program." << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -51,7 +55,8 @@ int main(int argc, char **argv) {
 			TRIANGULAR_RACE_FREEDOM,
 			TRF_FENCES,
 			PRINT_DOT,
-			PRINT_ROBUSTNESS_DOT
+			PRINT_ROBUSTNESS_DOT,
+			PRINT_SC_DOT,
 		} action = FENCES;
 
 		bool benchmarking = false;
@@ -75,6 +80,8 @@ int main(int argc, char **argv) {
 				action = PRINT_DOT;
 			} else if (arg == "-rdot") {
 				action = PRINT_ROBUSTNESS_DOT;
+			} else if (arg == "-scdot") {
+				action = PRINT_SC_DOT;
 			} else if (arg.size() >= 1 && arg[0] == '-') {
 				throw std::runtime_error("unknown option: " + arg);
 			} else {
@@ -142,6 +149,10 @@ int main(int argc, char **argv) {
 							}
 							std::cout << std::endl;
 						}
+						break;
+					}
+					case PRINT_SC_DOT: {
+						ia::printAsDot(trench::SCSemantics(program), std::cout);
 						break;
 					}
 					case PRINT_DOT: {
