@@ -2,8 +2,6 @@
 
 #include <trench/config.h>
 
-#include <sstream>
-
 #include <ia/utility.h>
 
 #include "Program.h"

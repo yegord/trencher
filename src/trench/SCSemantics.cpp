@@ -1,6 +1,7 @@
 #include "SCSemantics.h"
 
 #include <cassert>
+#include <sstream>
 
 #include <boost/optional.hpp>
 
@@ -23,7 +24,7 @@ std::ostream &operator<<(std::ostream &out, const SCState &state) {
 	}
 	for (const auto &regAndValue : state.registerValuation()) {
 		if (regAndValue.second != 0) {
-			out << "reg[" << regAndValue.first.first->name() << "," << regAndValue.first.second->name() << "]=" << regAndValue.second;
+			out << "reg[" << regAndValue.first.first->name() << "," << regAndValue.first.second->name() << "]=" << regAndValue.second << "\\n";
 		}
 	}
 	return out;
@@ -65,7 +66,7 @@ Domain evaluate(const SCState &state, const Thread *thread, const Expression &ex
 		case Expression::BINARY: {
 			auto binary = expression.as<BinaryOperator>();
 			auto leftValue = evaluate(state, thread, *binary->left());
-			auto rightValue = evaluate(state, thread, *binary->left());
+			auto rightValue = evaluate(state, thread, *binary->right());
 			switch (binary->kind()) {
 				case BinaryOperator::EQ:
 					return leftValue == rightValue;
@@ -169,6 +170,7 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 				}
 			}
 			result.setFavourite(newFavourite);
+			return result;
 		}
 		case Instruction::LOCK: {
 			if (state.memoryLockOwner() == NULL) {
