@@ -28,8 +28,6 @@
 # myPred pointer of thread 2: 3 — initially NULL, denoted by 100
 # myNode pointer of thread 2: 4 — initially 7
 
-memory_size 10
-
 thread initialize
 initial q0
 transition	q0	q1	write	5	0
