@@ -22,8 +22,6 @@ set(TRENCH_SOURCES
 	SCSemantics.cpp
 	SCSemantics.h
 	SmallMap.h
-	SpinModelChecker.cpp
-	SpinModelChecker.h
 	State.h
 	Thread.cpp
 	Thread.h
@@ -32,8 +30,6 @@ set(TRENCH_SOURCES
 	config.h
 	printAsDot.cpp
 	printAsDot.h
-	printAsPromela.cpp
-	printAsPromela.h
 )
 
 add_library(trench ${TRENCH_SOURCES})
