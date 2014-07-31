@@ -49,7 +49,8 @@ inline bool operator==(const SCState &a, const SCState &b) {
 	       a.controlStates() == b.controlStates() &&
 	       a.memoryValuation() == b.memoryValuation() &&
 	       a.registerValuation() == b.registerValuation() &&
-	       a.memoryLockOwner() == b.memoryLockOwner();
+	       a.memoryLockOwner() == b.memoryLockOwner() &&
+	       a.favourite() == b.favourite();
 }
 
 std::ostream &operator<<(std::ostream &out, const SCState &state);
