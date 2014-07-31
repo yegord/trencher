@@ -1,10 +1,10 @@
 #pragma once
 
-#include <unordered_set>
+#include <boost/unordered_set.hpp>
 
 namespace trench {
 
-template<class Automaton, class Visitor, class StateSet = std::unordered_set<typename Automaton::State>>
+template<class Automaton, class Visitor, class StateSet = boost::unordered_set<typename Automaton::State>>
 class Dfs {
 	const Automaton &automaton_;
 	StateSet visited_;

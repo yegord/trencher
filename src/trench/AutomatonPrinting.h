@@ -1,7 +1,8 @@
 #pragma once
 
 #include <ostream>
-#include <unordered_map>
+
+#include <boost/unordered_map.hpp>
 
 #include "Dfs.h"
 
@@ -11,7 +12,7 @@ template<class Automaton>
 class DotPrinter: public EmptyDfsVisitor<Automaton> {
 	const Automaton &automaton_;
 	std::ostream &out_;
-	std::unordered_map<typename Automaton::State, std::size_t> state2id_;
+	boost::unordered_map<typename Automaton::State, std::size_t> state2id_;
 
 public:
 	DotPrinter(const Automaton &automaton, std::ostream &out):

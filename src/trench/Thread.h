@@ -13,8 +13,9 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
+
+#include <boost/unordered_map.hpp>
 
 namespace trench {
 
@@ -25,7 +26,7 @@ class Transition;
 class Thread {
 	const std::string name_;
 
-	std::unordered_map<std::string, std::unique_ptr<State>> name2state_;
+	boost::unordered_map<std::string, std::unique_ptr<State>> name2state_;
 	std::vector<State *> states_;
 
 	State *initialState_;

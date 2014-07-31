@@ -12,15 +12,16 @@
 #include <trench/config.h>
 
 #include <memory>
-#include <unordered_map>
+
+#include <boost/unordered_map.hpp>
 
 #include "Expression.h"
 
 namespace trench {
 
 class ExpressionsCache {
-	std::unordered_map<std::string, std::shared_ptr<Register>> name2register_;
-	std::unordered_map<Domain, std::shared_ptr<Constant>> value2constant_;
+	boost::unordered_map<std::string, std::shared_ptr<Register>> name2register_;
+	boost::unordered_map<Domain, std::shared_ptr<Constant>> value2constant_;
 
 public:
 	const std::shared_ptr<Register> &makeRegister(const std::string &name);

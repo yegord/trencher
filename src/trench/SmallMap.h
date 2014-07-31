@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "HashUtils.h"
+#include <boost/functional/hash.hpp>
 
 namespace trench {
 
@@ -40,7 +40,7 @@ public:
 	}
 
 	void set(const Key &key, Value value) {
-		hash_ ^= ia::compute_hash(value);
+		hash_ ^= boost::hash_value(value);
 
 		auto i = lower_bound(key);
 		if (i == vector_.end() || i->first != key) {
@@ -48,7 +48,7 @@ public:
 				vector_.insert(i, std::make_pair(key, std::move(value)));
 			}
 		} else {
-			hash_ ^= ia::compute_hash(i->second);
+			hash_ ^= boost::hash_value(i->second);
 			if (value != Value()) {
 				const_cast<Value &>(i->second) = std::move(value);
 			} else {
@@ -78,18 +78,9 @@ inline bool operator==(const SmallMap<Key, Value, Vector> &a, const SmallMap<Key
 	return a.hash() == b.hash() && a.vector() == b.vector();
 }
 
-} // namespace trench
-
-namespace std {
-
 template<class Key, class Value, class Vector>
-struct hash<trench::SmallMap<Key, Value, Vector>> {
-	typedef trench::SmallMap<Key, Value, Vector> argument_type;
-	typedef size_t result_type;
+inline std::size_t hash_value(const trench::SmallMap<Key, Value, Vector> &map) {
+	return map.hash();
+}
 
-	result_type operator()(const argument_type &value) const {
-		return value.hash();
-	}
-};
-
-} // namespace std
+} // namespace trench

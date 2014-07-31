@@ -54,19 +54,11 @@ inline bool operator==(const SCState &a, const SCState &b) {
 
 std::ostream &operator<<(std::ostream &out, const SCState &state);
 
+inline std::size_t hash_value(const trench::SCState &state) {
+	return state.hash();
+}
+
 } // namespace trench
-
-namespace std {
-
-template<>
-struct hash<trench::SCState> {
-	typedef trench::SCState argument_type;
-	typedef std::size_t result_type;
-
-	std::size_t operator()(const trench::SCState &state) const { return state.hash(); }
-};
-
-} // namespace std
 
 namespace trench {
 

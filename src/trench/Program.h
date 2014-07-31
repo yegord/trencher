@@ -12,8 +12,9 @@
 #include <trench/config.h>
 
 #include <memory>
-#include <unordered_map>
 #include <vector>
+
+#include <boost/unordered_map.hpp>
 
 #include "Instruction.h"
 #include "Expression.h"
@@ -22,7 +23,7 @@
 namespace trench {
 
 class Program {
-	std::unordered_map<std::string, std::unique_ptr<Thread>> name2thread_;
+	boost::unordered_map<std::string, std::unique_ptr<Thread>> name2thread_;
 	std::vector<Thread *> threads_;
 
 	Domain interestingAddress_;
