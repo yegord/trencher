@@ -14,11 +14,9 @@ public:
 	Dfs(const Automaton &automaton, Visitor visitor): automaton_(automaton), visitor_(visitor) {}
 
 	bool visit(const typename Automaton::State &state) {
-		if (visited_.find(state) != visited_.end()) {
+		if (!visited_.insert(state).second) {
 			return false;
 		}
-		visited_.insert(state);
-
 		if (visitor_.onStateEnter(state)) {
 			return true;
 		}
