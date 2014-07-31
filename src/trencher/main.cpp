@@ -149,15 +149,15 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case PRINT_SC_DOT: {
-						trench::printAsDot(trench::SCSemantics(program), std::cout);
+						trench::printAutomatonAsDot(trench::SCSemantics(program), std::cout);
 						break;
 					}
 					case PRINT_DOT: {
-						trench::printAsDot(std::cout, program);
+						trench::printProgramAsDot(program, std::cout);
 						break;
 					}
 					case PRINT_ROBUSTNESS_DOT: {
-						trench::printAsDot(std::cout, trench::reduce(program, false));
+						trench::printProgramAsDot(trench::reduce(program, false), std::cout);
 						break;
 					}
 					default: {

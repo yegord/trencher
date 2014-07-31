@@ -10,8 +10,8 @@ class Expression;
 class Instruction;
 class Program;
 
-void printExpression(std::ostream &out, const Expression &expression);
-void printInstruction(std::ostream &out, const Instruction &instruction);
-void printAsDot(std::ostream &out, const Program &program);
+void printExpression(const Expression &expression, std::ostream &out);
+void printInstruction(const Instruction &instruction, std::ostream &out);
+void printProgramAsDot(const Program &program, std::ostream &out);
 
 } // namespace trench

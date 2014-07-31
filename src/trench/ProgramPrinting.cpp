@@ -10,7 +10,7 @@
 
 namespace trench {
 
-void printExpression(std::ostream &out, const Expression &expression) {
+void printExpression(const Expression &expression, std::ostream &out) {
 	switch (expression.kind()) {
 		case Expression::CONSTANT: {
 			auto constant = expression.as<Constant>();
@@ -25,16 +25,16 @@ void printExpression(std::ostream &out, const Expression &expression) {
 		case Expression::UNARY: {
 			auto unary = expression.as<UnaryOperator>();
 			out << unary->getOperatorSign() << '(';
-			printExpression(out, *unary->operand());
+			printExpression(*unary->operand(), out);
 			out << ')';
 			break;
 		}
 		case Expression::BINARY: {
 			auto binary = expression.as<BinaryOperator>();
 			out << '(';
-			printExpression(out, *binary->left());
+			printExpression(*binary->left(), out);
 			out << ' ' << binary->getOperatorSign() << ' ';
-			printExpression(out, *binary->right());
+			printExpression(*binary->right(), out);
 			out << ')';
 			break;
 		}
@@ -48,7 +48,7 @@ void printExpression(std::ostream &out, const Expression &expression) {
 	}
 }
 
-void printInstruction(std::ostream &out, const Instruction &instruction) {
+void printInstruction(const Instruction &instruction, std::ostream &out) {
 	switch (instruction.mnemonic()) {
 		case Instruction::READ: {
 			auto read = instruction.as<Read>();
@@ -57,7 +57,7 @@ void printInstruction(std::ostream &out, const Instruction &instruction) {
 				out << read->space();
 			}
 			out << '[';
-			printExpression(out, *read->address());
+			printExpression(*read->address(), out);
 			out << "];";
 			break;
 		}
@@ -68,9 +68,9 @@ void printInstruction(std::ostream &out, const Instruction &instruction) {
 				out << write->space();
 			}
 			out << '[';
-			printExpression(out, *write->address());
+			printExpression(*write->address(), out);
 			out << "]:=";
-			printExpression(out, *write->value());
+			printExpression(*write->value(), out);
 			out << ';';
 			break;
 		}
@@ -80,16 +80,16 @@ void printInstruction(std::ostream &out, const Instruction &instruction) {
 		}
 		case Instruction::LOCAL: {
 			auto local = instruction.as<Local>();
-			printExpression(out, *local->reg());
+			printExpression(*local->reg(), out);
 			out << ":=";
-			printExpression(out, *local->value());
+			printExpression(*local->value(), out);
 			out << ';';
 			break;
 		}
 		case Instruction::CONDITION: {
 			auto condition = instruction.as<Condition>();
 			out << "check ";
-			printExpression(out, *condition->expression());
+			printExpression(*condition->expression(), out);
 			out << ';';
 			break;
 		}
@@ -97,7 +97,7 @@ void printInstruction(std::ostream &out, const Instruction &instruction) {
 			auto atomic = instruction.as<Atomic>();
 			out << "atomic {\\n";
 			for (const auto &instr : atomic->instructions()) {
-				printInstruction(out, *instr);
+				printInstruction(*instr, out);
 				out << "\\n";
 			}
 			out << "};";
@@ -120,7 +120,7 @@ void printInstruction(std::ostream &out, const Instruction &instruction) {
 	}
 }
 
-void printAsDot(std::ostream &out, const Program &program) {
+void printProgramAsDot(const Program &program, std::ostream &out) {
 	out << "digraph threads {" << std::endl;
 	for (const Thread *thread : program.threads()) {
 		out << "subgraph cluster" << thread << " {" << std::endl;
@@ -129,7 +129,7 @@ void printAsDot(std::ostream &out, const Program &program) {
 		}
 		for (const Transition *transition : thread->transitions()) {
 			out << "state" << transition->from() << "->state" << transition->to() << "[label=\"";
-			printInstruction(out, *transition->instruction());
+			printInstruction(*transition->instruction(), out);
 			out << "\"];" << std::endl;
 		}
 		if (thread->initialState()) {

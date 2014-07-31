@@ -47,7 +47,7 @@ private:
 };
 
 template<class Automaton>
-void printAsDot(const Automaton &automaton, std::ostream &out) {
+void printAutomatonAsDot(const Automaton &automaton, std::ostream &out) {
 	out << "digraph {" << std::endl;
 
 	DotPrinter<Automaton> visitor(automaton, out);

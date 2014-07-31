@@ -219,7 +219,7 @@ std::vector<SCSemantics::Transition> SCSemantics::getTransitionsFrom(const State
 
 SCSemantics::Label SCSemantics::getLabel(const Transition &transition) const {
 	std::stringstream out;
-	printInstruction(out, *transition.instruction());
+	printInstruction(*transition.instruction(), out);
 	return out.str();
 }
 
