@@ -1,24 +1,32 @@
 set(TRENCH_SOURCES
+	AutomatonPrinting.h
 	Benchmarking.cpp
 	Benchmarking.h
 	Census.cpp
 	Census.h
+	Dfs.h
 	Expression.cpp
 	Expression.h
 	ExpressionsCache.cpp
 	ExpressionsCache.h
 	FenceInsertion.cpp
 	FenceInsertion.h
+	HashUtils.h
 	Instruction.h
 	Kinds.h
 	NaiveParser.cpp
 	NaiveParser.h
 	Program.cpp
 	Program.h
+	ProgramPrinting.cpp
+	ProgramPrinting.h
+	Reachability.h
 	Reduction.cpp
 	Reduction.h
 	RobustnessChecking.cpp
 	RobustnessChecking.h
+	SCReachability.cpp
+	SCReachability.h
 	SCSemantics.cpp
 	SCSemantics.h
 	SmallMap.h
@@ -28,8 +36,6 @@ set(TRENCH_SOURCES
 	Transition.cpp
 	Transition.h
 	config.h
-	printAsDot.cpp
-	printAsDot.h
 )
 
 add_library(trench ${TRENCH_SOURCES})

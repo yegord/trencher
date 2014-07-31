@@ -22,8 +22,6 @@
 namespace trench {
 
 class Program {
-	int memorySize_;
-
 	std::unordered_map<std::string, std::unique_ptr<Thread>> name2thread_;
 	std::vector<Thread *> threads_;
 
@@ -31,14 +29,10 @@ class Program {
 	Space interestingSpace_;
 
 public:
-	Program(int memorySize = 10):
-		memorySize_(memorySize),
+	Program():
 		interestingAddress_(0),
 		interestingSpace_(INVALID_SPACE)
 	{}
-
-	int memorySize() const { return memorySize_; }
-	void setMemorySize(int size) { memorySize_ = size; }
 
 	const std::vector<Thread *> &threads() const { return threads_; }
 	Thread *getThread(const std::string &name);
@@ -49,8 +43,8 @@ public:
 		interestingSpace_ = space;
 	}
 
-	Domain interestingAddress() const { return interestingAddress_;}
-	Space interestingSpace() const { return interestingSpace_;}
+	Domain interestingAddress() const { return interestingAddress_; }
+	Space interestingSpace() const { return interestingSpace_; }
 };
 
 } // namespace trench

@@ -13,12 +13,6 @@ Names of threads and names of states can be any strings without spaces.
 Lines starting with # are comments, but not if they are within a thread
 description block, sorry.
 
-You can also specify the size of the global memory by the `memory_size'
-directive (see the example below). By default it is set to 10, i.e. the
-threads can use addresses from 0 to 9. If you want to use less memory,
-it is okay. If you want to use more, please, do specify how much, e.g.:
-`memory_size 100'.
-
 Instructions and Expressions
 ============================
 
@@ -50,9 +44,6 @@ Example
 Here is a meaningless example to make you familiar with the syntax:
 
 -----------------------------------------------------------------------
-# We do not touch addresses greater than 5
-memory_size 6
-
 # A thread t1 with the initial state q0 performing an atomic increment
 # on address 5:
 

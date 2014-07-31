@@ -13,17 +13,16 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <trench/AutomatonPrinting.h>
 #include <trench/Benchmarking.h>
 #include <trench/FenceInsertion.h>
 #include <trench/NaiveParser.h>
 #include <trench/Program.h>
+#include <trench/ProgramPrinting.h>
 #include <trench/Reduction.h>
 #include <trench/RobustnessChecking.h>
 #include <trench/SCSemantics.h>
 #include <trench/State.h>
-#include <trench/printAsDot.h>
-
-#include <ia/printAsDot.h>
 
 void help() {
 	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf|-dot|-rdot] file..." << std::endl
@@ -150,7 +149,7 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case PRINT_SC_DOT: {
-						ia::printAsDot(trench::SCSemantics(program), std::cout);
+						trench::printAsDot(trench::SCSemantics(program), std::cout);
 						break;
 					}
 					case PRINT_DOT: {
@@ -158,10 +157,7 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case PRINT_ROBUSTNESS_DOT: {
-						trench::Program instrumentedProgram;
-						trench::reduce(program, instrumentedProgram, false);
-
-						trench::printAsDot(std::cout, instrumentedProgram);
+						trench::printAsDot(std::cout, trench::reduce(program, false));
 						break;
 					}
 					default: {

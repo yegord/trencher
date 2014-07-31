@@ -3,9 +3,9 @@
 #include <ostream>
 #include <unordered_map>
 
-#include "dfs.h"
+#include "Dfs.h"
 
-namespace ia {
+namespace trench {
 
 template<class Automaton>
 class DotPrinter: public EmptyDfsVisitor<Automaton> {
@@ -56,4 +56,4 @@ void printAsDot(const Automaton &automaton, std::ostream &out) {
 	out << "}" << std::endl;
 }
 
-} // namespace ia
+} // namespace trench

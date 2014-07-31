@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include <ia/utility.h>
+#include "HashUtils.h"
 
 namespace trench {
 

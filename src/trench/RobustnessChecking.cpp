@@ -12,12 +12,9 @@
 #include "Benchmarking.h"
 #include "Program.h"
 #include "Reduction.h"
-#include "SCSemantics.h"
-//#include "SpinModelChecker.h"
+#include "SCReachability.h"
 #include "State.h"
 #include "Transition.h"
-
-#include <ia/reachability.h>
 
 namespace trench {
 
@@ -72,14 +69,9 @@ bool isAttackFeasible(const Program &program, bool searchForTdrOnly, Thread *att
 		}
 	}
 
-	trench::Program augmentedProgram;
-	trench::reduce(program, augmentedProgram, searchForTdrOnly, attacker, attackWrite, attackRead, fenced);
+	auto augmentedProgram = reduce(program, searchForTdrOnly, attacker, attackWrite, attackRead, fenced);
 
-#if 0
-	trench::SpinModelChecker checker;
-	bool feasible = checker.check(augmentedProgram);
-#endif
-	bool feasible = ia::isFinalStateReachable(SCSemantics(augmentedProgram));
+	bool feasible = isInterestingStateSCReachable(augmentedProgram);
 
 	if (feasible) {
 		Statistics::instance().incFeasibleAttacksCount();

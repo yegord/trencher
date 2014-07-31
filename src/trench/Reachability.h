@@ -1,8 +1,8 @@
 #pragma once
 
-#include "dfs.h"
+#include "Dfs.h"
 
-namespace ia {
+namespace trench {
 
 template<class Automaton>
 class ReachabilityVisitor: public EmptyDfsVisitor<Automaton> {
@@ -22,4 +22,4 @@ bool isFinalStateReachable(const Automaton &automaton) {
 	return dfs<Automaton, const ReachabilityVisitor<Automaton> &>(automaton, ReachabilityVisitor<Automaton>(automaton));
 }
 
-} // namespace ia
+} // namespace trench

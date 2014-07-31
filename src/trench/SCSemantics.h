@@ -2,12 +2,9 @@
 
 #include <trench/config.h>
 
-#include <ia/utility.h>
-
 #include "Program.h"
 #include "SmallMap.h"
 #include "State.h"
-#include "printAsDot.h"
 
 namespace trench {
 
@@ -48,7 +45,8 @@ public:
 };
 
 inline bool operator==(const SCState &a, const SCState &b) {
-	return a.controlStates() == b.controlStates() &&
+	return a.hash() == b.hash() &&
+	       a.controlStates() == b.controlStates() &&
 	       a.memoryValuation() == b.memoryValuation() &&
 	       a.registerValuation() == b.registerValuation() &&
 	       a.memoryLockOwner() == b.memoryLockOwner();

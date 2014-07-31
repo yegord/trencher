@@ -5,6 +5,7 @@
 
 #include <boost/optional.hpp>
 
+#include "ProgramPrinting.h"
 #include "Transition.h"
 
 namespace trench {

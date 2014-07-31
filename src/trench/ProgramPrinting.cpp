@@ -1,4 +1,4 @@
-#include "printAsDot.h"
+#include "ProgramPrinting.h"
 
 #include <cassert>
 #include <ostream>

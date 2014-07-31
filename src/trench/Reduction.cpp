@@ -21,13 +21,13 @@
 
 namespace trench {
 
-void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnly, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
+Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, Transition *attackWrite, Transition *attackRead, const boost::unordered_set<State *> &fenced) {
 	assert(attackWrite == NULL || attackWrite->instruction()->is<Write>());
 	assert(attackRead == NULL || attackRead->instruction()->is<Read>());
 
 	ExpressionsCache cache;
 
-	resultProgram.setMemorySize(std::max(program.memorySize(), 3));
+	Program result;
 
 	enum {
 		DEFAULT_SPACE = Space(),
@@ -49,7 +49,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 	auto nattackersVar = cache.makeConstant(1);
 	auto successVar    = cache.makeConstant(2);
 
-	resultProgram.setInterestingAddress(successVar->value(), SERVICE_SPACE);
+	result.setInterestingAddress(successVar->value(), SERVICE_SPACE);
 
 	auto addr = cache.makeRegister("_addr");
 	auto nattackers = cache.makeRegister("_attacking");
@@ -69,7 +69,7 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 	auto check_can_access_memory = std::make_shared<Condition>(std::make_shared<CanAccessMemory>());
 
 	for (Thread *thread : program.threads()) {
-		Thread *resultThread = resultProgram.makeThread(thread->name());
+		Thread *resultThread = result.makeThread(thread->name());
 
 		if (thread->initialState()) {
 			resultThread->setInitialState(resultThread->makeState("orig_" + thread->initialState()->name()));
@@ -308,6 +308,8 @@ void reduce(const Program &program, Program &resultProgram, bool searchForTdrOnl
 			}
 		}
 	}
+
+	return result;
 }
 
 } // namespace trench

@@ -115,12 +115,6 @@ public:
 					}
 				}
 				in >> std::skipws;
-			} else if (token == "memory_size") {
-				int value;
-				if (!(in >> value)) {
-					throw std::runtime_error("expected a memory size value (integer), got EOF");
-				}
-				program.setMemorySize(value);
 			} else if (token == "thread") {
 				if (!(in >> token)) {
 					throw std::runtime_error("expected thread name after `thread'");
@@ -193,7 +187,7 @@ public:
 					}
 				}
 			} else {
-				throw std::runtime_error("expected `memory_size' or `thread', got `" + token + "'");
+				throw std::runtime_error("expected `thread', got `" + token + "'");
 			}
 		}
 	}

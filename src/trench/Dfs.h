@@ -2,7 +2,7 @@
 
 #include <unordered_set>
 
-namespace ia {
+namespace trench {
 
 template<class Automaton, class Visitor, class StateSet = std::unordered_set<typename Automaton::State>>
 class Dfs {
@@ -50,4 +50,4 @@ bool dfs(const Automaton &automaton, Visitor visitor = Visitor()) {
 	return Dfs<Automaton, Visitor>(automaton, visitor).visit(automaton.initialState());
 }
 
-} // namespace ia
+} // namespace trench
