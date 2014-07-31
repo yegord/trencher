@@ -45,8 +45,7 @@ public:
 };
 
 inline bool operator==(const SCState &a, const SCState &b) {
-	return a.hash() == b.hash() &&
-	       a.controlStates() == b.controlStates() &&
+	return a.controlStates() == b.controlStates() &&
 	       a.memoryValuation() == b.memoryValuation() &&
 	       a.registerValuation() == b.registerValuation() &&
 	       a.memoryLockOwner() == b.memoryLockOwner() &&
