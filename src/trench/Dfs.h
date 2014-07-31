@@ -42,7 +42,7 @@ class EmptyDfsVisitor {
 public:
 	bool onStateEnter(const typename Automaton::State &) const { return false; }
 	bool onStateExit(const typename Automaton::State &) const { return false; }
-	bool onTransition(const typename Automaton::Transition &transition) const { return false; }
+	bool onTransition(const typename Automaton::Transition &) const { return false; }
 };
 
 template<class Automaton, class Visitor = EmptyDfsVisitor<Automaton>>

@@ -23,7 +23,7 @@ class NaiveParserImpl {
 	ExpressionsCache cache_;
 
 public:
-	std::shared_ptr<Register> parseRegister(std::istream &in, Program &program) {
+	std::shared_ptr<Register> parseRegister(std::istream &in) {
 		std::string token;
 		if (!(in >> token)) {
 			throw std::runtime_error("expected a register name, got EOF");
@@ -31,7 +31,7 @@ public:
 		return cache_.makeRegister(token);
 	}
 
-	std::shared_ptr<Expression> parseExpression(std::istream &in, Program &program) {
+	std::shared_ptr<Expression> parseExpression(std::istream &in) {
 		std::string token;
 
 		if (!(in >> token)) {
@@ -43,55 +43,55 @@ public:
 		if (ss >> value) {
 			return cache_.makeConstant(value);
 		} else if (token == "==") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::EQ, left, right);
 		} else if (token == "!=") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::NEQ, left, right);
 		} else if (token == "<") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::LT, left, right);
 		} else if (token == "<=") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::LEQ, left, right);
 		} else if (token == ">") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::GT, left, right);
 		} else if (token == ">=") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::GEQ, left, right);
 		} else if (token == "&&") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::AND, left, right);
 		} else if (token == "||") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::OR, left, right);
 		} else if (token == "+") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::ADD, left, right);
 		} else if (token == "-") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::SUB, left, right);
 		} else if (token == "*") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::MUL, left, right);
 		} else if (token == "&") {
-			auto left = parseExpression(in, program);
-			auto right = parseExpression(in, program);
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::BIN_AND, left, right);
 		} else if (token == "!") {
-			auto operand = parseExpression(in, program);
+			auto operand = parseExpression(in);
 			return std::make_shared<UnaryOperator>(UnaryOperator::NOT, operand);
 		} else {
 			return cache_.makeRegister(token);
@@ -153,23 +153,23 @@ public:
 						if (!(in >> token)) {
 							throw std::runtime_error("expected an instruction name, got EOF");
 						} else if (token == "read") {
-							auto reg = parseRegister(in, program);
-							auto address = parseExpression(in, program);
+							auto reg = parseRegister(in);
+							auto address = parseExpression(in);
 
 							instruction.reset(new Read(reg, address));
 						} else if (token == "write") {
-							auto value = parseExpression(in, program);
-							auto address = parseExpression(in, program);
+							auto value = parseExpression(in);
+							auto address = parseExpression(in);
 
 							instruction.reset(new Write(value, address));
 						} else if (token == "mfence") {
 							instruction.reset(new Mfence());
 						} else if (token == "local") {
-							auto reg = parseRegister(in, program);
-							auto value = parseExpression(in, program);
+							auto reg = parseRegister(in);
+							auto value = parseExpression(in);
 							instruction.reset(new Local(reg, value));
 						} else if (token == "check") {
-							auto expression = parseExpression(in, program);
+							auto expression = parseExpression(in);
 							instruction.reset(new Condition(expression));
 						} else if (token == "noop") {
 							instruction.reset(new Noop());
