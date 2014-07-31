@@ -9,6 +9,8 @@
 
 #include "Benchmarking.h"
 
+#include <ostream>
+
 namespace trench {
 
 std::ostream &operator<<(std::ostream &out, const Statistics &statistics) {
@@ -21,9 +23,6 @@ std::ostream &operator<<(std::ostream &out, const Statistics &statistics) {
 		<< " infeasibleAttacksCount2 " << statistics.infeasibleAttacksCount2()
 		<< " feasibleAttacksCount " << statistics.feasibleAttacksCount()
 		<< " fencesCount " << statistics.fencesCount()
-		<< " spinTime " << statistics.spinTime()
-		<< " compilerTime " << statistics.compilerTime()
-		<< " verifierTime " << statistics.verifierTime()
 		<< " cpuTime " << statistics.cpuTime()
 		<< " realTime " << statistics.realTime()
 	;

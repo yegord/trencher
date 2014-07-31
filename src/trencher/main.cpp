@@ -8,12 +8,10 @@
  */
 
 #include <cassert>
-#include <ctime>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
-
-#include <boost/chrono.hpp>
 
 #include <trench/Benchmarking.h>
 #include <trench/FenceInsertion.h>
@@ -103,7 +101,7 @@ int main(int argc, char **argv) {
 					}
 				}
 
-				auto startTime = boost::chrono::system_clock::now();
+				auto startTime = std::chrono::steady_clock::now();
 				clock_t startClock = clock();
 
 				switch (action) {
@@ -172,11 +170,11 @@ int main(int argc, char **argv) {
 				}
 
 				clock_t endClock = clock();
-				auto endTime = boost::chrono::system_clock::now();
+				auto endTime = std::chrono::steady_clock::now();
 
 				trench::Statistics::instance().addCpuTime((endClock - startClock) * 1000 / CLOCKS_PER_SEC);
 				trench::Statistics::instance().addRealTime(
-					boost::chrono::duration_cast<boost::chrono::milliseconds>(endTime - startTime).count());
+					std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
 
 				if (benchmarking) {
 					std::cout << "filename " << arg << " action " << action <<
