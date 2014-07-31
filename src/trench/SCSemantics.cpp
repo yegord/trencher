@@ -217,6 +217,15 @@ std::vector<SCSemantics::Transition> SCSemantics::getTransitionsFrom(const State
 			for (auto transition : controlState->out()) {
 				if (auto destination = execute(state, thread, *transition->instruction())) {
 					destination->setControlState(thread, transition->to());
+
+					const auto &live = liveness_.getLiveRegisters(transition->to());
+					destination->registerValuation().filterOut(
+						[&](const std::pair<const Thread *, const Register *> &threadAndRegister){
+							return threadAndRegister.first == thread &&
+							       std::find(live.begin(), live.end(), threadAndRegister.second) == live.end();
+						}
+					);
+
 					result.push_back(SCTransition(state, std::move(*destination), transition->instruction().get()));
 				}
 			}

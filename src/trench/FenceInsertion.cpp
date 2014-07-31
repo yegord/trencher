@@ -156,7 +156,7 @@ class AttackerNeutralizer {
 		for (const Attack *attack : attacker_.attacks()) {
 			fences.push_back(attack->write()->to());
 		}
-		sort_and_unique(fences);
+		sortAndUnique(fences);
 		attacker_.setFences(fences);
 
 		/*
@@ -179,7 +179,7 @@ class AttackerNeutralizer {
 				potentialFences.push_back(item.first);
 			}
 		}
-		sort_and_unique(potentialFences);
+		sortAndUnique(potentialFences);
 
 		/*
 		 * Iterate all the subsets of potential fences of size up to fences.size() - 1.

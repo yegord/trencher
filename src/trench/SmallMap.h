@@ -75,6 +75,20 @@ public:
 		}
 	}
 
+	template<class Pred>
+	void filterOut(Pred pred) {
+		vector_.erase(
+			std::remove_if(vector_.begin(), vector_.end(), [&](const value_type &item) {
+				if (pred(item.first)) {
+					hash_ ^= boost::hash_value(item.second);
+					return true;
+				} else {
+					return false;
+				}
+			}),
+			vector_.end());
+	}
+
 	std::size_t hash() const {
 		return hash_;
 	}

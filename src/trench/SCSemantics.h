@@ -11,6 +11,7 @@
 
 #include <trench/config.h>
 
+#include "Liveness.h"
 #include "Program.h"
 #include "SmallMap.h"
 #include "State.h"
@@ -35,6 +36,7 @@ public:
 	void setMemoryValue(Space space, Domain address, Domain value) { memoryValuation_.set(std::make_pair(space, address), value); }
 	Domain getMemoryValue(Space space, Domain address) const { return memoryValuation_.get(std::make_pair(space, address)); }
 
+	SmallMap<std::pair<const Thread *, const Register *>, Domain> &registerValuation() { return registerValuation_; }
 	const SmallMap<std::pair<const Thread *, const Register *>, Domain> &registerValuation() const { return registerValuation_; }
 	void setRegisterValue(const Thread *thread, const Register *reg, Domain value) { registerValuation_.set(std::make_pair(thread, reg), value); }
 	Domain getRegisterValue(const Thread *thread, const Register *reg) const { return registerValuation_.get(std::make_pair(thread, reg)); }
@@ -89,13 +91,14 @@ public:
 
 class SCSemantics {
 	const Program &program_;
+	const Liveness liveness_;
 
 public:
 	typedef SCState State;
 	typedef SCTransition Transition;
 	typedef std::string Label;
 
-	SCSemantics(const Program &program): program_(program) {}
+	SCSemantics(const Program &program): program_(program), liveness_(computeLiveness(program)) {}
 
 	State initialState() const;
 

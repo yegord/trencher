@@ -13,6 +13,8 @@ set(TRENCH_SOURCES
 	FenceInsertion.h
 	Instruction.h
 	Kinds.h
+	Liveness.cpp
+	Liveness.h
 	NaiveParser.cpp
 	NaiveParser.h
 	Program.cpp

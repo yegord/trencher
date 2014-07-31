@@ -98,9 +98,9 @@ void Census::unique() const {
 		return;
 	}
 
-	sort_and_unique(instructions_);
-	sort_and_unique(expressions_);
-	sort_and_unique(spaces_);
+	sortAndUnique(instructions_);
+	sortAndUnique(expressions_);
+	sortAndUnique(spaces_);
 
 	unique_ = true;
 }
