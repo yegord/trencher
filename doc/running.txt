@@ -3,14 +3,7 @@ This document explains how to run Trencher.
 Prerequisites
 =============
 
-The following software must be installed before Trencher can be run:
-
-    * SPIN <http://spinroot.com/>
-
-Make sure that SPIN's executable is in a directory included in PATH, or
-it is in the same directory as the Trencher's executable.
-
-You may also want to install the following package to be able to produce
+You may want to install the following package to be able to produce
 visual representations of the input and instrumented programs:
 
     * Graphviz <http://www.graphviz.org/>
