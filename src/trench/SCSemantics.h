@@ -69,10 +69,6 @@ inline std::size_t hash_value(const trench::SCState &state) {
 	return state.hash();
 }
 
-} // namespace trench
-
-namespace trench {
-
 class SCTransition {
 	SCState source_;
 	SCState destination_;
