@@ -195,7 +195,7 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 			if (state.memoryLockOwner() == thread) {
 				auto result = state;
 				result.setMemoryLockOwner(NULL);
-				return state;
+				return result;
 			} else {
 				return boost::none;
 			}
