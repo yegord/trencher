@@ -19,8 +19,6 @@
 namespace trench {
 
 class SCState {
-	friend bool operator==(const SCState &, const SCState &);
-
 	SmallMap<const Thread *, const State *> controlStates_;
 	SmallMap<std::pair<Space, Address>, Domain> memoryValuation_;
 	SmallMap<std::pair<const Thread *, const Register *>, Domain> registerValuation_;
