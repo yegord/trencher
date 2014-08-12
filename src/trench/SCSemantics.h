@@ -61,11 +61,11 @@ inline bool operator==(const SCState &a, const SCState &b) {
 	       a.favourite() == b.favourite();
 }
 
-std::ostream &operator<<(std::ostream &out, const SCState &state);
-
 inline std::size_t hash_value(const trench::SCState &state) {
 	return state.hash();
 }
+
+std::ostream &operator<<(std::ostream &out, const SCState &state);
 
 class SCTransition {
 	SCState source_;
@@ -82,6 +82,7 @@ public:
 	const Instruction *instruction() const { return instruction_; }
 };
 
+std::ostream &operator<<(std::ostream &out, const SCTransition &transition);
 
 class SCSemantics {
 	const Program &program_;
@@ -100,13 +101,13 @@ public:
 		return state.getMemoryValue(program_.interestingSpace(), program_.interestingAddress()) != 0;
 	}
 
-	std::string getName(const State &state) const;
+	const State &getName(const State &state) const { return state; }
 
 	std::vector<Transition> getTransitionsFrom(const State &state) const;
 
-        const State &getSourceState(const Transition &transition) const { return transition.source(); }
-        const State &getDestinationState(const Transition &transition) const { return transition.destination(); }
-	Label getLabel(const Transition &transition) const;
+	const State &getSourceState(const Transition &transition) const { return transition.source(); }
+	const State &getDestinationState(const Transition &transition) const { return transition.destination(); }
+	const Transition &getLabel(const Transition &transition) const { return transition; }
 };
 
 } // namespace trench

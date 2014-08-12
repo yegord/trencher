@@ -10,7 +10,6 @@
 #include "SCSemantics.h"
 
 #include <cassert>
-#include <sstream>
 
 #include <boost/optional.hpp>
 
@@ -40,6 +39,11 @@ std::ostream &operator<<(std::ostream &out, const SCState &state) {
 	return out;
 }
 
+std::ostream &operator<<(std::ostream &out, const SCTransition &transition) {
+	printInstruction(*transition.instruction(), out);
+	return out;
+}
+
 SCSemantics::State SCSemantics::initialState() const {
 	SCState result;
 
@@ -49,12 +53,6 @@ SCSemantics::State SCSemantics::initialState() const {
 
 	return result;
 };
-
-std::string SCSemantics::getName(const State &state) const {
-	std::stringstream out;
-	out << state;
-	return out.str();
-}
 
 namespace {
 
@@ -233,12 +231,6 @@ std::vector<SCSemantics::Transition> SCSemantics::getTransitionsFrom(const State
 	}
 
 	return result;
-}
-
-SCSemantics::Label SCSemantics::getLabel(const Transition &transition) const {
-	std::stringstream out;
-	printInstruction(*transition.instruction(), out);
-	return out.str();
 }
 
 } // namespace trench
