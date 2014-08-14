@@ -45,6 +45,9 @@ public:
 		infeasibleAttacksCount2_ = 0;
 		feasibleAttacksCount_    = 0;
 		fencesCount_             = 0;
+
+		cpuTime_ = 0;
+		realTime_ = 0;
 	}
 
 	static Statistics &instance() {
