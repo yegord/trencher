@@ -4,6 +4,7 @@ set(TRENCH_SOURCES
 	Benchmarking.h
 	Census.cpp
 	Census.h
+	ConcurrentQueue.h
 	Dfs.h
 	Expression.cpp
 	Expression.h
@@ -34,6 +35,7 @@ set(TRENCH_SOURCES
 	State.h
 	Thread.cpp
 	Thread.h
+	ThreadPool.h
 	Transition.cpp
 	Transition.h
 	config.h

@@ -13,16 +13,15 @@ Prerequisites
 Trencher is written in C++. The following compilers are known to be
 capable of building it:
 
-    * GCC >= 4.7 <http://gcc.gnu.org/>
-    * Clang >= 3.1 <http://llvm.clang.org>
+    * GCC >= 4.7 <http://gcc.gnu.org/>,
+    * Clang >= 3.1 <http://llvm.clang.org>,
     * MinGW GCC >= 4.7 <http://mingw.org/> (do install the `C++
-      Compiler' option)
+      Compiler' option).
 
 The following software must be installed before Trencher can be built:
 
-    * CMake >= 2.8 <http://cmake.org/>
-    * Boost >= 1.47 <http://www.boost.org/> (headers and the following
-      libraries: chrono, filesystem, system, thread).
+    * CMake >= 2.8 <http://cmake.org/>,
+    * Boost >= 1.47 <http://www.boost.org/> (headers only).
 
 Building on UNIX
 ================

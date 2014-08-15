@@ -11,7 +11,6 @@
 
 #include "State.h"
 #include "Transition.h"
-#include "make_unique.h"
 
 namespace trench {
 
@@ -32,7 +31,7 @@ State *Thread::makeState(const std::string &name) {
 }
 
 Transition *Thread::makeTransition(State *from, State *to, std::shared_ptr<Instruction> instruction) {
-	auto transition = make_unique<Transition>(from, to, std::move(instruction));
+	auto transition = std::make_unique<Transition>(from, to, std::move(instruction));
 	auto result = transition.get();
 
 	transitions_.push_back(std::move(transition));

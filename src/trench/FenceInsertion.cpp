@@ -10,7 +10,6 @@
 #include "FenceInsertion.h"
 
 #include <boost/range/adaptor/map.hpp>
-#include <boost/threadpool.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -21,6 +20,7 @@
 #include "SortAndUnique.h"
 #include "State.h"
 #include "Thread.h"
+#include "ThreadPool.h"
 #include "Transition.h"
 
 namespace trench {
@@ -254,13 +254,13 @@ FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 		}
 	}
 
-	boost::threadpool::pool pool(boost::thread::hardware_concurrency());
+	{
+		ThreadPool<> pool;
 
-	for (Attack &attack : attacks) {
-		pool.schedule(AttackChecker(attack, searchForTdrOnly));
+		for (Attack &attack : attacks) {
+			pool.schedule(AttackChecker(attack, searchForTdrOnly));
+		}
 	}
-
-	pool.wait();
 
 	boost::unordered_map<Thread *, Attacker> thread2attacker;
 
@@ -270,11 +270,13 @@ FenceSet computeFences(const Program &program, bool searchForTdrOnly) {
 		}
 	}
 
-	for (Attacker &attacker : thread2attacker | boost::adaptors::map_values) {
-		pool.schedule(AttackerNeutralizer(attacker, searchForTdrOnly));
-	}
+	{
+		ThreadPool<> pool;
 
-	pool.wait();
+		for (Attacker &attacker : thread2attacker | boost::adaptors::map_values) {
+			pool.schedule(AttackerNeutralizer(attacker, searchForTdrOnly));
+		}
+	}
 
 	FenceSet result;
 	for (const auto &item : thread2attacker) {

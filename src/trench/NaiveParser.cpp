@@ -15,7 +15,6 @@
 #include "ExpressionsCache.h"
 #include "Instruction.h"
 #include "Program.h"
-#include "make_unique.h"
 
 namespace trench {
 
@@ -194,7 +193,7 @@ public:
 };
 
 NaiveParser::NaiveParser():
-	impl_(make_unique<NaiveParserImpl>())
+	impl_(std::make_unique<NaiveParserImpl>())
 {}
 
 NaiveParser::~NaiveParser() {}
