@@ -45,9 +45,9 @@ Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, 
 	auto check_is_buffered = std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, one));
 	auto check_is_not_buffered = std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, is_buffered, zero));
 
-	auto attackAddrVar = cache.makeConstant(0);
-	auto nattackersVar = cache.makeConstant(1);
-	auto successVar    = cache.makeConstant(2);
+	auto attackAddress = cache.makeRegister("_attack_addr");
+	auto nattackersVar = cache.makeConstant(0);
+	auto successVar    = cache.makeConstant(1);
 
 	result.setInterestingAddress(successVar->value(), SERVICE_SPACE);
 
@@ -74,6 +74,8 @@ Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, 
 		if (thread->initialState()) {
 			resultThread->setInitialState(resultThread->makeState("orig_" + thread->initialState()->name()));
 		}
+
+		auto prefinalState = resultThread->makeState("_prefinal");
 
 		for (Transition *transition : thread->transitions()) {
 			/*
@@ -111,10 +113,10 @@ Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, 
 							std::make_shared<Atomic>(
 								std::make_shared<Read> (nattackers,       nattackersVar,    SERVICE_SPACE),
 								std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, nattackers, zero)),
-								std::make_shared<Write>(write->value(),   write->address(), BUFFER_SPACE),
-								std::make_shared<Write>(one,              write->address(), IS_BUFFERED_SPACE),
-								std::make_shared<Write>(write->address(), attackAddrVar,    SERVICE_SPACE),
-								std::make_shared<Write>(one,              nattackersVar,    SERVICE_SPACE)
+								std::make_shared<Write>(one,              nattackersVar,    SERVICE_SPACE),
+								std::make_shared<Local>(attackAddress,    write->address()),
+								std::make_shared<Write>(write->value(),   attackAddress,    BUFFER_SPACE),
+								std::make_shared<Write>(one,              attackAddress,    IS_BUFFERED_SPACE)
 							)
 						);
 					}
@@ -167,7 +169,7 @@ Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, 
 					if (transition == attackRead || attackRead == NULL) {
 						resultThread->makeTransition(
 							attackerFrom,
-							resultThread->makeState("final"),
+							prefinalState,
 							std::make_shared<Atomic>(
 								check_can_access_memory,
 								std::make_shared<Read> (is_buffered, read->address(), IS_BUFFERED_SPACE),
@@ -269,16 +271,6 @@ Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, 
 								std::make_shared<Write>(hb_read, read->address(), HB_SPACE)
 							)
 						);
-						resultThread->makeTransition(
-							helperFrom,
-							helperTo,
-							std::make_shared<Atomic>(
-								check_can_access_memory,
-								std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
-								std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, read->address())),
-								std::make_shared<Write>(one, successVar, SERVICE_SPACE)
-							)
-						);
 					} else if (Write *write = transition->instruction()->as<Write>()) {
 						resultThread->makeTransition(
 							helperFrom,
@@ -289,16 +281,6 @@ Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, 
 								std::make_shared<Write>(hb_write, write->address(), HB_SPACE)
 							)
 						);
-						resultThread->makeTransition(
-							helperFrom,
-							helperTo,
-							std::make_shared<Atomic>(
-								check_can_access_memory,
-								std::make_shared<Read>(addr, attackAddrVar, SERVICE_SPACE),
-								std::make_shared<Condition>(std::make_shared<BinaryOperator>(BinaryOperator::EQ, addr, write->address())),
-								std::make_shared<Write>(one, successVar, SERVICE_SPACE)
-							)
-						);
 					} else if (transition->instruction()->as<Atomic>()) {
 						assert(!"Sorry, atomics in input programs are not supported.");
 					} else {
@@ -306,6 +288,21 @@ Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, 
 					}
 				}
 			}
+		}
+
+		if (!prefinalState->in().empty()) {
+			/* Wait until the happens-before cycle is completed. */
+			auto finalState = resultThread->makeState("_final");
+			resultThread->makeTransition(
+				prefinalState,
+				finalState,
+				std::make_shared<Atomic>(
+					check_can_access_memory,
+					std::make_shared<Read>(access_type, attackAddress, HB_SPACE),
+					check_access_type_is_read_or_write,
+					std::make_shared<Write>(one, successVar, SERVICE_SPACE)
+				)
+			);
 		}
 	}
 
