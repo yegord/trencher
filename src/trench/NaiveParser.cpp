@@ -85,6 +85,14 @@ public:
 			auto left = parseExpression(in);
 			auto right = parseExpression(in);
 			return std::make_shared<BinaryOperator>(BinaryOperator::MUL, left, right);
+		} else if (token == "/") {
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
+			return std::make_shared<BinaryOperator>(BinaryOperator::DIV, left, right);
+		} else if (token == "%") {
+			auto left = parseExpression(in);
+			auto right = parseExpression(in);
+			return std::make_shared<BinaryOperator>(BinaryOperator::MOD, left, right);
 		} else if (token == "&") {
 			auto left = parseExpression(in);
 			auto right = parseExpression(in);
@@ -125,7 +133,7 @@ public:
 
 				while (true) {
 					if (!(in >> token)) {
-						throw std::runtime_error("expected `initial', `transition', or `end', got EOF");
+						throw std::runtime_error("expected `initial', `final', `transition', or `end', got EOF");
 					} else if (token == "end") {
 						if (!thread->initialState()) {
 							throw std::runtime_error("No initial state specified for thread " + thread->name());
@@ -137,6 +145,12 @@ public:
 						}
 						State *initial = thread->makeState(token);
 						thread->setInitialState(initial);
+          } else if (token == "final") {
+            if (!(in >> token)) {
+              std::runtime_error("expected final state, got EOF");
+            }
+            State *final = thread->makeState(token);
+            thread->setFinalState(final);
 					} else if (token == "transition") {
 						if (!(in >> token)) {
 							std::runtime_error("expected source state, got EOF");

@@ -27,7 +27,7 @@ public:
 		REGISTER,
 		UNARY,
 		BINARY,
-		CAN_ACCESS_MEMORY,
+		CAN_ACCESS_MEMORY
 	};
 
 public:
@@ -92,6 +92,8 @@ public:
 		ADD,
 		SUB,
 		MUL,
+    DIV,
+    MOD,
 		BIN_AND
 	};
 

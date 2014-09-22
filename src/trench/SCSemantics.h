@@ -71,15 +71,17 @@ class SCTransition {
 	SCState source_;
 	SCState destination_;
 	const Instruction *instruction_;
+  const Thread *thread_;
 
 public:
-	SCTransition(SCState source, SCState destination, const Instruction *instruction):
-		source_(std::move(source)), destination_(std::move(destination)), instruction_(std::move(instruction))
+	SCTransition(SCState source, SCState destination, const Instruction *instruction, const Thread *thread):
+		source_(std::move(source)), destination_(std::move(destination)), instruction_(std::move(instruction)), thread_(std::move(thread))
 	{}
 
 	const SCState &source() const { return source_; }
 	const SCState &destination() const { return destination_; }
 	const Instruction *instruction() const { return instruction_; }
+  const Thread *thread() const { return thread_; }
 };
 
 std::ostream &operator<<(std::ostream &out, const SCTransition &transition);

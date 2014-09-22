@@ -47,6 +47,10 @@ const char *BinaryOperator::getOperatorSign() const {
 			return "-";
 		case MUL:
 			return "*";
+    case DIV:
+      return "/";
+    case MOD:
+      return "%";
 		case BIN_AND:
 			return "&";
 		default:

@@ -13,12 +13,11 @@
 
 #include <boost/unordered_map.hpp>
 
-#include "Dfs.h"
+#include "Exploration.h"
 
 namespace trench {
 
-template<class Automaton>
-class DotPrinter: public EmptyDfsVisitor<Automaton> {
+template<class Automaton> class DotPrinter: public DefaultVisitor<Automaton> {
 	const Automaton &automaton_;
 	std::ostream &out_;
 	boost::unordered_map<typename Automaton::State, std::size_t> state2id_;
@@ -29,7 +28,7 @@ public:
 	{}
 
 	bool onStateEnter(const typename Automaton::State &state) {
-		out_ << 's' << getId(state) << " [shape=ellipse,label=\"" << automaton_.getName(state) << "\"];" << std::endl;
+		out_ << 's' << getId(state) << " [shape=ellipse,label=\"" << getId(state) << "\\n" << automaton_.getName(state) << "\"];" << std::endl;
 
 		if (automaton_.initialState() == state) {
 			out_ << "initial [shape=none,label=\"\"];" << std::endl;
@@ -38,12 +37,11 @@ public:
 		return false;
 	}
 
-	bool onTransition(const typename Automaton::Transition &transition) {
+	void onTransition(const typename Automaton::Transition &transition) {
 		out_ << 's' << getId(automaton_.getSourceState(transition))
 		     << " -> "
 		     << 's' << getId(automaton_.getDestinationState(transition))
 		     << " [label=\"" << automaton_.getLabel(transition) << "\"];" << std::endl;
-		return false;
 	}
 
 private:
@@ -56,8 +54,7 @@ private:
 	}
 };
 
-template<class Automaton>
-void printAutomatonAsDot(const Automaton &automaton, std::ostream &out) {
+template<class Automaton> void dfsPrintAutomaton(const Automaton &automaton, std::ostream &out) {
 	out << "digraph {" << std::endl;
 
 	DotPrinter<Automaton> visitor(automaton, out);

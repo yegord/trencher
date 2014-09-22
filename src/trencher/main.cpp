@@ -21,11 +21,12 @@
 #include <trench/ProgramPrinting.h>
 #include <trench/Reduction.h>
 #include <trench/RobustnessChecking.h>
+#include <trench/ReachabilityChecking.h>
 #include <trench/SCSemantics.h>
 #include <trench/State.h>
 
 void help() {
-	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|-ftrf|-dot|-rdot] file..." << std::endl
+	std::cout << "Usage: trencher [-b|-nb] [-r|-f|-trf|...] file..." << std::endl
 	<< std::endl
 	<< "Options:" << std::endl
 	<< "  -b     Switch benchmarking mode on (print only execution statistics)." << std::endl
@@ -36,7 +37,9 @@ void help() {
 	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl
 	<< "  -dot   Print the example in dot format." << std::endl
 	<< "  -rdot  Print the example instrumented for robustness checking in dot format." << std::endl
-	<< "  -scdot Print the SC semantics automaton for the program." << std::endl;
+	<< "  -scdot Print the SC semantics automaton for the program." << std::endl << std::endl
+  << "  -rsc   Check SC reachability for the program." << std::endl
+  << "  -rtso  Check TSO reachability for the program." << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -54,14 +57,20 @@ int main(int argc, char **argv) {
 			PRINT_DOT,
 			PRINT_ROBUSTNESS_DOT,
 			PRINT_SC_DOT,
+      REACH_SC,
+      REACH_TSO
 		} action = FENCES;
 
 		bool benchmarking = false;
 
 		for (int i = 1; i < argc; ++i) {
 			std::string arg = argv[i];
-
-			if (arg == "-r") {
+      
+      if (arg == "-rsc") {
+        action = REACH_SC;
+      } else if (arg == "-rtso") {
+        action = REACH_TSO;
+			} else if (arg == "-r") {
 				action = ROBUSTNESS;
 			} else if (arg == "-f") {
 				action = FENCES;
@@ -104,6 +113,38 @@ int main(int argc, char **argv) {
 				clock_t startClock = clock();
 
 				switch (action) {
+          case REACH_SC: {
+            bool reachable = trench::scReachable(program);
+            if (!benchmarking) {
+              if (reachable) {
+                std::cout << "Final state IS reachable under SC." << std::endl;
+              } else {
+                std::cout << "Final state IS NOT reachable under SC." << std::endl;
+              }
+            }
+            break;
+          }
+          case REACH_TSO: {
+            if (trench::scReachable(program)) {
+              if (!benchmarking) {
+                std::cout << "Final state IS reachable under SC, therefore IT IS reachable under TSO." << std::endl;
+              }
+              break;
+            } else {
+              std::queue<trench::Program*> queue; queue.push(&program);
+              int reachable = -1; trench::tsoReachable(queue, reachable);
+              if (!benchmarking) {
+                if (reachable == 1) {
+                  std::cout << "Final state IS reachable under TSO." << std::endl;
+                } else if (reachable == 0) {
+                  std::cout << "Final state IS NOT reachable under TSO." << std::endl;
+                } else {
+                  std::cout << "This case is never reached !" << std::endl;
+                }
+              }
+              break;
+            }
+          }
 					case ROBUSTNESS: {
 						bool feasible = trench::isAttackFeasible(program, false);
 						if (!benchmarking) {
@@ -149,7 +190,7 @@ int main(int argc, char **argv) {
 						break;
 					}
 					case PRINT_SC_DOT: {
-						trench::printAutomatonAsDot(trench::SCSemantics(program), std::cout);
+						trench::dfsPrintAutomaton(trench::SCSemantics(program), std::cout);
 						break;
 					}
 					case PRINT_DOT: {

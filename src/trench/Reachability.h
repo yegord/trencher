@@ -9,26 +9,27 @@
 
 #pragma once
 
-#include "Dfs.h"
+#include "Exploration.h"
 
 namespace trench {
 
-template<class Automaton>
-class ReachabilityVisitor: public EmptyDfsVisitor<Automaton> {
+template<class Automaton> class ReachabilityVisitor: public DefaultVisitor<Automaton> {
 	const Automaton &automaton_;
 
 public:
-	explicit
-	ReachabilityVisitor(const Automaton &automaton): automaton_(automaton) {}
+	explicit ReachabilityVisitor(const Automaton &automaton): automaton_(automaton) {}
 
 	bool onStateEnter(const typename Automaton::State &state) const {
 		return automaton_.isFinal(state);
 	}
 };
 
-template<class Automaton>
-bool isFinalStateReachable(const Automaton &automaton) {
+template<class Automaton> bool dfsFinalStateReachable(const Automaton &automaton) {
 	return dfs<Automaton, const ReachabilityVisitor<Automaton> &>(automaton, ReachabilityVisitor<Automaton>(automaton));
+}
+
+template<class Automaton> std::pair<bool, std::vector<typename Automaton::Transition>> isFinalStateReachable(const Automaton &automaton) {
+  return explore<Automaton, const ReachabilityVisitor<Automaton> &>(automaton, ReachabilityVisitor<Automaton>(automaton));
 }
 
 } // namespace trench

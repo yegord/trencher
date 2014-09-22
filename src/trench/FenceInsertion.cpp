@@ -27,39 +27,6 @@ namespace trench {
 
 namespace {
 
-class Attack {
-	const Program &program_;
-	Thread *attacker_;
-	Transition *write_;
-	Transition *read_;
-
-	bool feasible_;
-	std::vector<State *> intermediary_;
-
-	public:
-
-	Attack(const Program &program, Thread *attacker, Transition *write, Transition *read):
-		program_(program), attacker_(attacker), write_(write), read_(read), feasible_(false)
-	{
-	}
-
-	const Program &program() const { return program_; }
-	Thread *attacker() const { return attacker_; }
-	Transition *write() const { return write_; }
-	Transition *read() const { return read_; }
-
-	bool feasible() const { return feasible_; }
-	void setFeasible(bool value) { feasible_ = value; }
-
-	const std::vector<State *> &intermediary() const { return intermediary_; }
-
-	template<class T>
-	void setIntermediary(const T &container) {
-		intermediary_.clear();
-		intermediary_.insert(intermediary_.end(), container.begin(), container.end());
-	}
-};
-
 class AttackChecker {
 	Attack &attack_;
 	bool searchForTdrOnly_;

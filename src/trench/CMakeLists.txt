@@ -5,7 +5,7 @@ set(TRENCH_SOURCES
 	Census.cpp
 	Census.h
 	ConcurrentQueue.h
-	Dfs.h
+	Exploration.h
 	Expression.cpp
 	Expression.h
 	ExpressionsCache.cpp
@@ -27,8 +27,9 @@ set(TRENCH_SOURCES
 	Reduction.h
 	RobustnessChecking.cpp
 	RobustnessChecking.h
-	SCReachability.cpp
-	SCReachability.h
+	ReachabilityCheckingSC.cpp
+  ReachabilityCheckingTSO.cpp
+	ReachabilityChecking.h
 	SCSemantics.cpp
 	SCSemantics.h
 	SmallMap.h

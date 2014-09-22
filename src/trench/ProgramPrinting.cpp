@@ -133,17 +133,21 @@ void printProgramAsDot(const Program &program, std::ostream &out) {
 	out << "digraph threads {" << std::endl;
 	for (const Thread *thread : program.threads()) {
 		out << "subgraph cluster" << thread << " {" << std::endl;
-		for (const State *state : thread->states()) {
-			out << "state" << state << "[shape=\"ellipse\",label=\"" << state->name() << "\"];" << std::endl;
-		}
+		out << "initial" << thread << "[shape=\"point\"];" << std::endl;
+    for (const State *state : thread->states()) {
+      if (state == thread->finalState()) {
+        out << "state" << state << "[shape=\"ellipse\",peripheries=2,label=\"" << state->name() << "\"];" << std::endl;
+      } else {
+        out << "state" << state << "[shape=\"ellipse\",label=\"" << state->name() << "\"];" << std::endl;
+      }
+      if (state == thread->initialState()) {
+        out << "initial" << thread << "->state" << state << "[];" << std::endl;
+      }
+    }
 		for (const Transition *transition : thread->transitions()) {
 			out << "state" << transition->from() << "->state" << transition->to() << "[label=\"";
 			printInstruction(*transition->instruction(), out);
 			out << "\"];" << std::endl;
-		}
-		if (thread->initialState()) {
-			out << "initial [shape=none,label=\"\"];" << std::endl;
-			out << "initial -> state" << thread->initialState() << ';' << std::endl;
 		}
 		out << '}' << std::endl;
 	}

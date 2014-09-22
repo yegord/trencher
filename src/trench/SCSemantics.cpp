@@ -98,7 +98,11 @@ Domain evaluate(const SCState &state, const Thread *thread, const Expression &ex
 					return leftValue - rightValue;
 				case BinaryOperator::MUL:
 					return leftValue * rightValue;
-				case BinaryOperator::BIN_AND:
+       case BinaryOperator::DIV:
+          return leftValue / rightValue;
+       case BinaryOperator::MOD:
+          return leftValue % rightValue;
+       case BinaryOperator::BIN_AND:
 					return leftValue & rightValue;
 			}
 			assert(!"NEVER REACHED");
@@ -224,7 +228,7 @@ std::vector<SCSemantics::Transition> SCSemantics::getTransitionsFrom(const State
 						}
 					);
 
-					result.push_back(SCTransition(state, std::move(*destination), transition->instruction().get()));
+					result.push_back(SCTransition(state, std::move(*destination), transition->instruction().get(), thread));
 				}
 			}
 		}

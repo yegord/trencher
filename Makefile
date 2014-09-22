@@ -31,3 +31,7 @@ distclean: clean
 .PHONY: benchmark
 benchmark: build
 	build/trencher/trencher -b -f $(EXAMPLES_DIR)/*.txt -ftrf $(EXAMPLES_DIR)/*.txt
+
+.PHONY: reach
+reach: build
+	build/trencher/trencher -b -rsc $(EXAMPLES_DIR)/reachability/*.txt
