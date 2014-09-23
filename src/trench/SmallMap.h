@@ -49,17 +49,17 @@ public:
 	}
 
 	void set(const Key &key, Value value) {
-		hash_ ^= boost::hash_value(value);
-
 		auto i = lower_bound(key);
 		if (i == vector_.end() || i->first != key) {
 			if (value != Value()) {
 				vector_.insert(i, std::make_pair(key, std::move(value)));
+				hash_ ^= boost::hash_value(std::make_pair(key, value));
 			}
 		} else {
-			hash_ ^= boost::hash_value(i->second);
+			hash_ ^= boost::hash_value(*i);
 			if (value != Value()) {
 				const_cast<Value &>(i->second) = std::move(value);
+				hash_ ^= boost::hash_value(std::make_pair(key, value));
 			} else {
 				vector_.erase(i);
 			}
@@ -80,7 +80,7 @@ public:
 		vector_.erase(
 			std::remove_if(vector_.begin(), vector_.end(), [&](const value_type &item) {
 				if (pred(item.first)) {
-					hash_ ^= boost::hash_value(item.second);
+					hash_ ^= boost::hash_value(item);
 					return true;
 				} else {
 					return false;

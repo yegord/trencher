@@ -11,6 +11,7 @@
 
 #include <trench/config.h>
 
+#include "BitTwiddling.h"
 #include "Liveness.h"
 #include "Program.h"
 #include "SmallMap.h"
@@ -46,9 +47,9 @@ public:
 	void setFavourite(const Thread *thread) { favourite_ = thread; }
 
 	std::size_t hash() const {
-		return controlStates_.hash() ^
-		       memoryValuation_.hash() ^
-		       registerValuation_.hash() ^
+		return ror(controlStates_.hash(), 7) ^
+		       ror(memoryValuation_.hash(), 13) ^
+		       ror(registerValuation_.hash(), 17) ^
 		       reinterpret_cast<uintptr_t>(memoryLockOwner_) ^
 		       (reinterpret_cast<uintptr_t>(favourite_) << 8); }
 };
