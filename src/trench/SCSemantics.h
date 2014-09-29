@@ -47,9 +47,9 @@ public:
 	void setFavourite(const Thread *thread) { favourite_ = thread; }
 
 	std::size_t hash() const {
-		return ror(controlStates_.hash(), 7) ^
-		       ror(memoryValuation_.hash(), 13) ^
-		       ror(registerValuation_.hash(), 17) ^
+		return ror(controlStates_.hash(), 51) ^
+		       ror(memoryValuation_.hash(), 53) ^
+		       ror(registerValuation_.hash(), 47) ^
 		       reinterpret_cast<uintptr_t>(memoryLockOwner_) ^
 		       (reinterpret_cast<uintptr_t>(favourite_) << 8); }
 };

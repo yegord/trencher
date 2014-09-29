@@ -26,6 +26,25 @@ namespace trench {
 
 namespace {
 
+bool interferes(Domain access, std::shared_ptr<Expression> expression) {
+  if (auto constant = expression->as<Constant>())
+    if (constant->value() != access)
+      return false;
+  return true;
+}
+
+bool noninterfering(const Program &program, Thread *attacker, Domain access) {
+  for (auto thread: program.threads())
+    if (thread != attacker)
+      for (auto transition: thread->transitions())
+        if (auto write = transition->instruction()->as<Write>()) {
+          if (interferes(access,write->address())) return false;
+        } else if (auto read = transition->instruction()->as<Read>()) {
+          if (interferes(access,read->address())) return false;
+        }
+  return true;
+}
+
 bool isReachable(State *state, State *target, boost::unordered_set<State *> &visited) {
 	if (state == target) {
 		return true;
@@ -122,7 +141,6 @@ bool isAttackFeasible(const Program &program, bool searchForTdrOnly, Thread *att
 			return false;
 		}
 	}
-
 	auto augmentedProgram = reduce(program, searchForTdrOnly, attacker, attackWrite, attackRead, fenced);
 
 	bool feasible = dfsFinalStateReachable(SCSemantics(augmentedProgram));
@@ -144,8 +162,15 @@ Program* isAttackFeasible(const Program &program, const Attack *attack, const bo
 	  Statistics::instance().incInfeasibleAttacksCount1();
 		return NULL;
 	}
-
-	auto augmentedProgram = reduce(program, false, attack->attacker(), attack->write(), attack->read(), fenced);
+/*
+  auto write = attack->write()->instruction()->as<Write>();
+  auto read = attack->read()->instruction()->as<Read>();
+  if (auto waccess = write->address()->as<Constant>())
+    if (auto raccess = read->address()->as<Constant>())
+      if (noninterfering(attack->program(), attack->attacker(), waccess->value()) 
+        || noninterfering(attack->program(), attack->attacker(), raccess->value())) return NULL;
+*/	
+  auto augmentedProgram = reduce(program, false, attack->attacker(), attack->write(), attack->read(), fenced);
 	auto witness = isFinalStateReachable(SCSemantics(augmentedProgram));
 
   if (witness.first) {
@@ -202,7 +227,7 @@ Program* isAttackFeasible(const Program &program, const Attack *attack, const bo
               } else if (auto condition = instruction->as<Condition>()) {
                 State *to = resultThread->makeState("lcn_" + std::to_string(count) + "_" + link + name.substr(3));
                 resultThread->makeTransition(from,to,std::make_shared<Condition>(condition->expression())); from = to;
-              } else if (auto noop = instruction->as<Noop>()) {
+              } else if (instruction->as<Noop>()) {
                 State *to = resultThread->makeState("lcn_" + std::to_string(count) + "_" + link + name.substr(3));
                 resultThread->makeTransition(from,to,std::make_shared<Noop>()); from = to; 
               } else { /* attacker doesn't execute fences nor locked instructios */
