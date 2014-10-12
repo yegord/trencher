@@ -13,6 +13,7 @@
 
 #include <boost/optional.hpp>
 
+#include "Configuration.h"
 #include "ProgramPrinting.h"
 #include "Transition.h"
 
@@ -42,6 +43,14 @@ std::ostream &operator<<(std::ostream &out, const SCState &state) {
 std::ostream &operator<<(std::ostream &out, const SCTransition &transition) {
 	printInstruction(*transition.instruction(), out);
 	return out;
+}
+
+SCSemantics::SCSemantics(const Program &program):
+	program_(program)
+{
+	if (Configuration::instance().livenessOptimization()) {
+		liveness_ = computeLiveness(program);
+	}
 }
 
 SCSemantics::State SCSemantics::initialState() const {
@@ -122,7 +131,9 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 					read->space(),
 					evaluate(state, thread, *read->address())
 				));
-			result.setFavourite(NULL);
+			if (Configuration::instance().partialOrderReduction()) {
+				result.setFavourite(NULL);
+			}
 			return result;
 		}
 		case Instruction::WRITE: {
@@ -133,14 +144,18 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 				evaluate(state, thread, *write->address()),
 				evaluate(state, thread, *write->value())
 			);
-			result.setFavourite(NULL);
+			if (Configuration::instance().partialOrderReduction()) {
+				result.setFavourite(NULL);
+			}
 			return result;
 		}
 		case Instruction::MFENCE: /* FALLTHROUGH */
 		case Instruction::NOOP: {
 			/* No-op under SC. */
 			auto result = state;
-			result.setFavourite(thread);
+			if (Configuration::instance().partialOrderReduction()) {
+				result.setFavourite(thread);
+			}
 			return result;
 		}
 		case Instruction::LOCAL: {
@@ -151,7 +166,9 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 				local->reg().get(),
 				evaluate(state, thread, *local->value())
 			);
-			result.setFavourite(thread);
+			if (Configuration::instance().partialOrderReduction()) {
+				result.setFavourite(thread);
+			}
 			return result;
 		}
 		case Instruction::CONDITION: {
@@ -160,7 +177,9 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 				return boost::none;
 			}
 			auto result = state;
-			result.setFavourite(thread);
+			if (Configuration::instance().partialOrderReduction()) {
+				result.setFavourite(thread);
+			}
 			return result;
 		}
 		case Instruction::ATOMIC: {
@@ -177,7 +196,9 @@ boost::optional<SCState> execute(const SCState &state, const Thread *thread, con
 					return boost::none;
 				}
 			}
-			result.setFavourite(newFavourite);
+			if (Configuration::instance().partialOrderReduction()) {
+				result.setFavourite(newFavourite);
+			}
 			return result;
 		}
 		case Instruction::LOCK: {
@@ -209,20 +230,23 @@ std::vector<SCSemantics::Transition> SCSemantics::getTransitionsFrom(const State
 
 	for (const auto &threadAndState : state.controlStates()) {
 		auto thread = threadAndState.first;
-		if ((state.memoryLockOwner() == NULL || state.memoryLockOwner() == thread) &&
-		    (state.favourite() == NULL || state.favourite() == thread)) {
+		if (!Configuration::instance().partialOrderReduction() ||
+		    ((state.memoryLockOwner() == NULL || state.memoryLockOwner() == thread) &&
+		     (state.favourite() == NULL || state.favourite() == thread))) {
 			auto controlState = threadAndState.second;
 			for (auto transition : controlState->out()) {
 				if (auto destination = execute(state, thread, *transition->instruction())) {
 					destination->setControlState(thread, transition->to());
 
-					const auto &live = liveness_.getLiveRegisters(transition->to());
-					destination->registerValuation().filterOut(
-						[&](const std::pair<const Thread *, const Register *> &threadAndRegister){
-							return threadAndRegister.first == thread &&
-							       std::find(live.begin(), live.end(), threadAndRegister.second) == live.end();
-						}
-					);
+					if (Configuration::instance().livenessOptimization()) {
+						const auto &live = liveness_.getLiveRegisters(transition->to());
+						destination->registerValuation().filterOut(
+							[&](const std::pair<const Thread *, const Register *> &threadAndRegister){
+								return threadAndRegister.first == thread &&
+								       std::find(live.begin(), live.end(), threadAndRegister.second) == live.end();
+							}
+						);
+					}
 
 					result.push_back(SCTransition(state, std::move(*destination), transition->instruction().get()));
 				}

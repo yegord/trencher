@@ -86,14 +86,14 @@ std::ostream &operator<<(std::ostream &out, const SCTransition &transition);
 
 class SCSemantics {
 	const Program &program_;
-	const Liveness liveness_;
+	Liveness liveness_;
 
 public:
 	typedef SCState State;
 	typedef SCTransition Transition;
 	typedef std::string Label;
 
-	SCSemantics(const Program &program): program_(program), liveness_(computeLiveness(program)) {}
+	SCSemantics(const Program &program);
 
 	State initialState() const;
 

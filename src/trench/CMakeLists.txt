@@ -2,6 +2,7 @@ set(TRENCH_SOURCES
 	AutomatonPrinting.h
 	Benchmarking.cpp
 	Benchmarking.h
+	Configuration.h
 	Census.cpp
 	Census.h
 	ConcurrentQueue.h

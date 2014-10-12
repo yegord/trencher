@@ -15,6 +15,7 @@
 
 #include <trench/AutomatonPrinting.h>
 #include <trench/Benchmarking.h>
+#include <trench/Configuration.h>
 #include <trench/FenceInsertion.h>
 #include <trench/NaiveParser.h>
 #include <trench/Program.h>
@@ -36,7 +37,11 @@ void help() {
 	<< "  -ftrf  Do fence insertion for enforcing triangular data race freedom." << std::endl
 	<< "  -dot   Print the example in dot format." << std::endl
 	<< "  -rdot  Print the example instrumented for robustness checking in dot format." << std::endl
-	<< "  -scdot Print the SC semantics automaton for the program." << std::endl;
+	<< "  -scdot Print the SC semantics automaton for the program." << std::endl
+	<< "  -por   Enable partial order reduction." << std::endl
+	<< "  -npor  Disable partial order reduction." << std::endl
+	<< "  -live  Enable live variables optimization." << std::endl
+	<< "  -nlive Disable live variables optimization." << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -79,6 +84,14 @@ int main(int argc, char **argv) {
 				action = PRINT_ROBUSTNESS_DOT;
 			} else if (arg == "-scdot") {
 				action = PRINT_SC_DOT;
+			} else if (arg == "-por") {
+				trench::Configuration::instance().setPartialOrderReduction(true);
+			} else if (arg == "-npor") {
+				trench::Configuration::instance().setPartialOrderReduction(false);
+			} else if (arg == "-live") {
+				trench::Configuration::instance().setLivenessOptimization(true);
+			} else if (arg == "-nlive") {
+				trench::Configuration::instance().setLivenessOptimization(false);
 			} else if (arg.size() >= 1 && arg[0] == '-') {
 				throw std::runtime_error("unknown option: " + arg);
 			} else {
