@@ -27,6 +27,8 @@ class Statistics {
 	std::atomic<std::size_t> feasibleAttacksCount_;
 	std::atomic<std::size_t> fencesCount_;
 
+	std::atomic<std::size_t> visitedStatesCount_;
+
 	long cpuTime_;
 	long realTime_;
 
@@ -45,6 +47,8 @@ public:
 		infeasibleAttacksCount2_ = 0;
 		feasibleAttacksCount_    = 0;
 		fencesCount_             = 0;
+
+		visitedStatesCount_ = 0;
 
 		cpuTime_ = 0;
 		realTime_ = 0;
@@ -78,6 +82,9 @@ public:
 
 	void incFencesCount(std::size_t value = 1) { fencesCount_ += value; }
 	std::size_t fencesCount() const { return fencesCount_; }
+
+	void incVisitedStatesCount(std::size_t value) { visitedStatesCount_ += value; }
+	std::size_t visitedStatesCount() const { return visitedStatesCount_; }
 
 	void addCpuTime(long milliseconds) { cpuTime_ += milliseconds; }
 	long cpuTime() const { return cpuTime_; }

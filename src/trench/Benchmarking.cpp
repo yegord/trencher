@@ -23,6 +23,7 @@ std::ostream &operator<<(std::ostream &out, const Statistics &statistics) {
 		<< " infeasibleAttacksCount2 " << statistics.infeasibleAttacksCount2()
 		<< " feasibleAttacksCount " << statistics.feasibleAttacksCount()
 		<< " fencesCount " << statistics.fencesCount()
+		<< " visitedStatesCount " << statistics.visitedStatesCount()
 		<< " cpuTime " << statistics.cpuTime()
 		<< " realTime " << statistics.realTime()
 	;

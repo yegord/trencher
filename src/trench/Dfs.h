@@ -9,7 +9,11 @@
 
 #pragma once
 
+#include <trench/config.h>
+
 #include <boost/unordered_set.hpp>
+
+#include "Benchmarking.h"
 
 namespace trench {
 
@@ -21,6 +25,10 @@ class Dfs {
 
 public:
 	Dfs(const Automaton &automaton, Visitor visitor): automaton_(automaton), visitor_(visitor) {}
+
+	~Dfs() {
+		Statistics::instance().incVisitedStatesCount(visited_.size());
+	}
 
 	bool visit(const typename Automaton::State &state) {
 		if (!visited_.insert(state).second) {
