@@ -26,10 +26,10 @@ transition q2 q3 write 1 1
 transition q3 q4 unlock
 transition q4 q5 read flag 0
 transition q5 q6 check == flag 0
-transition q6 q0 write 0 1
+transition q6 q7 write 0 1
 transition q7 q0 mfence
 transition q5 q8 check == flag 1
-transition q8 q0 write 0 1
+transition q8 q9 write 0 1
 transition q9 q0 mfence
 
 end
