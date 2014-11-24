@@ -16,7 +16,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions(-fno-strict-aliasing)
 	add_definitions(-Wall -Wextra)
 	add_definitions(-fshow-column)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++1y")
 
 	if(ENABLE_PROFILING)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
