@@ -32,9 +32,9 @@ thread initialize
 initial q0
 transition	q0	q1	write	5	0
 transition	q1	q2	write	100	1
-transition	q2	q3	write	5	2
+transition	q2	q3	write	6	2
 transition	q3	q4	write	100	3
-transition	q4	q5	write	6	4
+transition	q4	q5	write	7	4
 end
 
 thread lock_unlock_1
