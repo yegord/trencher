@@ -158,7 +158,6 @@ Program reduce(const Program &program, bool searchForTdrOnly, Thread *attacker, 
 						attackerFrom,
 						attackerTo,
 						std::make_shared<Atomic>(
-							check_can_access_memory,
 							std::make_shared<Read>(is_buffered, read->address(), IS_BUFFERED_SPACE),
 							check_is_not_buffered,
 							transition->instruction()
