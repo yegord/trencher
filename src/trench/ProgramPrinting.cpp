@@ -142,8 +142,8 @@ void printProgramAsDot(const Program &program, std::ostream &out) {
 			out << "\"];" << std::endl;
 		}
 		if (thread->initialState()) {
-			out << "initial [shape=none,label=\"\"];" << std::endl;
-			out << "initial -> state" << thread->initialState() << ';' << std::endl;
+			out << "initial" << thread << " [shape=none,label=\"\"];" << std::endl;
+			out << "initial" << thread << " -> state" << thread->initialState() << ';' << std::endl;
 		}
 		out << '}' << std::endl;
 	}
