@@ -5,7 +5,7 @@
 #
 # Writer, W-Reader, Reader-W.
 #
-# IS robust.
+# IS NOT robust.
 #
 # Memory layout:
 # 0 — buf
